@@ -1,0 +1,36 @@
+stages:
+  - build
+  - deploy
+
+build_image:
+  stage: build
+  tags:
+    - specific-hetzner
+  only:
+    - main
+  script:
+    - docker info
+    - docker build -t $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA .
+    - docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA $CI_REGISTRY_IMAGE:latest
+    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY
+    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
+    - docker push $CI_REGISTRY_IMAGE:latest
+
+deploy_prod:
+  stage: deploy
+  tags:
+    - specific-hetzner
+  only:
+    - main
+  script:
+    # restart web container #1
+    - docker stop clubeeo_app_2 || true
+    - docker container rm clubeeo_app_2 || true
+    - docker run --name clubeeo_app_2 --env-file $PROD_ENV -d -p 127.0.0.1:9901:9900 --restart unless-stopped $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
+    - sleep 12 # let first container restart
+    # restart web container #2
+    - docker stop clubeeo_app_1 || true
+    - docker container rm clubeeo_app_1 || true
+    - docker run --name clubeeo_app_1 --env=RUN_WORKER=true --env-file $PROD_ENV -d -p 127.0.0.1:9900:9900 --restart unless-stopped $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
+    # restart web container #1
+    - docker stop clubeeo_app_2 || true
