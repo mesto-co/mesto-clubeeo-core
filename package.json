@@ -10,7 +10,8 @@
     "telegram:setWebhook": "ts-node src/console/setWebhook.ts"
   },
   "keywords": [],
-  "author": "",
+  "author": "Roman Ekzempliarov <r.exemplarov@gmail.com>",
+  "license": "Apache-2.0",
   "dependencies": {
     "@discordjs/rest": "^0.5.0",
     "@fastify/oauth2": "^5.0.0",
