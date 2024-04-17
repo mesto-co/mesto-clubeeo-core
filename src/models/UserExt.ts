@@ -3,24 +3,25 @@ import {
   CreateDateColumn,
   Entity,
   ManyToOne,
-  PrimaryGeneratedColumn,
+
   RelationId,
   UpdateDateColumn,
 } from 'typeorm'
 import User from './User'
 import {Index} from 'typeorm/index'
 import {ExtService} from '../lib/enums'
+import {ClubeeoPrimaryColumn} from '../lib/modelCommon';
 
 @Entity()
 export default class UserExt {
 
-  @PrimaryGeneratedColumn()
-  id: number;
+  @ClubeeoPrimaryColumn()
+  id: string;
 
   @ManyToOne(type => User)
   user: User
   @RelationId((self: UserExt) => self.user)
-  userId: number
+  userId: string
 
   @Column({type: String})
   @Index()
@@ -29,6 +30,14 @@ export default class UserExt {
   @Column({type: String})
   @Index()
   extId: string;
+
+  @Column({type: String, nullable: true})
+  @Index()
+  lang: string;
+
+  @Column({type: String, nullable: true})
+  @Index()
+  username: string;
 
   @Column({
     type: 'json',

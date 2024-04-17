@@ -3,29 +3,29 @@ import {
   CreateDateColumn,
   Entity,
   ManyToOne,
-  PrimaryGeneratedColumn,
+
   RelationId,
   UpdateDateColumn,
 } from 'typeorm'
-import UserExt from './UserExt'
 import User from './User'
 import Club from './Club'
+import {ClubeeoPrimaryColumn} from '../lib/modelCommon';
 
 @Entity()
 export class UserExtMessageBatch {
 
-  @PrimaryGeneratedColumn()
-  id: number;
+  @ClubeeoPrimaryColumn()
+  id: string;
 
   @ManyToOne(type => User)
   sender: User;
   @RelationId((self: UserExtMessageBatch) => self.sender)
-  senderId: number;
+  senderId: string;
 
   @ManyToOne(type => Club)
   club: Club;
   @RelationId((self: UserExtMessageBatch) => self.club)
-  clubId: number;
+  clubId: string;
 
   @Column({type: String})
   message: string;

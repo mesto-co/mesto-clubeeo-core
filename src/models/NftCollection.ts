@@ -2,18 +2,17 @@ import {
   Column,
   CreateDateColumn,
   Entity, ManyToOne,
-  PrimaryGeneratedColumn, RelationId,
+   RelationId,
   UpdateDateColumn,
 } from 'typeorm/index';
-
-import {TChains, TokenStandardsEnum} from '../lib/TChains'
 import TokenContract from './TokenContract'
+import {ClubeeoPrimaryColumn} from '../lib/modelCommon';
 
 @Entity()
 export default class NftCollection {
 
-  @PrimaryGeneratedColumn()
-  id: number;
+  @ClubeeoPrimaryColumn()
+  id: string;
 
   @Column({type: String, unique: true})
   slug: string;
@@ -29,7 +28,7 @@ export default class NftCollection {
   @ManyToOne(type => TokenContract)
   tokenContract: TokenContract;
   @RelationId((self: NftCollection) => self.tokenContract)
-  tokenContractId: number;
+  tokenContractId: string;
 
   // DB auto insert time
   @CreateDateColumn()

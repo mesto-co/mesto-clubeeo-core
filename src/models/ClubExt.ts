@@ -3,30 +3,30 @@ import {
   CreateDateColumn,
   Entity,
   ManyToOne,
-  PrimaryGeneratedColumn,
   RelationId,
   UpdateDateColumn,
 } from 'typeorm'
 import {Index} from 'typeorm/index'
 import Club from './Club'
-import ClubApp from './ClubApp'
 import {ExtService} from '../lib/enums'
+import ClubApp from '../engines/AppEngine/models/ClubApp'
+import {ClubeeoPrimaryColumn} from '../lib/modelCommon'
 
 @Entity()
 export default class ClubExt {
 
-  @PrimaryGeneratedColumn()
-  id: number;
+  @ClubeeoPrimaryColumn()
+  id: string;
 
   @ManyToOne(type => Club)
   club: Club
   @RelationId((self: ClubExt) => self.club)
-  clubId: number
+  clubId: string
 
   @ManyToOne(type => ClubApp)
   clubApp: ClubApp
   @RelationId((self: ClubExt) => self.clubApp)
-  clubAppId: number
+  clubAppId: string
 
   @Column({type: String})
   @Index()

@@ -1,14 +1,15 @@
 import {BaseTelegramContainer} from '../TelegramContainer';
-import {Env} from '../../../env';
+import {AppEnv} from '../../../appEnv';
 
-const c = new BaseTelegramContainer(Env.getInstance())
+const env = AppEnv.getInstance();
+const c = new BaseTelegramContainer(env);
 
 c.Telegram.setChatMenuButton({
   menuButton: {
     type: 'web_app',
-    text: 'Game',
+    text: 'menu',
     web_app: {
-      url: Env.getInstance().siteUrl + '/telegram/webapp',
+      url: `${env.tgCallbackRoot}/telegram/webapp`,
     }
   }
 }).then(result => {

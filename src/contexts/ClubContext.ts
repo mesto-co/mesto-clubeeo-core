@@ -4,6 +4,10 @@ import ClubExt from '../models/ClubExt'
 import ClubRole from '../models/ClubRole'
 import * as querystring from 'querystring'
 import {ExtService} from '../lib/enums'
+import UserExt from '../models/UserExt'
+import Member from '../models/Member'
+import {ISomeUserData} from '../models/repos/UserRepo'
+import User from '../models/User'
 
 export class ClubContext {
   readonly app: App;
@@ -49,7 +53,7 @@ export class ClubContext {
     return clubExt.cached['chatInviteLink'];
   }
 
-  clubLink(params: Record<string, string> = null, opts: {noLocalhost?: boolean} = {}) {
+  clubLink(params: Record<string, string> = null, opts: { noLocalhost?: boolean } = {}) {
     let siteUrl = this.app.Env.siteUrl;
     if (opts.noLocalhost && siteUrl.startsWith('http://localhost')) {
       siteUrl = 'https://clubeeo.com';
@@ -70,6 +74,55 @@ export class ClubContext {
     return logo;
   }
 
+  async fetchUserInClub(opts: {user: User}) {
+    const {user} = opts;
+
+    const {value: member} = await this.app.em.findOneOrCreateBy(Member, {
+      club: {id: this.club.id},
+      user: {id: user.id},
+    }, {
+      enabled: true,
+    });
+
+    return this.app.contexts.userInClub(user, this.club, {member});
+  }
+
+  async fetchUserInClubByExtId(opts: {extId: string, service: ExtService, userData?: ISomeUserData}) {
+    const {extId, service, userData} = opts;
+
+    let userExt = await this.app.m.findOne(UserExt, {
+      where: {
+        service,
+        extId,
+      },
+      relations: ['user'],
+    });
+    let user = userExt?.user;
+
+    if (!userExt) {
+      user = await this.app.repos.user.create({
+        lang: userData.language_code,
+        screenName: this.app.repos.user.genScreenName(userData),
+        activeClub: {id: this.club.id},
+      });
+
+      userExt = await this.app.em.createAndSave(UserExt, {
+        service: ExtService.tg,
+        extId: extId,
+        data: userData,
+        user: {id: user.id},
+        enabled: true,
+      });
+    }
+
+    const memberCtx = await this.fetchUserInClub({user});
+
+    return {
+      userExt,
+      memberCtx,
+    };
+  }
+
   async snapshot() {
     const roles = await this.app.m.find(ClubRole, {
       where: {
@@ -81,10 +134,10 @@ export class ClubContext {
         },
         userClubRoles: {
           user: {
-            wallets: true
+            wallets: true,
           },
-        }
-      }
+        },
+      },
     });
 
     //todo: member role name: forbid repetition
@@ -99,7 +152,7 @@ export class ClubContext {
             return {
               address: tokenContract.address,
               chain: tokenContract.chain,
-              standard: tokenContract.standard
+              standard: tokenContract.standard,
             }
           }),
           members: role.userClubRoles.map(userClubRole => {
@@ -112,7 +165,7 @@ export class ClubContext {
             }
           }),
         }]
-      }))
+      })),
     }
   }
 }

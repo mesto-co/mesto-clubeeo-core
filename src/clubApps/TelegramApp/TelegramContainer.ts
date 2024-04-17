@@ -1,14 +1,17 @@
 import App from '../../App';
 import {Telegram} from 'telegraf';
-import { Env } from '../../env';
+import {AppEnv} from '../../appEnv';
 import {TelegramBotUpdatesFactory} from './TelegramBotUpdatesFactory'
 import {TelegramBotUpdates} from './TelegramBotUpdates'
 import telegramHookRoutes from './api/telegramHookRoutes'
+import TgAppInitData from './lib/TgAppInitData'
+import {Message} from 'typegram/message'
+import {tgUserContextByMessage} from './lib/TgUserContext'
 
 export class BaseTelegramContainer {
-  readonly Env: Env;
+  readonly Env: AppEnv;
 
-  constructor(env: Env) {
+  constructor(env: AppEnv) {
     this.Env = env;
   }
 
@@ -19,9 +22,13 @@ export class BaseTelegramContainer {
       apiRoot: this.Env.tgApi,
     }))
   }
+
+  tgAppInitData(initData: string): TgAppInitData {
+    return new TgAppInitData(initData, this.Env.tgToken);
+  }
 }
 
-export class TelegramContainer extends BaseTelegramContainer{
+export class TelegramContainer extends BaseTelegramContainer {
   readonly app: App;
 
   constructor(app: App) {
@@ -38,4 +45,7 @@ export class TelegramContainer extends BaseTelegramContainer{
     return telegramHookRoutes({TelegramBotUpdates: this.TelegramBotUpdates});
   }
 
+  async tgUserContextByMessage(message: Message) {
+    return await tgUserContextByMessage(this.app, message);
+  }
 }

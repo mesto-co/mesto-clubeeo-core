@@ -2,7 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity, ManyToOne,
-  PrimaryGeneratedColumn, RelationId,
+   RelationId,
   UpdateDateColumn,
 } from 'typeorm'
 
@@ -11,33 +11,35 @@ import User from './User'
 import Club from './Club'
 import ClubExt from './ClubExt'
 import {ExtService} from '../lib/enums'
+import {ClubeeoPrimaryColumn} from '../lib/modelCommon';
 
 export enum ExtCodeTypes {
   login = 'login',
   verify = 'verify',
+  webhook = 'webhook',
   activation = 'activation',
 }
 
 @Entity()
 export default class ExtCode {
 
-  @PrimaryGeneratedColumn()
-  id: number;
+  @ClubeeoPrimaryColumn()
+  id: string;
 
   @ManyToOne(type => User)
   user: User
   @RelationId((self: ExtCode) => self.user)
-  userId: number;
+  userId: string;
 
   @ManyToOne(type => Club)
   club: Club
   @RelationId((self: ExtCode) => self.club)
-  clubId: number;
+  clubId: string;
 
   @ManyToOne(type => ClubExt)
   clubExt: ClubExt
   @RelationId((self: ExtCode) => self.clubExt)
-  clubExtId: number;
+  clubExtId: string;
 
   @Column({type: String})
   @Index()

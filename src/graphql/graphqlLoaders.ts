@@ -3,7 +3,7 @@ import Club from '../models/Club'
 import Wallet from '../models/Wallet'
 import User from '../models/User'
 import {AuthContext} from '../contexts/AuthContext'
-import UserClubRole from '../models/UserClubRole'
+import MemberRole from '../models/MemberRole'
 
 interface ICtx {
   auth: {

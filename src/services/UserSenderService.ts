@@ -6,9 +6,9 @@ import {ExtService} from '../lib/enums'
 
 export interface ISendToUserOpts {
   onSend?: (userExt: UserExt) => void
-  batchId?: number
-  senderId?: number
-  clubId?: number
+  batchId?: string
+  senderId?: string
+  clubId?: string
 }
 
 export class UserSenderService extends BaseService {

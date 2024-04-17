@@ -2,7 +2,7 @@ import App from '../../App';
 import {id, obj, str} from 'json-schema-blocks'
 import Club from '../../models/Club'
 import ClubFormApplication from '../../models/ClubFormApplication'
-import ClubApp from '../../models/ClubApp'
+import ClubApp from '../../engines/AppEngine/models/ClubApp'
 
 export default function (app: App) {
   return function (router, opts, next) {
@@ -10,7 +10,7 @@ export default function (app: App) {
       schema: {
         description: 'Save application form',
         params: obj({
-          clubId: id(),
+          clubId: str(1),
         }),
         body: obj({
           formType: str()
@@ -18,9 +18,9 @@ export default function (app: App) {
         response: {
           200: obj({
             clubFormApplication: obj({
-              id: id(),
-              clubId: id(),
-              userId: id(),
+              id: str(1),
+              clubId: str(1),
+              userId: str(1),
               formType: str(),
             })
           })
@@ -40,6 +40,33 @@ export default function (app: App) {
         formType,
       });
       await app.m.save(clubFormApplication);
+
+      // maybe grant badge
+      const applicationFormClubApp = await app.m.findOneBy(ClubApp, {
+        club: {id: club.id},
+        appName: 'application-form',
+        appSlug: formType,
+      });
+      if (applicationFormClubApp) {
+        const badgeSlug = applicationFormClubApp.config['badgeSlug'];
+
+        if (badgeSlug) {
+          const grantedBadge = await app.engines.badgeEngine.grantBadgeBySlug(user, club, badgeSlug);
+          if (!grantedBadge) {
+            app.log.warn('badgeNotGranted', {data: {userId: user.id, clubId: club.id, badgeSlug}})
+          }
+        }
+
+        const roleSlug = applicationFormClubApp.config['roleSlug'];
+
+        if (roleSlug) {
+          const grantedRole = await app.engines.roleEngine.grantRoleToUserBySlug(user, club, roleSlug);
+          if (!grantedRole) {
+            app.log.warn('roleNotGranted', {data: {userId: user.id, clubId: club.id, roleSlug}})
+          }
+        }
+
+      }
 
       resp.send({
         clubFormApplication,

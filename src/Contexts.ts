@@ -12,11 +12,12 @@ import {WalletContext} from './contexts/WalletContext'
 import TokenContract from './models/TokenContract'
 import {ContractContext} from './contexts/ContractContext'
 import {ContractWalletContext} from './contexts/ContractWalletContext'
-import ClubApp from './models/ClubApp'
 import {ClubAppContext} from './contexts/ClubAppContext'
 import ClubExt from './models/ClubExt'
 import {DiscordClubUserContext, discordClubUserContextFactory} from './clubApps/DiscordApp/DiscordClubUserContext'
 import {DiscordClubAppContext} from './clubApps/DiscordApp/DiscordClubAppContext'
+import Member from './models/Member'
+import ClubApp from './engines/AppEngine/models/ClubApp'
 
 export class Contexts extends BaseService {
 
@@ -44,7 +45,7 @@ export class Contexts extends BaseService {
     return new ClubAppContext(this.app, club, clubApp);
   }
 
-  async clubById(id: number) {
+  async clubById(id: string) {
     return this.club(await this.app.m.findOneBy(Club, {id}));
   }
 
@@ -64,18 +65,17 @@ export class Contexts extends BaseService {
     return new UserContext(this.app, user);
   }
 
-  userInClub(user: User, club: Club) {
-    return new UserInClubContext(this.app, user, club);
+  userInClub(user: User, club: Club, opts?: {member?: Member}) {
+    return new UserInClubContext(this.app, user, club, opts);
   }
 
-  async fetchUserInClub(user: User, club: Club) {
-    return new UserInClubContext(this.app, user, club);
-  }
+  // async fetchUserInClub(user: User, club: Club, opts?: {member?: Member}) {
+  //   return new UserInClubContext(this.app, user, club, opts?: {member?: Member});
+  // }
 
   wallet(wallet: Wallet) {
     return new WalletContext(this.app, wallet);
   }
-
 
   // async discordClubAppByExt(club: Club, clubApp: ClubApp, clubExt: ClubExt) {
   //

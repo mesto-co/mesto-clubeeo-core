@@ -1,8 +1,7 @@
-import {NoDBContainer} from '../App'
 import {BaseTelegramContainer} from '../clubApps/TelegramApp/TelegramContainer'
-import {Env} from '../env'
+import {AppEnv} from '../appEnv'
 
-const c = new BaseTelegramContainer(Env.getInstance())
+const c = new BaseTelegramContainer(AppEnv.getInstance())
 
 c.Telegram.setWebhook(`${c.Env.tgWebhook}/${c.Env.tgToken}`, {
   allowed_updates: [

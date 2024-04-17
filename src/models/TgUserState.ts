@@ -1,10 +1,11 @@
-import {Column, CreateDateColumn, Entity, Index, PrimaryGeneratedColumn, UpdateDateColumn} from 'typeorm';
+import {Column, CreateDateColumn, Entity, Index,  UpdateDateColumn} from 'typeorm';
+import {ClubeeoPrimaryColumn} from '../lib/modelCommon';
 
 @Entity()
 export default class TgUserState {
 
-  @PrimaryGeneratedColumn()
-  id: number;
+  @ClubeeoPrimaryColumn()
+  id: string;
 
   @Column('bigint')
   @Index()

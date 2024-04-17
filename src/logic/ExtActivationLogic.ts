@@ -1,5 +1,6 @@
 import {IClubExtRepo_FindOrCreate, IExtCodeRepo_FindActivation, IExtCodeRepo_MarkUsed} from '../interfaces/repos'
 import {ExtService} from '../lib/enums'
+import ExtCode from '../models/ExtCode'
 
 /**
  * Generalized logic for activation code handling
@@ -15,6 +16,7 @@ export const extActivationLogic = async (code: string, service: ExtService, extI
     clubExt: IClubExtRepo_FindOrCreate,
     extCode: IExtCodeRepo_MarkUsed & IExtCodeRepo_FindActivation,
   },
+  onActivated?(extCode: ExtCode, data: {isCreated: boolean}),
   reply(text: string)
 }, debugData = {}) => {
   const activation = await ports.repos.extCode.findActivation(code, service);
@@ -33,6 +35,11 @@ export const extActivationLogic = async (code: string, service: ExtService, extI
   }
 
   const clubExt = await ports.repos.clubExt.findOrCreate(conditions, {debugData});
+
+  if (ports.onActivated) {
+    ports.onActivated(activation, {isCreated: clubExt.isCreated})
+  }
+
   if (!clubExt.isCreated) {
     await ports.reply(ExtService.discord ? `This Discord server is already activated` : `This channel is already activated`);
     return false;

@@ -56,6 +56,9 @@ export class UserInClubRolesSync {
     }
   }
 
+  // todo:
+  //  - sync on login
+  //  - sync cron
   async roleSync() {
     if (!this.user) return false;
 

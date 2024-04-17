@@ -3,28 +3,28 @@ import {
   CreateDateColumn,
   Entity,
   ManyToOne,
-  PrimaryGeneratedColumn,
   RelationId,
   UpdateDateColumn,
 } from 'typeorm'
 import Club from './Club'
 import User from './User'
+import {ClubeeoPrimaryColumn} from '../lib/modelCommon'
 
 @Entity()
 export default class ClubFormApplication {
 
-  @PrimaryGeneratedColumn()
-  id: number;
+  @ClubeeoPrimaryColumn()
+  id: string;
 
   @ManyToOne(type => Club)
   club: Club;
   @RelationId((self: ClubFormApplication) => self.club)
-  clubId: number;
+  clubId: string;
 
   @ManyToOne(type => User, {nullable: true})
   user: User;
   @RelationId((self: ClubFormApplication) => self.user)
-  userId: number;
+  userId: string;
 
   @Column({type: String, default: ''})
   formType: string;

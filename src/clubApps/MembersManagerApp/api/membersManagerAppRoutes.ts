@@ -1,29 +1,117 @@
 import App from '../../../App';
-import {arr, id, obj, str} from 'json-schema-blocks'
-import User from '../../../models/User'
-import {In} from 'typeorm'
-import {UserExtMessageBatch} from '../../../models/UserExtMessageBatch'
-import sanitizeHtml from 'sanitize-html';
-
-// https://core.telegram.org/bots/api#html-style
-
-const sanitizeOptions = {
-  allowedTags: ['b', 'i', 'em', 'strong', 's', 'strike', 'u', 'ins', 'del', 'tg-spoiler', 'a', 'code', 'pre'],
-  allowedAttributes: {
-    'a': [ 'href' ],
-    'code': ['class'],
-    // 'span': ['class'], 'tg-spoiler'
-  },
-}
+import {arr, id, obj, str} from 'json-schema-blocks';
+import User from '../../../models/User';
+import {ILike, In} from 'typeorm';
+import {UserExtMessageBatch} from '../../../models/UserExtMessageBatch';
+import {sanitizeHtmlDefault} from '../../../lib/sanitize';
+import {FindOptionsWhere} from 'typeorm/find-options/FindOptionsWhere'
 
 export default function (app: App) {
   return function (router, opts, next) {
+    router.get('/members', {
+      params: obj({
+        clubId: str(1),
+      }),
+      query: obj({
+        // userIds: arr(id()),
+        // message: str(1),
+      })
+    }, async (request, reply) => {
+      const userContext = await app.auth.getUserContext(request);
+      // await userContext.inClubContext()
+      // 'admin');
+
+      // const {searchWallet, searchName, page: pageArg, take: takeArg} = args;
+      //
+      // const userWhere: FindOptionsWhere<User> = {
+      //   userClubRoles: {
+      //     club: {id: parent.id},
+      //     // enabled: true,
+      //   }
+      // };
+      // if (searchWallet && searchWallet.length >= 4) {
+      //   userWhere.wallets = {
+      //     address: ILike(searchWallet + '%'),
+      //   }
+      // }
+      // if (searchName && searchName.length >= 3) {
+      //   userWhere.screenName = ILike(searchName + '%');
+      // }
+      //
+      // const take = takeArg || 250;
+      // const page = pageArg || 1;
+      // const skip = (page - 1)*take;
+      //
+      // const users = await app.m.find(User, {
+      //   where: userWhere,
+      //   relations: {
+      //     userClubRoles: true,
+      //     userExts: true,
+      //   },
+      //   order: {
+      //     id: 'DESC',
+      //   },
+      //   take,
+      //   skip,
+      // });
+      //
+      // return users;
+      //
+      // const users = await app.m.find(User, {
+      //   where: {
+      //     userClubRoles: {
+      //       club: {id: parent.id},
+      //       user: userWhere,
+      //     }
+      //   }
+      // });
+
+      // const clubs = await app.m.find(Club, {
+      //   where: {
+      //     userClubRoles: {
+      //       user: {id: user.id},
+      //     },
+      //   },
+      //   order: {id: 'DESC'},
+      // });
+      //
+      // return clubs;
+
+
+
+
+      // id
+      // name
+      // users {
+      //   id
+      //   screenName
+      //   imgUrl
+      //   wallets {
+      //     id
+      //     address
+      //     chain
+      //     chainNorm
+      //   }
+      //   rolesInClub(slug:"${slug.value}") {
+      //     id
+      //     clubRole {
+      //       name
+      //     }
+      //     clubRoleToken {
+      //       clubRole {
+      //         name
+      //       }
+      //     }
+      //   }
+      // }
+    });
+
     router.post('/batchSendMessages', {
       params: obj({
-        clubId: id()
+        clubId: str(1),
       }),
       body: obj({
-        userIds: arr(id()),
+        userIds: arr(str(1)),
         message: str(1),
       })
     }, async (request, reply) => {
@@ -35,13 +123,7 @@ export default function (app: App) {
 
       const messageText = request.body.message;
 
-      const sanitizedMessageText = sanitizeHtml(
-        messageText
-          .replace(/<br\s?\/?>/g, "\n")
-          .replace(/\n?<\/p>/g, "\n</p>")
-        ,
-        sanitizeOptions
-      );
+      const sanitizedMessageText = sanitizeHtmlDefault(messageText);
 
       const userIds = request.body.userIds as number[];
       const message = `<strong>${club.name}</strong>:\n\n${sanitizedMessageText}`;

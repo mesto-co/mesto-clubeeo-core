@@ -2,18 +2,23 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  Index, OneToMany,
-  PrimaryGeneratedColumn,
+  Index, ManyToOne, OneToMany,
+  RelationId,
   UpdateDateColumn,
 } from 'typeorm/index';
 import UserExt from './UserExt'
 import Wallet from './Wallet'
+import MemberRole from './MemberRole'
+import Club from './Club'
+import Member from './Member'
+import MemberBadge from './MemberBadge'
+import {ClubeeoPrimaryColumn} from '../lib/modelCommon';
 
 @Entity()
 export default class User {
 
-  @PrimaryGeneratedColumn()
-  id: number;
+  @ClubeeoPrimaryColumn()
+  id: string;
 
   @Column({type: String, nullable: true})
   @Index({unique: true})
@@ -45,11 +50,28 @@ export default class User {
   @Column({type: String, default: ''})
   timezone: string;
 
+  @Column({type: String, default: ''})
+  lang: string;
+
+  @OneToMany(() => Member, rel => rel.user)
+  memberships: Member[];
+
+  @OneToMany(() => MemberRole, rel => rel.user)
+  userClubRoles: MemberRole[];
+
+  @OneToMany(() => MemberBadge, rel => rel.user)
+  badges: MemberBadge[];
+
   @OneToMany(() => UserExt, rel => rel.user)
   userExts: UserExt[];
 
   @OneToMany(() => Wallet, rel => rel.user)
   wallets: Wallet[];
+
+  @ManyToOne(() => Club)
+  activeClub: Club;
+  @RelationId((self: User) => self.activeClub)
+  activeClubId: string;
 
   // DB insert time
   @CreateDateColumn()

@@ -1,36 +1,35 @@
 import {
-  Column,
   CreateDateColumn,
   Entity,
   ManyToOne,
-  PrimaryGeneratedColumn,
   RelationId,
   UpdateDateColumn,
 } from 'typeorm'
 import ClubList from './ClubList'
 import User from './User'
 import Wallet from './Wallet'
+import {ClubeeoPrimaryColumn} from '../lib/modelCommon';
 
 @Entity()
 export default class ClubListItem {
 
-  @PrimaryGeneratedColumn()
-  id: number;
+  @ClubeeoPrimaryColumn()
+  id: string;
 
   @ManyToOne(type => ClubList)
   clubList: ClubList;
   @RelationId((self: ClubListItem) => self.clubList)
-  clubListId: number;
+  clubListId: string;
 
   @ManyToOne(type => User)
   user: User;
   @RelationId((self: ClubListItem) => self.user)
-  userId: number;
+  userId: string;
 
   @ManyToOne(type => Wallet)
   wallet: Wallet;
   @RelationId((self: ClubListItem) => self.wallet)
-  walletId: number;
+  walletId: string;
 
   // DB auto insert time
   @CreateDateColumn()

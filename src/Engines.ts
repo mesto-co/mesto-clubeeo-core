@@ -1,11 +1,26 @@
-import {BaseService} from './services/BaseService'
+import {BadgeEngine} from './engines/BadgeEngine/BadgeEngine'
 import {AccessEngine} from './engines/AccessEngine/AccessEngine'
+import {RoleEngine} from './engines/RoleEngine/RoleEngine'
+import MotionEngine from './engines/MotionEngine/MotionEngine';
+import {SubscriptionEngine} from './engines/SubscriptionEngine/SubscriptionEngine'
+import {ContainerBase} from './lib/ContainerBase'
+import App from './App'
+import AppEngine from './engines/AppEngine/AppEngine'
 
-export class Engines extends BaseService {
+export class Engines extends ContainerBase {
+  protected app: App
 
-  protected _AccessEngine: AccessEngine;
-  get accessEngine(): AccessEngine {
-    return this._AccessEngine || (this._AccessEngine = new AccessEngine(this.app));
+  constructor(app: App) {
+    super();
+    this.app = app
   }
 
+  get appEngine() { return this.patch('appEngine', () => new AppEngine(this.app)) }
+  get accessEngine() { return this.patch('accessEngine', () => new AccessEngine(this.app)) }
+  get badgeEngine() { return this.patch('badgeEngine', () => new BadgeEngine(this.app)) }
+  get motionEngine() { return this.patch('motionEngine', () => new MotionEngine(this.app)) }
+  get roleEngine() { return this.patch('roleEngine', () => new RoleEngine(this.app)) }
+  get subscriptionsEngine() { return this.patch('subscriptionsEngine', () => new SubscriptionEngine(this.app)) }
+
 }
+

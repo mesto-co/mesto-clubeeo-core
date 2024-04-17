@@ -6,9 +6,9 @@ import {
 } from './MoralisWalletAmountAdapter'
 import {IWalletAmountAdapterFactory} from './walletAmountInterfaces'
 import {EvmChainsEnum, NearChainsEnum} from '../../lib/TChains'
-import {NearWalletAmountAdapter} from './NearWalletAmountAdapter'
+import {INearWalletAmountServiceDeps, NearWalletAmountAdapter} from './NearWalletAmountAdapter'
 
-export type IWalletAmountFactoryDeps = IMoralisWalletAmountServiceDeps;
+export type IWalletAmountFactoryDeps = IMoralisWalletAmountServiceDeps & INearWalletAmountServiceDeps;
 
 export class WalletAmountFactory implements IWalletAmountAdapterFactory {
   protected app: IWalletAmountFactoryDeps

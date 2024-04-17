@@ -14,7 +14,7 @@ export function timeout(ms: number) {
 export interface IAuthApp<TUser> {
   auth: {
     getUser(session): Promise<TUser>;
-    logIn(userId: number, session);
+    logIn(userId: string, session);
     logOut(session);
   };
   m: EntityManager;
@@ -30,7 +30,7 @@ export default function (app: IAuthApp<User>) {
           200: obj({
             loggedIn: bool(),
             user: nullable(obj({
-              id: id(),
+              id: str(1),
               name: str(),
               email: str(),
               // hasTermsAgree: bool()

@@ -4,28 +4,38 @@ import {
   Entity,
   Index,
   ManyToOne, OneToMany,
-  PrimaryGeneratedColumn,
+
   RelationId,
   UpdateDateColumn,
 } from 'typeorm'
-import Club from './Club'
-import ClubRoleToken from './ClubRoleToken'
+
 import ClubAppRole from './ClubAppRole'
+import Club from '../../../models/Club'
+import {Unique} from 'typeorm/index'
+import {ClubeeoPrimaryColumn} from '../../../lib/modelCommon'
+
+export interface IClubAppConfig {
+  syncRoles: Array<string>
+}
 
 @Entity()
+@Unique(['club', 'appSlug'])
 export default class ClubApp {
 
-  @PrimaryGeneratedColumn()
-  id: number;
+  @ClubeeoPrimaryColumn()
+  id: string;
 
   @ManyToOne(type => Club)
   club: Club
   @RelationId((self: ClubApp) => self.club)
-  clubId: number
+  clubId: string
 
   @Column({type: String})
   title: string;
 
+  /**
+   * name (key) of app in registry
+   */
   @Column({type: String})
   @Index()
   appName: string;
@@ -43,7 +53,7 @@ export default class ClubApp {
     default: () => "'{}'",
     nullable: false,
   })
-  config: object;
+  config: Partial<IClubAppConfig>;
 
   @OneToMany(() => ClubAppRole, clubAppRole => clubAppRole.clubApp)
   clubAppRoles: ClubAppRole[];

@@ -18,7 +18,7 @@ export interface IClubExtRepo_FindOrCreate {
     where: {
       extId: string,
       service: ExtService,
-      club: {id: number}
+      club: {id: string}
     },
     data: DeepPartial<ClubExt> | null
   ): Promise<{value: ClubExt, isCreated: boolean}>

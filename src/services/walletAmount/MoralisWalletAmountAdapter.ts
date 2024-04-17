@@ -14,8 +14,8 @@ export const chainToMoralisChainMap = new Map([
   [EvmChainsEnum.polygon, MoralisChains.polygon],
   [EvmChainsEnum.mumbai, MoralisChains.mumbai],
 
-  [EvmChainsEnum.binance, MoralisChains.binance],
-  [EvmChainsEnum.binance_testnet, MoralisChains['binance testnet']],
+  [EvmChainsEnum.bsc, MoralisChains.bsc],
+  [EvmChainsEnum.bsc_testnet, MoralisChains['bsc testnet']],
 
   [EvmChainsEnum.avalanche, MoralisChains.avalanche],
   [EvmChainsEnum.avalanche_testnet, MoralisChains['avalanche testnet']],

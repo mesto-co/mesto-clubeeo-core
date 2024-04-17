@@ -2,7 +2,6 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  PrimaryGeneratedColumn,
   UpdateDateColumn,
   ManyToOne,
   RelationId,
@@ -10,13 +9,14 @@ import {
 
 import User from './User'
 import {TChains} from '../lib/TChains'
+import {ClubeeoPrimaryColumn} from '../lib/modelCommon';
 
 
 @Entity()
 export default class Wallet {
 
-  @PrimaryGeneratedColumn()
-  id: number;
+  @ClubeeoPrimaryColumn()
+  id: string;
 
   @Column({type: String, default: ''})
   address: string;
@@ -27,7 +27,7 @@ export default class Wallet {
   @ManyToOne(type => User)
   user: User
   @RelationId((self: Wallet) => self.user)
-  userId: number
+  userId: string
 
   // DB auto insert time
   @CreateDateColumn()

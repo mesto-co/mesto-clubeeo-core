@@ -8,9 +8,11 @@ import {IHexCommonApp} from '../../hex/HexCommon'
 import Club from '../../models/Club'
 import User from '../../models/User'
 import {ClubContext} from '../../contexts/ClubContext'
-import { Env } from '../../env';
+import {AppEnv} from '../../appEnv';
 import {getCommandAndParam} from './lib/TgParse'
-import {ExtCodeRepo} from '../../models/repos/ExtCodeRepo'
+import UserExt from '../../models/UserExt'
+import {Emitter} from 'mitt'
+import {TBotMemberEvents, TBotCommandEvents} from './events/botEventsInterfaces'
 
 export interface ITelegramHexPorts {
   tgCheckKey: (key) => boolean
@@ -19,11 +21,15 @@ export interface ITelegramHexPorts {
   isUserAllowed: (tgChatId: number, tgUserId: number) => Promise<boolean>
   tgChatStateUpdated: (data: { tgChatId: number, status: string }) => Promise<void>
   signInUser: (data: { code: string, tgUserId: number, data: CallbackQuery }) => Promise<ISignInUserResult>
+  switchUserClub: (data: { clubSlug: string, tgUserId: number, tgChatId: number }) => Promise<Club>
+  clubBySlug: (data: { clubSlug: string }) => Promise<Club>
   sendMessage: (chatId: number | string, text: string, extra?: tt.ExtraReplyMessage) => Promise<ReturnType<Telegram['sendMessage']>>
   activateClub: (message: Message.TextMessage, code: string) => Promise<boolean>
+  botMemberEvents: Emitter<TBotMemberEvents>;
+  botCommandEvents: Emitter<TBotCommandEvents>;
 }
 
-export type ISignInUserResult = {loggedIn: false} | {loggedIn: true, club: Club, user: User}
+export type ISignInUserResult = { loggedIn: false } | { loggedIn: true, club: Club, user: User, prevUserExt: UserExt }
 
 export enum CallbackQueryCommands {
   signin = 'signin'
@@ -33,7 +39,7 @@ export type ITelegramHexApp = IHexCommonApp & {
   contexts: {
     club: (club: Club) => ClubContext,
   },
-  Env: Env
+  Env: AppEnv
 }
 
 export class TelegramBotUpdates {
@@ -58,11 +64,14 @@ export class TelegramBotUpdates {
     const keyIsValid = this.ports.tgCheckKey(key);
     if (!keyIsValid) return {error: 'Key is not valid'};
 
-    this.app.log.info('telegram:update', {data: body});
+    await this.app.log.info('telegram:update', {data: body});
 
     if ('message' in body) {
       const message = body.message;
       await this.onMessage(message);
+    } else if ('channel_post' in body) {
+      const channel_post = body.channel_post;
+      await this.onChannelPost(channel_post);
     } else if ('chat_join_request' in body) {
       const chatJoinRequest = body.chat_join_request;
       await this.onChatJoinRequest(chatJoinRequest);
@@ -97,31 +106,162 @@ export class TelegramBotUpdates {
    */
   async onMessage(message: Message) {
     if ('text' in message) {
+      const command = getCommandAndParam(message.text);
+
       if (message.chat.type === 'private') {
-        const command = getCommandAndParam(message.text);
 
-        if (command.command === '/start') {
-          if (command.param) {
-            if (this.ports.signInUser) {
+        // if (command.command === '/start') {
+        //   if (command.param) {
+        //     const club = await this.ports.switchUserClub({
+        //       clubSlug: command.param.split(' ')[0].toLowerCase(),
+        //       tgUserId: message.from.id,
+        //       tgChatId: message.chat.id,
+        //     });
+        //
+        //     if (club) {
+        //       await this.ports.sendMessage(message.chat.id, `${club.name} is active\n\nuse /help for bot info`, {
+        //         reply_markup: {
+        //           inline_keyboard: [
+        //             [{
+        //               text: `open ${club.name} menu`,
+        //               web_app: {url: `${this.app.Env.tgCallbackRoot}/telegram/webapp/${club.slug}`},
+        //             }],
+        //           ],
+        //         },
+        //       });
+        //       return;
+        //     }
+        //
+        //     await this.ports.sendMessage(message.chat.id, "You're binding your wallet to Telegram account", {
+        //       reply_markup: {
+        //         inline_keyboard: [
+        //           [{text: 'Confirm', callback_data: `${CallbackQueryCommands.signin}:${command.param}`}],
+        //         ],
+        //       },
+        //     });
+        //   }
+        // }
 
-              await this.ports.sendMessage(message.chat.id, "You're binding your wallet to Telegram account", {
-                reply_markup: {
-                  inline_keyboard: [
-                    [{text: 'Confirm', callback_data: `${CallbackQueryCommands.signin}:${command.param}`}],
-                  ],
-                },
-              });
-
-            }
-          }
+        if (command.command) {
+          await this.ports.botCommandEvents.emit('command', {
+            message,
+            command,
+          });
+        } else {
+          await this.ports.botCommandEvents.emit('text', {
+            message,
+          });
         }
-      } else { // group, supergroup or channel
-        const command = getCommandAndParam(message.text);
-
+      } else if (!message.from.is_bot) { // group, supergroup or channel
         if (command.command === '/activate') {
           await this.ports.activateClub(message, command.param);
+        } else if (command.command === '/clubeeo') {
+          const [clubSlug, ...textEntries] = command.param.split(' ');
+          if (!clubSlug) return;
+
+          const club = await this.ports.switchUserClub({
+            clubSlug,
+            tgUserId: message.from.id,
+            tgChatId: message.chat.id,
+          });
+          if (club) {
+            const text = textEntries.join(' ');
+
+            await this.ports.sendMessage(message.chat.id, `${text || club.name}\n\n1. Open <a href="https://t.me/${this.app.Env.tgLoginBot}?start=${club.slug}">${club.name} community bot</a>\n2. Press "start"\n3. Press "open ${club.name} menu"`, {
+              parse_mode: 'HTML',
+              reply_markup: {
+                inline_keyboard: [
+                  [{
+                    text: `open ${club.name} community bot`,
+                    url: `https://t.me/${this.app.Env.tgLoginBot}?start=${club.slug}`,
+                  }],
+                ],
+              },
+            });
+          } else {
+            await this.ports.sendMessage(message.chat.id, `Can't find community "${clubSlug}"`, {});
+          }
         }
       }
+    }
+
+    return null; // stub
+  }
+
+  /**
+   * Called from onTelegramUpdate
+   *
+   * @param message
+   */
+  async onChannelPost(channel_post) {
+    console.log('channel_post', channel_post)
+
+    if ('text' in channel_post) {
+      const command = getCommandAndParam(channel_post.text);
+
+      // wip: returns BUTTON_TYPE_INVALID
+      if (command.command === '/clubeeo') {
+        if (command.param.startsWith('club:')) {
+          const clubSlug = command.param.split('club:')[1];
+          if (!clubSlug) return;
+
+          const club = await this.ports.clubBySlug({clubSlug});
+          if (club) {
+            await this.ports.sendMessage(channel_post.chat.id, `${club.name} is active`, {
+              // reply_markup: {
+              // inline_keyboard: [
+              //   [{
+              //     text: `open ${club.name} menu`,
+              //     web_app: {url: `${this.app.Env.tgCallbackRoot}/telegram/webapp/${clubSlug}`}
+              //   }],
+              // ],
+              // },
+            });
+          } else {
+            await this.ports.sendMessage(channel_post.chat.id, `Can't switch to ${clubSlug}`, {});
+          }
+        }
+      }
+
+      //   if (message.chat.type === 'private') {
+      //
+      //     if (command.command === '/start') {
+      //       if (command.param) {
+      //         if (command.param.startsWith('club:')) {
+      //           const clubSlug = command.param.split('club:')[1];
+      //           if (!clubSlug) return;
+      //
+      //           const club = await this.ports.switchUserClub({clubSlug, tgUserId: message.from.id, tgChatId: message.chat.id});
+      //           if (club) {
+      //             await this.ports.sendMessage(message.chat.id, `${club.name} is active`, {
+      //               reply_markup: {
+      //                 inline_keyboard: [
+      //                   [{text: `open ${club.name} menu`, web_app: {url: `${this.app.Env.tgCallbackRoot}/telegram/webapp/${clubSlug}`}}],
+      //                 ],
+      //               },
+      //             });
+      //           } else {
+      //             await this.ports.sendMessage(message.chat.id, `Can't switch to ${clubSlug}`, {});
+      //           }
+      //
+      //         } else if (this.ports.signInUser) {
+      //
+      //           await this.ports.sendMessage(message.chat.id, "You're binding your wallet to Telegram account", {
+      //             reply_markup: {
+      //               inline_keyboard: [
+      //                 [{text: 'Confirm', callback_data: `${CallbackQueryCommands.signin}:${command.param}`}],
+      //               ],
+      //             },
+      //           });
+      //
+      //         }
+      //       }
+      //     }
+      //   } else { // group, supergroup or channel
+      //     if (command.command === '/activate') {
+      //       await this.ports.activateClub(message, command.param);
+      //     }
+      //   }
     }
 
     return null; // stub
@@ -174,6 +314,10 @@ export class TelegramBotUpdates {
       tgChatId: myChatMember.chat.id,
       status: myChatMember.new_chat_member.status,
     });
+
+    if (myChatMember.new_chat_member.status === 'administrator' && myChatMember.old_chat_member.status !== 'administrator') {
+      this.ports.botMemberEvents.emit('botPromotedToAdmin', {myChatMember});
+    }
   }
 
   async onUserOwnershipChange(telegramUser: { userId: number }, telegramChat: { chatId: number }) {

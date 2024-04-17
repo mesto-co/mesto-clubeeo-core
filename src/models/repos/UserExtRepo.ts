@@ -5,7 +5,7 @@ import User from '../User'
 import UserExt from '../UserExt'
 import {ExtService} from '../../lib/enums'
 
-export class UserExtRepo extends BaseService {
+export default class UserExtRepo extends BaseService {
   async findOneByWalletNft(walletNft: WalletNft, service: ExtService) {
     const m = this.app.m;
 

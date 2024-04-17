@@ -5,7 +5,7 @@ import TokenContract from '../models/TokenContract';
 import Club from '../models/Club'
 import {MockChainsEnum} from '../lib/TChains'
 import User from '../models/User'
-import {id} from 'json-schema-blocks'
+import {id, str} from 'json-schema-blocks'
 
 export default function (app: App) {
   return function (router, opts, next) {
@@ -18,11 +18,12 @@ export default function (app: App) {
       resp.send(result);
     });
 
-    router.get('/addressToken/:wallet/:token', async (req, resp) => {
+    router.get('/addressToken/:chain/:wallet/:token', async (req, resp) => {
       const walletAddress = req.params.wallet;
       const tokenAddress = req.params.token;
+      const chain = req.params.chain;
 
-      const result = await app.MoralisApi.getAddressNftToken(walletAddress, MoralisChains.eth, tokenAddress);
+      const result = await app.MoralisApi.getAddressNftToken(walletAddress, chain, tokenAddress);
 
       resp.send(result);
     });
@@ -95,8 +96,8 @@ export default function (app: App) {
     router.get('/isMember', {
       schema: {
         query: {
-          userId: id(),
-          clubId: id(),
+          userId: str(1),
+          clubId: str(1),
         }
       }
     },

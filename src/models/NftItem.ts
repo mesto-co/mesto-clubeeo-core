@@ -2,20 +2,18 @@ import {
   Column,
   CreateDateColumn,
   Entity, ManyToOne,
-  PrimaryGeneratedColumn, RelationId, Unique,
+   RelationId, Unique,
   UpdateDateColumn,
 } from 'typeorm/index';
-
-import {TChains, TokenStandardsEnum} from '../lib/TChains'
-import TokenContract from './TokenContract'
 import NftCollection from './NftCollection'
+import {ClubeeoPrimaryColumn} from '../lib/modelCommon';
 
 @Entity()
 @Unique(['collection', 'eid'])
 export default class NftItem {
 
-  @PrimaryGeneratedColumn()
-  id: number;
+  @ClubeeoPrimaryColumn()
+  id: string;
 
   @Column({type: String, default: ''})
   eid: string;
@@ -40,7 +38,7 @@ export default class NftItem {
   @ManyToOne(type => NftCollection)
   collection: NftCollection;
   @RelationId((self: NftItem) => self.collection)
-  collectionId: number;
+  collectionId: string;
 
   @Column({type: Boolean, default: false})
   default: boolean;

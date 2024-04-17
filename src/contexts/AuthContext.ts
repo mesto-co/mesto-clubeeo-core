@@ -20,7 +20,7 @@ export class AuthContext {
     this.req = req;
   }
 
-  get userId(): number | null {
+  get userId(): string | null {
     return this.app.auth.getUserId(this.req);
   }
 
@@ -28,7 +28,7 @@ export class AuthContext {
     return this.app.auth.logOut(this.req.session);
   }
 
-  logIn(userId: number) {
+  logIn(userId: string) {
     return this.app.auth.logIn(userId, this.req.session);
   }
 

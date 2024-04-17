@@ -3,7 +3,7 @@ import {
   CreateDateColumn,
   Entity,
   ManyToOne,
-  PrimaryGeneratedColumn,
+
   RelationId,
   UpdateDateColumn,
 } from 'typeorm'
@@ -11,37 +11,38 @@ import UserExt from './UserExt'
 import User from './User'
 import {UserExtMessageBatch} from './UserExtMessageBatch'
 import Club from './Club'
+import {ClubeeoPrimaryColumn} from '../lib/modelCommon';
 
 @Entity()
 export class UserExtMessage {
 
-  @PrimaryGeneratedColumn()
-  id: number;
+  @ClubeeoPrimaryColumn()
+  id: string;
 
   @ManyToOne(type => User)
   user: User;
   @RelationId((self: UserExtMessage) => self.user)
-  userId: number;
+  userId: string;
 
   @ManyToOne(type => UserExt)
   userExt: UserExt;
   @RelationId((self: UserExtMessage) => self.userExt)
-  userExtId: number;
+  userExtId: string;
 
   @ManyToOne(type => User)
   sender: User;
   @RelationId((self: UserExtMessageBatch) => self.sender)
-  senderId: number;
+  senderId: string;
 
   @ManyToOne(type => Club)
   club: Club;
   @RelationId((self: UserExtMessage) => self.club)
-  clubId: number;
+  clubId: string;
 
   @ManyToOne(type => UserExtMessageBatch)
   batch: UserExtMessageBatch;
   @RelationId((self: UserExtMessage) => self.batch)
-  batchId: number;
+  batchId: string;
 
   @Column({type: String})
   message: string;

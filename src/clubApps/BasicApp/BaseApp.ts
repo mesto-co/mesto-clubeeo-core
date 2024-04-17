@@ -1,8 +1,8 @@
 import Club from '../../models/Club'
 import App from '../../App'
 import {IClubApp} from '../../interfaces/IClubApp'
+import ClubApp from '../../engines/AppEngine/models/ClubApp'
 import User from '../../models/User'
-import ClubApp from '../../models/ClubApp'
 
 type TPageAppConfig = Record<string, any>;
 

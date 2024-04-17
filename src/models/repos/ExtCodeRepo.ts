@@ -6,25 +6,44 @@ import ClubExt from '../ClubExt'
 import {IExtCodeRepo} from '../../interfaces/repos'
 import {ExtService} from '../../lib/enums'
 
-export class ExtCodeRepo extends BaseService implements IExtCodeRepo {
+export default class ExtCodeRepo extends BaseService implements IExtCodeRepo {
   async fetchTgLoginCode(user: User, club: Club) {
-    const m = this.app.m;
-
     if (!user) return null;
 
     //todo: timelimits
 
-    const extCode = m.create(ExtCode, {
+    const {value: extCode} = await this.app.em.findOneOrCreateBy(ExtCode, {
       user: {id: user.id},
       club: {id: club.id},
       service: ExtService.tg,
       codeType: ExtCodeTypes.login,
-      code: this.app.nanoid(32),
       used: false,
+    }, {
+      code: this.app.nanoid(32),
     });
-    await m.save(extCode);
 
     return extCode.code;
+  }
+
+  async useTgLoginCode(code: string) {
+    if (!code) return null;
+
+    const extCode = await this.app.m.findOne(ExtCode, {
+      where: {
+        code,
+        service: ExtService.tg,
+        codeType: ExtCodeTypes.login,
+        used: false,
+      },
+      // relations: {
+      //   user: true,
+      // }
+    });
+    if (extCode) {
+      await this.app.m.update(ExtCode, {id: extCode.id}, {used: true});
+    }
+
+    return extCode;
   }
 
   async createDiscordVerify(club: Club, clubExt: ClubExt, extId: string) {
@@ -63,7 +82,7 @@ export class ExtCodeRepo extends BaseService implements IExtCodeRepo {
       relations: {
         club: true,
         clubExt: true,
-      }
+      },
     });
   }
 

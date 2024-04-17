@@ -23,10 +23,10 @@ export default class ClubExtRepo extends BaseService implements IClubExtRepo {
     where: {
       extId: string,
       service: ExtService,
-      club: {id: number}
+      club: {id: string}
     },
     data: DeepPartial<ClubExt> = {}
   ): Promise<{value: ClubExt, isCreated: boolean}> {
-    return await this.app.em.findOneOrCreateBy(ClubExt, where, data);
+    return await this.app.em.findOneOrCreateBy<ClubExt>(ClubExt, {...where, club: {id: where.club.id}}, data);
   }
 }

@@ -1,11 +1,11 @@
 import {UserInClubRolesSync} from '../../../src/contexts/UserInClubContext/UserInClubRolesSync'
 import App from '../../../src/App'
-import {Env} from '../../../src/env'
+import {AppEnv} from '../../../src/appEnv'
 import {newMemoryDB} from '../../../src/testing/db'
 import User from '../../../src/models/User';
 import Club from '../../../src/models/Club';
 import ClubRoleToken from '../../../src/models/ClubRoleToken'
-import UserClubRole from '../../../src/models/UserClubRole'
+import MemberRole from '../../../src/models/MemberRole'
 import {expect} from 'chai';
 import {EntityTarget} from 'typeorm/common/EntityTarget'
 import {DeepPartial} from 'typeorm/common/DeepPartial'
@@ -29,7 +29,7 @@ const createAndSave = async <Entity>(m: EntityManager, entityClass: EntityTarget
 };
 
 describe('UserInClubRolesSync', function () {
-  const env = Env.getInstance();
+  const env = AppEnv.getInstance();
   let db: Connection;
   let mapp: App;
   let user: User;
@@ -79,7 +79,7 @@ describe('UserInClubRolesSync', function () {
   });
 
   beforeEach(async () => {
-    await mapp.m.delete(UserClubRole, {});
+    await mapp.m.delete(MemberRole, {});
   });
 
   it("user don't have tokens - create disabled roles", async () => {
@@ -93,12 +93,12 @@ describe('UserInClubRolesSync', function () {
     expect(result).equal(false);
 
     // no new roles
-    expect(await mapp.m.findBy(UserClubRole, {
+    expect(await mapp.m.findBy(MemberRole, {
       user: {id: userWithoutTokens.id},
       enabled: true,
     })).deep.equal([]);
 
-    const disabledRoles = await mapp.m.find(UserClubRole, {
+    const disabledRoles = await mapp.m.find(MemberRole, {
       where: {
         user: {id: userWithoutTokens.id},
         enabled: false,
@@ -113,12 +113,12 @@ describe('UserInClubRolesSync', function () {
 
     expect(disabledRoles.length).equal(3, 'should create three UserClubRole records on mock data: for "club-member" and 2x for "club-premium" roles');
 
-    expect(await mapp.m.findOneBy(UserClubRole, {
+    expect(await mapp.m.findOneBy(MemberRole, {
       user: {id: userWithoutTokens.id},
       clubRoleToken: {clubRole: {name: 'club-member'}}
     })).property('enabled', false, 'should create disabled UserClubRole for "club-member"');
 
-    expect(await mapp.m.findOneBy(UserClubRole, {
+    expect(await mapp.m.findOneBy(MemberRole, {
       user: {id: userWithoutTokens.id},
       clubRoleToken: {clubRole: {name: 'club-premium'}}
     })).property('enabled', false, 'should create disabled UserClubRole for "club-premium"');
@@ -148,7 +148,7 @@ describe('UserInClubRolesSync', function () {
     // has roles
     expect(result).equal(true);
 
-    const disabledRoles = await mapp.m.find(UserClubRole, {
+    const disabledRoles = await mapp.m.find(MemberRole, {
       where: {
         user: {id: user.id},
         enabled: false,
@@ -163,12 +163,12 @@ describe('UserInClubRolesSync', function () {
 
     expect(disabledRoles.length).equal(2, 'should create two disabled UserClubRole records on mock data: 2x for "club-premium" roles');
 
-    expect(await mapp.m.findOneBy(UserClubRole, {
+    expect(await mapp.m.findOneBy(MemberRole, {
       user: {id: user.id},
       clubRoleToken: {clubRole: {name: 'club-member'}}
     })).property('enabled', true, 'should create enabled UserClubRole for "club-member"');
 
-    expect(await mapp.m.findOneBy(UserClubRole, {
+    expect(await mapp.m.findOneBy(MemberRole, {
       user: {id: user.id},
       clubRoleToken: {clubRole: {name: 'club-premium'}}
     })).property('enabled', false, 'should create disabled UserClubRole for "club-premium"');

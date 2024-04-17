@@ -33,7 +33,7 @@ export const clubModifySchema = {
 
 // response schema
 export const clubViewSchema = {
-  id: id(),
+  id: str(1),
   ...clubBaseSchema,
   createdAt: str(),
   updatedAt: str(),

@@ -6,6 +6,7 @@ import {EvmChainsEnum, NearChainsEnum} from '../lib/TChains'
 import {In} from 'typeorm'
 import Club from '../models/Club'
 import {ExtService} from '../lib/enums'
+import Member from '../models/Member'
 
 export class UserContext {
   readonly app: App;
@@ -61,5 +62,27 @@ export class UserContext {
     const adminClub = await this.app.m.findOneBy(Club, {slug: 'admin'});
     if (!adminClub) return false;
     return await this.inClubContext(adminClub).hasRole('admin');
+  }
+
+  async requirePlatformAdmin() {
+    if (!await this.isPlatformAdmin()) {
+      const message = `Access denied`;
+      this.app.log.warn(`requirePlatformAdmin:${message}`, {data: {userId: this.user}});
+      throw message;
+    }
+  }
+
+  async getActiveClub() {
+    return this.user.activeClubId
+      ? await this.app.m.findOneBy(Club, {id: this.user.activeClubId})
+      : await this.app.m.findOneBy(Club, {slug: 'clubeeo'});
+  }
+
+  async setActiveClub(club: Club) {
+    await this.app.m.update(User, {id: this.user.id}, {activeClub: {id: club.id}});
+  }
+
+  async inActiveClubContext() {
+    return this.inClubContext(await this.getActiveClub());
   }
 }

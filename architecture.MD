@@ -1,0 +1,62 @@
+
+#### NoDBContainer:
+- AppWeb3
+  - ethProvider
+  - ethWeb3
+  - EthSignatureVerificationService
+- Env
+- MoralisApi
+- consoleLogger: BricksLoggerConsole
+- log: consoleLogger
+
+libs:
+- axios
+- fastify
+- nanoid
+
+#### App < NoDBContainer:
+- db: DataSource
+- tokenEvents
+- clubUserEvents
+- postEvents
+- m: EntityManager
+- em: ExtendedEntityManager
+- auth: AuthService
+- access: AccessService  _## todo: merge with AccessEngine_
+- modelHooks: IModelHooksService   _## todo: review if needed_
+- UserManageService
+    - createUser
+- dbLogger
+- UserRepo _## todo: move to repos_
+- ClubRepo _## todo: move to repos_
+- MeInClubService
+- WalletService
+- repos: ReposContainer
+    - club
+    - clubExt
+    - clubRoleToken
+    - userClubRole
+    - user
+    - userExt
+    - extCode
+    - walletNft
+- walletAmountFactory
+- Discord: discord.Client <- DiscordContainer.Discord
+- DiscordContainer
+- TelegramContainer
+- contexts
+    - auth
+    - chain
+    - club
+    - contract
+    - contractWallet
+    - clubApp
+    - discordClubApp
+    - user
+    - userInClub
+    - wallet
+- engines
+    - accessEngine
+    - badgeEngine
+    - motionEngine
+    - roleEngine

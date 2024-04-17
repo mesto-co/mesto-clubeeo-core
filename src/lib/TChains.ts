@@ -1,5 +1,6 @@
 export enum EvmChainsEnum {
   eth = 'eth',
+  sepolia = 'sepolia',
   ropsten = 'ropsten',
   rinkeby = 'rinkeby',
   goerli = 'goerli',
@@ -8,13 +9,20 @@ export enum EvmChainsEnum {
   polygon = 'polygon',
   mumbai = 'mumbai',
 
-  binance = 'binance',
-  binance_testnet = 'binance_testnet',
+  bsc = 'bsc',
+  bsc_testnet = 'binance_testnet',
 
   avalanche = 'avalanche',
   avalanche_testnet = 'avalanche_testnet',
 
   fantom = 'fantom',
+
+  palm = 'palm',
+
+  cronos = 'cronos',
+  cronos_testnet = 'cronos_testnet',
+
+  arbitrum = 'arbitrum',
 }
 
 export enum NearChainsEnum {

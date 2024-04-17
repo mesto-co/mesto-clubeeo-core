@@ -1,11 +1,11 @@
 import App from '../../App'
 import UserExt from '../../models/UserExt'
 import ClubExt from '../../models/ClubExt'
-import ClubApp from '../../models/ClubApp'
 import User from '../../models/User'
 import Club from '../../models/Club'
 import {DiscordClubAppContext} from './DiscordClubAppContext'
 import {ExtService} from '../../lib/enums'
+import ClubApp from '../../engines/AppEngine/models/ClubApp'
 
 export async function discordClubUserContextFactory(app: App, discordUserId: string, discordClubId: string) {
   const userExt = await app.m.findOneOrFail(UserExt, {

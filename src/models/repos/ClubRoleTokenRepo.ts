@@ -1,9 +1,10 @@
 import {BaseService} from '../../services/BaseService'
 import ClubRoleToken from '../ClubRoleToken'
 import {FindOptionsRelations} from 'typeorm/find-options/FindOptionsRelations'
+import {IEntityId} from '../../lib/common'
 
 export default class ClubRoleTokenRepo extends BaseService {
-  async findByClub(club: { id: number }, relations: FindOptionsRelations<ClubRoleToken> = {}) {
+  async findByClub(club: IEntityId, relations: FindOptionsRelations<ClubRoleToken> = {}) {
     return await this.app.m.find(ClubRoleToken, {
       where: {
         clubRole: {
@@ -14,7 +15,7 @@ export default class ClubRoleTokenRepo extends BaseService {
     })
   }
 
-  async findByClubWithTokenContract(club: { id: number }) {
+  async findByClubWithTokenContract(club: { id: string }) {
     return await this.findByClub(
       club, {
         clubRole: true,

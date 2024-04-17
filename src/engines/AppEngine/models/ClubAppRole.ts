@@ -1,29 +1,34 @@
 import {
   CreateDateColumn,
+  Column,
   Entity,
   ManyToOne,
-  PrimaryGeneratedColumn,
   RelationId,
-  UpdateDateColumn,
+  UpdateDateColumn, Index,
 } from 'typeorm'
-import ClubRole from './ClubRole'
+import ClubRole from '../../../models/ClubRole';
 import ClubApp from './ClubApp'
+import {ClubeeoPrimaryColumn} from '../../../lib/modelCommon'
 
 @Entity()
 export default class ClubAppRole {
 
-  @PrimaryGeneratedColumn()
-  id: number;
+  @ClubeeoPrimaryColumn()
+  id: string;
 
   @ManyToOne(type => ClubApp)
   clubApp: ClubApp;
   @RelationId((self: ClubAppRole) => self.clubApp)
-  clubAppId: number;
+  clubAppId: string;
 
   @ManyToOne(type => ClubRole)
   clubRole: ClubRole;
   @RelationId((self: ClubAppRole) => self.clubRole)
-  clubRoleId: number;
+  clubRoleId: string;
+
+  @Column({type: String, default: 'page:'})
+  @Index()
+  accessTo: string;
 
   // DB auto insert time
   @CreateDateColumn()

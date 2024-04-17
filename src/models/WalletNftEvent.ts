@@ -3,7 +3,6 @@ import {
   CreateDateColumn,
   Entity,
   ManyToOne,
-  PrimaryGeneratedColumn,
   RelationId,
   UpdateDateColumn,
 } from 'typeorm'
@@ -12,6 +11,7 @@ import Wallet from './Wallet'
 import TokenContract from './TokenContract'
 import {Index} from 'typeorm/index'
 import {WalletNft} from './WalletNft'
+import {ClubeeoPrimaryColumn} from '../lib/modelCommon';
 
 export enum WalletNftEventsEnum {
   acquired = 'acquired',
@@ -25,8 +25,8 @@ export enum WalletNftEventsEnum {
 @Entity()
 export class WalletNftEvent {
 
-  @PrimaryGeneratedColumn()
-  id: number;
+  @ClubeeoPrimaryColumn()
+  id: string;
 
   @Column({type: String})
   event: WalletNftEventsEnum;
@@ -51,17 +51,17 @@ export class WalletNftEvent {
   @ManyToOne(type => WalletNft)
   walletNft: WalletNft
   @RelationId((self: WalletNftEvent) => self.walletNft)
-  walletNftId: number
+  walletNftId: string
 
   @ManyToOne(type => Wallet)
   wallet: Wallet
   @RelationId((self: WalletNft) => self.wallet)
-  walletId: number
+  walletId: string
 
   @ManyToOne(type => TokenContract)
   tokenContract: TokenContract
   @RelationId((self: WalletNftEvent) => self.tokenContract)
-  tokenContractId: number
+  tokenContractId: string
 
   // DB auto insert time
   @CreateDateColumn()

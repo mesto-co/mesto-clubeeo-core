@@ -75,3 +75,22 @@ const tokenContract: ITokenContract = {
   standard: TokenStandardsEnum.ERC721,
   config: {}
 };
+
+describe('WalletService#syncWalletTokenAmount', function () {
+  it('returns amount returned by adapter', async () => {
+    const walletService = testWalletServiceFactory({walletAmount: 10});
+    const ownedAmount = await walletService.syncWalletTokenAmount(userWallet, tokenContract);
+    expect(ownedAmount).eq(10);
+
+    const walletService2 = testWalletServiceFactory({walletAmount: 0});
+    const ownedAmount2 = await walletService2.syncWalletTokenAmount(userWallet, tokenContract);
+    expect(ownedAmount2).eq(0);
+  });
+
+  // it('throws error if wallet chain is unknown', async () => {
+  //   const walletService = testWalletServiceFactory({walletAmount: 10});
+  //   expect(async () => {
+  //     await walletService.syncWalletTokenAmount({...userWallet, chain: 'unknown' as ChainsEnum}, tokenContract);
+  //   }).to.throw('Property does not exist in model schema.');
+  // });
+});

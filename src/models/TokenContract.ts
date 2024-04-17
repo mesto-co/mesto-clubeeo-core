@@ -2,18 +2,18 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm/index';
 
 import {TChains, TokenStandardsEnum} from '../lib/TChains'
 import {ITokenContractConfig} from '../logic/TokenOwnershipLogic'
+import {ClubeeoPrimaryColumn} from '../lib/modelCommon';
 
 @Entity()
 export default class TokenContract {
 
-  @PrimaryGeneratedColumn()
-  id: number;
+  @ClubeeoPrimaryColumn()
+  id: string;
 
   @Column({type: String, default: ''})
   address: string;

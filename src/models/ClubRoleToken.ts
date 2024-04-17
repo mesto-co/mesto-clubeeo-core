@@ -1,7 +1,6 @@
 import {
   CreateDateColumn,
   Entity,
-  PrimaryGeneratedColumn,
   UpdateDateColumn,
   ManyToOne,
   RelationId, OneToMany,
@@ -9,26 +8,27 @@ import {
 
 import ClubRole from './ClubRole'
 import TokenContract from './TokenContract'
-import UserClubRole from './UserClubRole'
+import MemberRole from './MemberRole'
+import {ClubeeoPrimaryColumn} from '../lib/modelCommon';
 
 @Entity()
 export default class ClubRoleToken {
 
-  @PrimaryGeneratedColumn()
-  id: number;
+  @ClubeeoPrimaryColumn()
+  id: string;
 
   @ManyToOne(type => ClubRole)
   clubRole: ClubRole;
   @RelationId((self: ClubRoleToken) => self.clubRole)
-  clubRoleId: number;
+  clubRoleId: string;
 
   @ManyToOne(type => TokenContract)
   tokenContract: TokenContract;
   @RelationId((self: ClubRoleToken) => self.tokenContract)
-  tokenContractId: number;
+  tokenContractId: string;
 
-  @OneToMany(() => UserClubRole, userClubRole => userClubRole.clubRoleToken)
-  userClubRoles: UserClubRole[];
+  @OneToMany(() => MemberRole, userClubRole => userClubRole.clubRoleToken)
+  userClubRoles: MemberRole[];
 
   // DB auto insert time
   @CreateDateColumn()

@@ -6,6 +6,7 @@ import {IWalletAmountAdapter} from './walletAmountInterfaces'
 import {InMemoryKeyStore} from 'near-api-js/lib/key_stores/in_memory_key_store'
 import getNearConfig from '../../lib/near/config'
 import {connect, Contract} from 'near-api-js'
+import {IBricksLogger} from 'bricks-ts-logger'
 
 export const chainToNearChainMap = new Map([
   [NearChainsEnum.near, 'mainnet'],
@@ -14,7 +15,7 @@ export const chainToNearChainMap = new Map([
 ]);
 
 export interface INearWalletAmountServiceDeps {
-
+  log: IBricksLogger
 }
 
 interface INearNFTEntry {
@@ -72,7 +73,7 @@ export class NearWalletAmountAdapter implements IWalletAmountAdapter {
       account_id: userWallet.address
     }) as Array<INearNFTEntry>;
 
-    console.log(response)
+    await this.app.log.info('NEAR wallet sync', {data: {response, wallet: userWallet}});
 
     return response.length;
   }

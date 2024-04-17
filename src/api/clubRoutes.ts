@@ -1,8 +1,14 @@
 import App from '../App';
 import {simplePaginator} from '../lib/crudHelpers';
 import {StatusCodes} from 'http-status-codes';
-import {arr, id, int, nullable, obj, str} from 'json-schema-blocks';
+import {arr, enumStr, id, int, nullable, obj, str} from 'json-schema-blocks';
 import Club from '../models/Club';
+import Session from '../models/Session';
+import SessionKey from '../models/SessionKey'
+import ClubRole from '../models/ClubRole'
+import User from '../models/User'
+import {IsNull, Not} from 'typeorm'
+import ClubBadge, {BadgeType} from '../models/ClubBadge'
 
 // fields presented in all requests & responses
 export const clubBaseSchema = {
@@ -14,7 +20,7 @@ export const clubBaseSchema = {
   website: str(),
   buyLinks: obj({
     opensea: str(),
-    rarible: str()
+    rarible: str(),
   }, {additionalProperties: true, required: []}),
   socialLinks: obj({
     telegram: str(),
@@ -34,12 +40,12 @@ export const clubBaseSchema = {
 
 // modifiable fields (create & update)
 export const clubModifySchema = {
-  ...clubBaseSchema
+  ...clubBaseSchema,
 }
 
 // response schema
 export const clubViewSchema = {
-  id: id(),
+  id: str(1),
   ...clubBaseSchema,
   createdAt: str(),
   updatedAt: str(),
@@ -63,15 +69,15 @@ export default function (app: App) {
         response: {
           200: obj({
             clubs: arr(
-              obj(clubViewSchema)
+              obj(clubViewSchema),
             ),
             pagination: obj({
               page: id(),
               take: int(1, 1000),
               skip: id(),
-            })
-          })
-        }
+            }),
+          }),
+        },
       },
     }, async (req, resp) => {
       const pagination = simplePaginator(req.query);
@@ -84,7 +90,7 @@ export default function (app: App) {
 
       resp.send({
         clubs,
-        pagination
+        pagination,
       });
     });
 
@@ -101,16 +107,51 @@ export default function (app: App) {
 
       const club = await app.m.findOne(Club, {where: {slug}});
 
+      if (club) {
+        const sessionHeader = req.headers['x-clubeeo-session'];
+        let sessionData: {
+          sessionId: string
+          query: Record<string, string>
+        } = null;
+        try {
+          sessionData = sessionHeader ? JSON.parse(sessionHeader) : null;
+        } catch (e) {
+          //
+        }
+
+        if (sessionData && sessionData.sessionId) {
+          const session = await app.em.findOneOrCreateBy(Session, {
+            user: user ? {id: user.id} : null,
+            club: {id: club.id},
+            sessionId: sessionData.sessionId,
+          }, {
+            data: sessionData.query,
+          });
+
+          if (session.isCreated) {
+            for (const [key, value] of Object.entries(sessionData.query || {})) {
+              await app.em.findOneOrCreateBy(SessionKey, {
+                user: user ? {id: user.id} : null,
+                club: {id: club.id},
+                session: {id: session.value.id},
+                key,
+                value,
+              }, {})
+            }
+          }
+        }
+      }
+
       const me = await app.MeInClubService.meInClub(user, club);
 
       if (club) {
         resp.send({
           me,
-          club
+          club,
         });
       } else {
         resp.code(StatusCodes.NOT_FOUND).send({
-          error: 'Club is not found'
+          error: 'Club is not found',
         });
       }
     });
@@ -129,11 +170,11 @@ export default function (app: App) {
 
       if (club) {
         resp.send({
-          club
+          club,
         });
       } else {
         resp.code(StatusCodes.NOT_FOUND).send({
-          error: 'Club is not found'
+          error: 'Club is not found',
         });
       }
     });
@@ -149,93 +190,87 @@ export default function (app: App) {
       const clubId = req.params.clubId;
 
       const club = await app.m.findOne(Club, {
-        where: {id: clubId}
+        where: {id: clubId},
       });
 
       if (club) {
         resp.send({
-          club
+          club,
         });
       } else {
         resp.code(StatusCodes.NOT_FOUND).send({
-          error: 'Club is not found'
+          error: 'Club is not found',
         });
       }
     });
 
-    // router.post('/', {
-    //   schema: {
-    //     description: 'Create club',
-    //     body: obj({
-    //       club: obj(clubModifySchema)
-    //     }),
-    //     response: {
-    //       200: obj(clubResponseSchema)
-    //     }
-    //   },
-    // }, async (req, resp) => {
-    //   const user = await app.auth.getUser(req.session)
-    //   if (!user) return resp.code(StatusCodes.UNAUTHORIZED).send({error: ReasonPhrases.UNAUTHORIZED});
-    //
-    //   const clubData = req.body.club;
-    //
-    //   app.modelHooks.beforeCreate('club', clubData);
-    //
-    //   const club = app.m.create(Club, {
-    //     ...clubData,
-    //     user,
-    //   });
-    //   await app.m.save(club);
-    //
-    //   app.modelHooks.afterCreate('club', club);
-    //
-    //   resp.send({
-    //     club
-    //   });
-    // });
-    //
-    // router.put('/:clubId', {
-    //   schema: {
-    //     description: 'Update club',
-    //     body: obj({
-    //       club: obj(clubModifySchema)
-    //     }),
-    //     response: {
-    //       200: obj(clubResponseSchema)
-    //     }
-    //   },
-    // }, async (req, resp) => {
-    //   const clubId = req.params.clubId;
-    //
-    //   const user = await app.auth.getUser(req.session)
-    //   if (!user) return resp.code(StatusCodes.UNAUTHORIZED).send({error: ReasonPhrases.UNAUTHORIZED});
-    //
-    //   const club = await app.m.findOne(Club, {id: clubId});
-    //
-    //   if (!club) {
-    //     return resp.code(StatusCodes.NOT_FOUND).send({
-    //       error: 'Club is not found'
-    //     });
-    //   }
-    //
-    //   const clubData = req.body.club;
-    //
-    //   const prevData = {...club};
-    //   app.modelHooks.beforeUpdate('club', {...clubData, id: clubId}, prevData);
-    //
-    //   Object.assign(club, clubData);
-    //
-    //   await app.m.save(club);
-    //
-    //   app.modelHooks.afterUpdate('club', club, prevData);
-    //
-    //   resp.send({
-    //     club
-    //   });
-    // });
+    router.get('/:clubLocator/roles', {
+      schema: {
+        response: {
+          200: obj({
+            roles: arr(obj({
+              id: str(1),
+              name: str(),
+            })),
+          }),
+        },
+      },
+    }, async (req, resp) => {
+      const cMember = await app.auth.getUserInClubContext(req);
+      await cMember.requireRole('admin');
+
+      const club = cMember.club;
+
+      const roles = await app.m.find(ClubRole, {
+        where: {
+          club: {id: club.id},
+        },
+        order: {
+          name: 'ASC',
+        },
+      });
+
+      resp.send({
+        roles,
+      });
+    });
+
+    router.get('/:clubLocator/badges', {
+      schema: {
+        response: {
+          200: obj({
+            badges: arr(obj({
+              id: str(1),
+              name: str(),
+              description: str(),
+              slug: str(),
+              badgeType: enumStr(...Object.keys(BadgeType)),
+              img: str(),
+              style: obj({}, {additionalProperties: true})
+            })),
+          }),
+        },
+      },
+    }, async (req, resp) => {
+      const cMember = await app.auth.getUserInClubContext(req);
+      await cMember.requireRole('admin');
+
+      const club = cMember.club;
+
+      const badges = await app.m.find(ClubBadge, {
+        where: {
+          club: {id: club.id},
+        },
+        order: {
+          name: 'ASC',
+        },
+      });
+
+      resp.send({
+        badges,
+      });
+    });
 
     next();
   }
-
-  // todo: DELETE
 }

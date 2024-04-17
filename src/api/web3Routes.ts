@@ -8,6 +8,9 @@ import User from '../models/User'
 import {IFastifySession} from '../services/AuthService'
 import assert = require('assert')
 import {EvmChainsEnum, TChains} from '../lib/TChains'
+import Club from '../models/Club'
+import ClubApp from '../engines/AppEngine/models/ClubApp'
+import {ethWalletEventTypes} from '../clubApps/EthWalletApp/EthWalletAppConfig'
 // import assert from 'assert'
 // import {nftMoralisNorm} from '../norm/nftNorm'
 // import {UserAddressNft} from '../entity/UserAddressNft'
@@ -75,10 +78,11 @@ export default function (app: App) {
           nonce: str(16),
           signature: str(1),
           chain: str(1),
+          data: obj({}, {additionalProperties: true})
         })
       }
     }, async (req: FastifyRequest<{
-      Body: { address: string, nonce: string, signature: string, chain: TChains },
+      Body: { address: string, nonce: string, signature: string, chain: TChains, data: Record<string, unknown> },
     }> & { session: IFastifySession }, resp) => {
       const data = req.body;
 
@@ -121,7 +125,23 @@ export default function (app: App) {
           }));
         }
 
-        app.auth.logIn(user.id, req.session)
+        app.auth.logIn(user.id, req.session);
+
+        // handle login with club app
+        const appId = req.body.data?.appData?.['appId'] as string;
+        if (appId) {
+          const clubApp = await app.m.findOne(ClubApp, {
+            where: {id: appId},
+            relations: ['club'],
+          });
+          const {value: member} = await app.repos.member.findOrCreate({club: clubApp.club, user});
+
+          await app.engines.motionEngine.processEvent(
+            ethWalletEventTypes.login,
+            {clubApp, user, member, club: clubApp.club},
+            {member}
+          )
+        }
       }
 
       resp.send({

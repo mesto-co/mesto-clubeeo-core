@@ -1,5 +1,5 @@
 import App from '../../App';
-import { Env } from '../../env';
+import { AppEnv } from '../../appEnv';
 import discordAppRoutes from './api/discordAppRoutes'
 import discord, {Intents} from 'discord.js'
 
@@ -11,7 +11,7 @@ export class DiscordContainer {
     this.app = app;
   }
 
-  get Env(): Env {
+  get Env(): AppEnv {
     return this.app.Env;
   }
 

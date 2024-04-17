@@ -18,7 +18,7 @@ export const walletModifySchema = {
 
 // response schema
 export const walletViewSchema = {
-  id: id(),
+  id: str(1),
   ...walletBaseSchema,
   createdAt: str(),
   updatedAt: str(),

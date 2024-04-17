@@ -1,8 +1,8 @@
 import App from '../App';
-import {str} from 'json-schema-blocks'
+import {bool, id, nullable, obj, str} from 'json-schema-blocks'
 import Club from '../models/Club'
-import ClubApp from '../models/ClubApp'
 import {In} from 'typeorm'
+import ClubApp from '../engines/AppEngine/models/ClubApp'
 
 export default function (app: App) {
   return function (router, opts, next) {
@@ -11,10 +11,19 @@ export default function (app: App) {
         params: {
           clubSlug: str(),
           appSlug: str(),
+        },
+        response: {
+          200: obj({
+            clubApp: nullable(obj({
+              id: str(1),
+              title: str(),
+            })),
+            data: obj({}, {additionalProperties: true}),
+            isMember: bool(),
+            hasAccess: bool(),
+            appName: nullable(str()),
+          })
         }
-        // response: {
-        //   200: obj(clubResponseSchema)
-        // }
       },
     }, async (req, resp) => {
       const clubSlug = req.params.clubSlug;
@@ -45,7 +54,7 @@ export default function (app: App) {
         }
       });
       if (clubAppsCount === 0) {
-        resp.send({ isMember: true, hasAccess: false, data: null });
+        resp.send({ clubApp: null, isMember: true, hasAccess: false, data: {}, appName: null });
         return;
       }
 
@@ -55,10 +64,10 @@ export default function (app: App) {
 
       resp.send({
         clubApp: clubApp?.clubApp,
+        appName: clubApp?.appName || null,
         isMember: true,
         hasAccess: true,
         data,
-        appName: clubApp?.appName,
       });
     });
 

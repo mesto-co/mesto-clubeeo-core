@@ -3,7 +3,7 @@ import {
   CreateDateColumn,
   Entity,
   ManyToOne,
-  PrimaryGeneratedColumn,
+
   RelationId,
   UpdateDateColumn,
 } from 'typeorm'
@@ -11,12 +11,13 @@ import {TChains} from '../lib/TChains'
 import Wallet from './Wallet'
 import TokenContract from './TokenContract'
 import {Index} from 'typeorm/index'
+import {ClubeeoPrimaryColumn} from '../lib/modelCommon';
 
 @Entity()
 export class WalletNft {
 
-  @PrimaryGeneratedColumn()
-  id: number;
+  @ClubeeoPrimaryColumn()
+  id: string;
 
   @Column({type: Number})
   ownedAmount: number;
@@ -35,12 +36,12 @@ export class WalletNft {
   @ManyToOne(type => Wallet)
   wallet: Wallet
   @RelationId((self: WalletNft) => self.wallet)
-  walletId: number
+  walletId: string
 
   @ManyToOne(type => TokenContract)
   tokenContract: TokenContract
   @RelationId((self: WalletNft) => self.tokenContract)
-  tokenContractId: number
+  tokenContractId: string
 
   @Column({type: Date, nullable: true})
   @Index()

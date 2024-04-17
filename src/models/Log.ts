@@ -2,18 +2,15 @@ import {
   Column,
   CreateDateColumn,
   Entity, Index,
-  ManyToOne,
-  PrimaryGeneratedColumn, RelationId,
-  UpdateDateColumn,
 } from 'typeorm/index';
 import {ILoggerLevels} from 'bricks-ts-logger'
-
+import {ClubeeoPrimaryColumn} from '../lib/modelCommon';
 
 @Entity()
 export class Log {
 
-  @PrimaryGeneratedColumn({type: 'bigint'})
-  id: number;
+  @ClubeeoPrimaryColumn()
+  id: string;
 
   @Column({type: String, nullable: false})
   @Index()

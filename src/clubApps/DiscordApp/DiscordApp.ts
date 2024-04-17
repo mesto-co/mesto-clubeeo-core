@@ -87,7 +87,7 @@ export default class DiscordApp {
 
       // await this.discordReady;
 
-      const discordClubUser = await app.contexts.discordClubUser(guildId, userId);
+      const discordClubUser = await app.contexts.discordClubUser(userId, guildId);
 
       const roleName = opts.role || 'holder';
       const role = await this.getRole({guild, roleName});
@@ -131,7 +131,7 @@ export default class DiscordApp {
 
       const guild = await this.getGuild(opts);
 
-      const discordClubUser = await app.contexts.discordClubUser(guildId, userId);
+      const discordClubUser = await app.contexts.discordClubUser(userId, guildId);
 
       // await this.discordReady;
 

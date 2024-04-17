@@ -10,10 +10,12 @@ import {createNotifyChat} from './procedures/createNotifyChat'
 import {onVerifyWalletClick} from './procedures/onVerifyWalletClick'
 import {extActivationLogic} from '../../logic/ExtActivationLogic'
 import {ExtService} from '../../lib/enums'
+import {DiscordEventCodes} from './lib/discordConsts'
+import {toSerializable} from '../../lib/toSerializable'
 
 async function processActivation(app: App, message: Message) {
   try {
-    app.log.info('discord:activation', {data: message});
+    app.log.info('discord:activation', {data: toSerializable(message)});
 
     const activated = await activate(app, message)
 
@@ -47,6 +49,16 @@ async function activate(app: App, message: Message) {
     code, ExtService.discord, String(message.guildId),
     {
       repos: app.repos,
+      async onActivated(extCode, data) {
+        const club = await app.repos.club.findById(extCode.clubId);
+        const user = await app.repos.user.findById(extCode.userId);
+
+        await app.engines.motionEngine.processEvent(
+          DiscordEventCodes['discord:botActivated'], {club, user}, {
+            extCode,
+            data,
+          });
+      },
       async reply(text: string) {
         return await message.reply({content: text});
       }
@@ -76,7 +88,7 @@ export default function discordDaemon(c: DiscordContainer) {
   });
 
   client.on('interactionCreate', interaction => {
-    console.log(interaction);
+    app.log.info('discord:interactionCreate', {data: toSerializable(interaction)});
 
     if (interaction.isButton()) {
       if (interaction.customId === 'verifyWallet') {
@@ -87,11 +99,11 @@ export default function discordDaemon(c: DiscordContainer) {
 
   client.on('messageCreate', (message) => {
     try {
-      console.log('messageCreate', message)
-
       if (/^activation:/.test(message.content)) {
+        app.log.info('discord:messageCreate:activation', {data: toSerializable(message)})
         void processActivation(app, message);
       } else if (message.content === '/clubeeo-wallet-update') {
+        app.log.info('discord:messageCreate:clubeeo-wallet-update', {data: toSerializable(message)})
 
         const clubeeoWalletUpdate = async () => {
           const dcClubUserCtx = await discordClubUserContextFactory(app, message.member.user.id, message.guildId);
@@ -128,6 +140,7 @@ export default function discordDaemon(c: DiscordContainer) {
         void clubeeoWalletUpdate();
 
       } else if (message.content === '/clubeeo-reactivate') {
+        app.log.info('discord:messageCreate:clubeeo-reactivate', {data: toSerializable(message)})
         const reactivate = async () => {
           await createJoinChat(app, message.guild);
           await createNotifyChat(app, message.guild);

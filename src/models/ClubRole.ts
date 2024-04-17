@@ -2,22 +2,22 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  PrimaryGeneratedColumn,
   UpdateDateColumn,
   ManyToOne,
   RelationId, OneToMany,
-} from 'typeorm/index';
+} from 'typeorm';
 
 import Club from './Club'
 import ClubRoleToken from './ClubRoleToken'
-import UserClubRole from './UserClubRole'
-import ClubAppRole from './ClubAppRole'
+import MemberRole from './MemberRole'
+import ClubAppRole from '../engines/AppEngine/models/ClubAppRole'
+import {ClubeeoPrimaryColumn} from '../lib/modelCommon';
 
 @Entity()
 export default class ClubRole {
 
-  @PrimaryGeneratedColumn()
-  id: number;
+  @ClubeeoPrimaryColumn()
+  id: string;
 
   @Column({type: String, default: ''})
   name: string;
@@ -25,13 +25,13 @@ export default class ClubRole {
   @ManyToOne(type => Club)
   club: Club
   @RelationId((self: ClubRole) => self.club)
-  clubId: number
+  clubId: string
 
   @OneToMany(() => ClubRoleToken, clubRoleToken => clubRoleToken.clubRole)
   clubRoleTokens: ClubRoleToken[];
 
-  @OneToMany(() => UserClubRole, userClubRole => userClubRole.clubRole)
-  userClubRoles: UserClubRole[];
+  @OneToMany(() => MemberRole, userClubRole => userClubRole.clubRole)
+  userClubRoles: MemberRole[];
 
   @OneToMany(() => ClubAppRole, clubAppRole => clubAppRole.clubRole)
   clubAppRoles: ClubAppRole[];

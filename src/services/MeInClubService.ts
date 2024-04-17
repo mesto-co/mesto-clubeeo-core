@@ -1,13 +1,17 @@
 import {BaseService} from './BaseService'
 import User from '../models/User'
 import Club from '../models/Club'
+import Wallet from '../models/Wallet'
 
 export class MeInClubService extends BaseService {
   async meInClub(user: User, club: Club) {
     const app = this.app;
 
+    const isLoggedIn = !!user;
+
     if (!club) {
       return {
+        isLoggedIn,
         isMember: false
       }
     }
@@ -42,10 +46,17 @@ export class MeInClubService extends BaseService {
       }
     };
 
+    const userData = user ? {
+      mainWallet: user ? await app.m.findOneBy(Wallet, {user: {id: user.id}}) : null,
+      screenName: user.screenName || `id${user.id}`,
+    } : {}
+
     return {
+      isLoggedIn,
       isMember,
       services,
       wallets,
+      ...userData,
     };
   }
 

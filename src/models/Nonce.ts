@@ -3,15 +3,16 @@ import {
   CreateDateColumn,
   Entity,
   Index,
-  PrimaryGeneratedColumn,
+
   UpdateDateColumn,
 } from 'typeorm';
+import {ClubeeoPrimaryColumn} from '../lib/modelCommon';
 
 @Entity()
 export default class Nonce {
 
-  @PrimaryGeneratedColumn()
-  id: number;
+  @ClubeeoPrimaryColumn()
+  id: string;
 
   @Column({type: String})
   @Index({unique: true})

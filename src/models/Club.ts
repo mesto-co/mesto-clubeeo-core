@@ -2,7 +2,6 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  PrimaryGeneratedColumn,
   UpdateDateColumn,
   ManyToOne,
   RelationId, OneToMany,
@@ -10,12 +9,23 @@ import {
 
 import User from './User'
 import ClubExt from './ClubExt'
-import UserClubRole from './UserClubRole'
+import MemberRole from './MemberRole'
 import {Index} from 'typeorm'
+import {ClubeeoPrimaryColumn} from '../lib/modelCommon'
 
 export interface IClubBuyLinks {
   opensea: string
   rarible: string
+}
+
+export interface IClubRoadmap {
+  entries: IClubRoadmapEntry[]
+}
+
+export interface IClubRoadmapEntry {
+  title: string
+  text: string
+  when: string
 }
 
 export interface IClubSocialLinks {
@@ -46,13 +56,14 @@ export interface IClubSettings {
   near?: {
     enabled: boolean,
   }
+  clubPostsCarouselAppId?: number
 }
 
 @Entity()
 export default class Club {
 
-  @PrimaryGeneratedColumn()
-  id: number;
+  @ClubeeoPrimaryColumn()
+  id: string;
 
   @Column({type: String, default: ''})
   name: string;
@@ -64,7 +75,7 @@ export default class Club {
   @ManyToOne(type => User)
   user: User
   @RelationId((self: Club) => self.user)
-  userId: number
+  userId: string
 
   @OneToMany(() => ClubExt, clubExt => clubExt.club)
   clubExts: ClubExt[];
@@ -104,6 +115,14 @@ export default class Club {
     default: () => "'{}'",
     nullable: false,
   })
+  roadmap: Partial<IClubRoadmap>;
+
+  @Column({
+    type: 'json',
+    array: false,
+    default: () => "'{}'",
+    nullable: false,
+  })
   style: Partial<IClubStyle>;
 
   @Column({
@@ -114,8 +133,8 @@ export default class Club {
   })
   settings: Partial<IClubSettings>;
 
-  @OneToMany(() => UserClubRole, rel => rel.club)
-  userClubRoles: UserClubRole[];
+  @OneToMany(() => MemberRole, rel => rel.club)
+  userClubRoles: MemberRole[];
 
   // DB auto insert time
   @CreateDateColumn()

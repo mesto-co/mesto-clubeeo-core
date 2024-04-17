@@ -4,19 +4,21 @@ import {StatusCodes} from 'http-status-codes'
 import {EntityManager} from 'typeorm'
 import {TgAuthCheck} from '../../clubApps/TelegramApp/lib/TgAuthCheck'
 import {ExtService} from '../../lib/enums'
+import ExtCode from '../../models/ExtCode'
+import App from '../../App'
 
-export interface ITelegramAuthApp<TUser> {
-  Env: {
-    tgToken: string
-  },
-  auth: {
-    getUser(session): Promise<TUser>;
-    logIn(userId: number, session);
-    logOut(session);
-  };
-  m: EntityManager;
-  nanoid: (size?: number) => string;
-}
+// export interface ITelegramAuthApp<TUser> {
+//   Env: {
+//     tgToken: string
+//   },
+//   auth: {
+//     getUser(session): Promise<TUser>;
+//     logIn(userId: string, session);
+//     logOut(session);
+//   };
+//   m: EntityManager;
+//   nanoid: (size?: number) => string;
+// }
 
 interface TgAuthParams {
   auth_date: number,
@@ -28,8 +30,21 @@ interface TgAuthParams {
   username: string,
 }
 
-export default function (app: ITelegramAuthApp<User>) {
+export default function (app: App) {
   return function (router, opts, next) {
+
+    router.post('/code-login', async (req, resp) => {
+      const {code} = req.body;
+
+      const loginCode = await app.repos.extCode.useTgLoginCode(code);
+
+      if (loginCode) {
+        app.auth.logIn(loginCode.userId, req.session);
+        resp.send({ok: true});
+      } else {
+        resp.send({ok: false});
+      }
+    });
 
     router.post('/login', {
       schema: {},
