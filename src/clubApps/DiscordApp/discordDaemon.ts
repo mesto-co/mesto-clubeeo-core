@@ -71,7 +71,7 @@ export default function discordDaemon(c: DiscordContainer) {
   const client = c.Discord;
 
   client.on('ready', () => {
-    console.log('bot is ready');
+    console.log('Discord bot is ready');
   });
 
   // client.on('guild')

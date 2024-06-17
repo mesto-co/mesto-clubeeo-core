@@ -116,30 +116,30 @@ export class TelegramBotUpdatesFactory {
               return false;
             }
 
-            const version = club.settings['version'] || 0;
+            // const version = club.settings['version'] || 0;
 
-            if (version < 2) {
-              // check by badge
-              const clubApp = clubExt.clubApp;
-              if (clubApp) {
-                const badgeSlug = clubApp.config['badgeSlug'];
-                if (badgeSlug) {
-                  const hasBadge = await app.engines.badgeEngine.hasBadgeBySlug(user, club, badgeSlug);
-                  if (hasBadge) {
-                    app.log.info('allowed_by_badge', {data: {userId: user.id, clubId: club.id, badgeSlug}});
-                    return true;
-                  }
-                }
-              }
+            // if (version < 2) {
+            //   // check by badge
+            //   const clubApp = clubExt.clubApp;
+            //   if (clubApp) {
+            //     const badgeSlug = clubApp.config['badgeSlug'];
+            //     if (badgeSlug) {
+            //       const hasBadge = await app.engines.badgeEngine.hasBadgeBySlug(user, club, badgeSlug);
+            //       if (hasBadge) {
+            //         app.log.info('allowed_by_badge', {data: {userId: user.id, clubId: club.id, badgeSlug}});
+            //         return true;
+            //       }
+            //     }
+            //   }
 
-              return await app.contexts.userInClub(user, club).isMember();
-            } else {
-              const clubApp = clubExt.clubApp;
-              if (clubApp) {
-                return await app.engines.accessEngine.userHasAccessToApp(user, clubApp);
-              }
-              return false;
+            //   return await app.contexts.userInClub(user, club).isMember();
+            // } else {
+
+            const clubApp = clubExt.clubApp;
+            if (clubApp) {
+              return await app.engines.accessEngine.userHasAccessToApp(user, clubApp);
             }
+            return false;
           } catch (e) {
             await app.log.error(e.message, {data: {error: e.toString(), tgChatId, tgUserId}});
             return false;
