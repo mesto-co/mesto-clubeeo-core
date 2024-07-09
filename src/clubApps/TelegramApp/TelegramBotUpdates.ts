@@ -62,7 +62,10 @@ export class TelegramBotUpdates {
    */
   async onTelegramUpdate(body: Update, key: string): Promise<null | { error: string }> {
     const keyIsValid = this.ports.tgCheckKey(key);
-    if (!keyIsValid) return {error: 'Key is not valid'};
+    if (!keyIsValid) {
+      console.error('Key is not valid', key, body);
+      return {error: 'Key is not valid'};
+    }
 
     await this.app.log.info('telegram:update', {data: body});
 
