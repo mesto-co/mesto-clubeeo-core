@@ -15,6 +15,7 @@ import {ClubeeoPrimaryColumn} from '../lib/modelCommon';
 
 export enum ExtCodeTypes {
   login = 'login',
+  loginConfirmed = 'loginConfirmed',
   verify = 'verify',
   webhook = 'webhook',
   activation = 'activation',

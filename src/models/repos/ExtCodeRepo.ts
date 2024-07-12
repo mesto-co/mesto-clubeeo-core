@@ -8,12 +8,12 @@ import {ExtService} from '../../lib/enums'
 
 export default class ExtCodeRepo extends BaseService implements IExtCodeRepo {
   async fetchTgLoginCode(user: User, club: Club) {
-    if (!user) return null;
+    // if (!user) return null;
 
     //todo: timelimits
 
     const {value: extCode} = await this.app.em.findOneOrCreateBy(ExtCode, {
-      user: {id: user.id},
+      user: user ? {id: user.id} : null,
       club: {id: club.id},
       service: ExtService.tg,
       codeType: ExtCodeTypes.login,
@@ -32,7 +32,7 @@ export default class ExtCodeRepo extends BaseService implements IExtCodeRepo {
       where: {
         code,
         service: ExtService.tg,
-        codeType: ExtCodeTypes.login,
+        codeType: ExtCodeTypes.loginConfirmed,
         used: false,
       },
       // relations: {

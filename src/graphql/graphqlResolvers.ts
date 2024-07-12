@@ -115,7 +115,7 @@ export const graphqlResolvers = (app: App) => ({
         return {
           loggedIn: !!user,
           screenName: user.screenName || `id${user.id}`,
-          mainWallet: await app.m.findOneBy(Wallet, {user: {id: user.id}}),
+          // mainWallet: await app.m.findOneBy(Wallet, {user: {id: user.id}}),
           isMember: await userInClub.isMember({useCache: true}),
           isAdmin,
           isPlatformAdmin,

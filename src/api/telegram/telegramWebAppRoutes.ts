@@ -12,66 +12,6 @@ import {fetchUserAndExtByExtId} from '../../contexts/UserExtContext'
 
 export default function (app: App) {
   return function (router, opts, next) {
-    // router.get('/debug', async (req, resp) => {
-    //   const initData = 'query_id=AAFFH5kNAAAAAEUfmQ3mmedg&user=%7B%22id%22%3A228138821%2C%22first_name%22%3A%22Roman%22%2C%22last_name%22%3A%22Exemplarov%22%2C%22username%22%3A%22urvalla%22%2C%22language_code%22%3A%22ru%22%2C%22is_premium%22%3Atrue%7D&auth_date=1666363817&hash=fcfaf320e9ebb76a80daeb413e5b609ccfe6eeca2acebe506f467eccb47fc813';
-    //   const clubSlug = 'clubeeo';
-    //
-    //   const tgAppInitData = app.TelegramContainer.tgAppInitData(initData);
-    //
-    //   if (!tgAppInitData.isInitDataValid) {
-    //     return resp.code(StatusCodes.FORBIDDEN).send({
-    //       ok: false,
-    //       error: 'Telegram WebApp initData is not valid',
-    //     });
-    //   }
-    //
-    //   const userData = tgAppInitData.userData;
-    //
-    //   const club = await app.repos.club.findBySlugOrFail(clubSlug || 'clubeeo');
-    //
-    //   let userExt = await app.m.findOne(UserExt, {
-    //     where: {
-    //       service: ExtService.tg,
-    //       extId: String(userData.id),
-    //     },
-    //     relations: ['user'],
-    //   });
-    //   let user = userExt?.user;
-    //
-    //   if (!userExt) {
-    //     userExt = await app.em.createAndSave(UserExt, {
-    //       service: ExtService.tg,
-    //       extId: String(userData.id),
-    //       data: userData,
-    //     });
-    //     user = await app.repos.user.create({
-    //       lang: userData.language_code,
-    //       screenName: app.repos.user.genScreenName(userData),
-    //     });
-    //   }
-    //
-    //   const {value: member} = await app.em.findOneOrCreateBy(Member, {
-    //     club: {id: club.id},
-    //     user: {id: user.id},
-    //   }, {
-    //     enabled: true,
-    //   })
-    //
-    //   resp.send({
-    //     ok: true,
-    //     userData,
-    //     userExt,
-    //     user,
-    //     member,
-    //     club,
-    //   })
-    // })
-
-    // router.get('/chatPhoto', async (req, resp) => {
-    //   resp.send(
-    //     await app.axios('https://api.telegram.org/file/bot185583708:AAGf0osVzEZXEm0gmT2WYfZFb4mRGp_Pdbc/profile_photos/file_84.jpg'),
-    //   );
-    // });
 
     router.post('/load', {}, async (req, resp) => {
       const {initData, clubSlug} = req.body;

@@ -15,6 +15,7 @@ import Club from '../../models/Club'
 import {botMemberEvents} from './events/botMemberEvents'
 import {botCommandEvents} from './events/botCommandEvents'
 import {Not} from 'typeorm'
+import { fetchUserAndExtByExtId } from '../../contexts/UserExtContext'
 
 export class TelegramBotUpdatesFactory {
   protected c: TelegramContainer
@@ -192,40 +193,40 @@ export class TelegramBotUpdatesFactory {
             await app.m.save(extCode);
 
             const club = extCode.club;
-            const user = extCode.user;
+            // const user = extCode.user;
 
-            // another telegram account bound to the same user
-            const existedUserExt = await app.m.findOneBy(UserExt, {
-              service: ExtService.tg,
-              user: {id: extCode.user.id},
-              extId: Not(String(data.tgUserId)),
-              enabled: true,
-            });
-            if (existedUserExt) {
-              existedUserExt.enabled = false;
-              await app.m.save(existedUserExt);
-            }
+            // todo: make optional for non-Telegram users
 
-            // same telegram account bound to the other user
-            let prevUserExt = await app.m.findOne(UserExt, {
-              where: {
-                service: ExtService.tg,
-                extId: String(data.tgUserId),
-                enabled: true,
-              }
-            });
-            if (prevUserExt) {
-              prevUserExt.enabled = false;
-              await app.m.save(prevUserExt);
-            }
+            // // another telegram account bound to the same user
+            // const existingUserExt = await app.m.findOneBy(UserExt, {
+            //   service: ExtService.tg,
+            //   user: {id: extCode.user.id},
+            //   extId: Not(String(data.tgUserId)),
+            //   enabled: true,
+            // });
+            // if (existingUserExt) {
+            //   existingUserExt.enabled = false;
+            //   await app.m.save(existingUserExt);
+            // }
 
-            const { value: userExt, isCreated: isUserExtCreated } = await app.em.findOneOrCreateBy(UserExt, {
+            // // same telegram account bound to the other user
+            // let prevUserExt = await app.m.findOne(UserExt, {
+            //   where: {
+            //     service: ExtService.tg,
+            //     extId: String(data.tgUserId),
+            //     enabled: true,
+            //   }
+            // });
+            // if (prevUserExt) {
+            //   prevUserExt.enabled = false;
+            //   await app.m.save(prevUserExt);
+            // }
+
+            const {userExt, user} = await fetchUserAndExtByExtId(app, {
               service: ExtService.tg,
               extId: String(data.tgUserId),
-              user: {id: extCode.user.id},
-              enabled: true,
-            }, {
-              data: data.data,
+              userData: data.data.from,
+              sourceData: data.data,
             });
 
             const tgUser = data.data.from;
@@ -237,14 +238,25 @@ export class TelegramBotUpdatesFactory {
               lastName: tgUser.last_name,
             });
 
+            // create new loginConfirmed code
+            await app.em.createAndSave(ExtCode, {
+              code: extCode.code,
+              user: {id: user.id},
+              club: {id: extCode.clubId},
+              service: ExtService.tg,
+              codeType: ExtCodeTypes.loginConfirmed,
+              used: false,
+            });
+
             await app.engines.motionEngine.processEvent(TelegramEventCodes['telegram:signIn'], {club, user}, {
               userExt,
               tgUser,
-              prevUserExt,
-              isUserExtCreated,
+              // prevUserExt,
+              // isUserExtCreated,
             });
 
-            return {loggedIn: true, club, user, prevUserExt};
+            // todo: remove prevUserExt
+            return {loggedIn: true, club, user, prevUserExt: null};
           } else {
             return {loggedIn: false};
           }

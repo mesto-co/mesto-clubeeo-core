@@ -14,7 +14,7 @@ import ClubRoleToken from './ClubRoleToken'
 import Member from './Member'
 import {ClubeeoPrimaryColumn} from '../lib/modelCommon';
 
-@Entity("user_club_role")
+@Entity()
 export default class MemberRole {
 
   @ClubeeoPrimaryColumn()
