@@ -57,6 +57,7 @@ export interface IClubSettings {
     enabled: boolean,
   }
   clubPostsCarouselAppId?: number
+  defaultRoles?: string[]
 }
 
 @Entity()

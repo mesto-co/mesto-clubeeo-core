@@ -10,8 +10,6 @@ import {cleanupTgMessage, tgI} from '../lib/tgHelpers'
 import MemberBadge from '../../../models/MemberBadge'
 import {BadgeType} from '../../../models/ClubBadge'
 import {fetchUserAndExtByExtId} from '../../../contexts/UserExtContext'
-import {CallbackQueryCommands} from '../TelegramBotUpdates'
-import Club from '../../../models/Club'
 
 export function botCommandEvents(app: App) {
   const events: Emitter<TBotCommandEvents> = mitt<TBotCommandEvents>();
@@ -31,6 +29,9 @@ export function botCommandEvents(app: App) {
     });
     await app.em.createOrUpdateBy(UserExtVal, {userExt: {id: userExt.id}, key: 'botState'}, {value: ''});
 
+    const activeClubCtx = await app.contexts.user(user).inActiveClubContext();
+    const member = await activeClubCtx.fetchMember();
+
     const reply = async (text) => {
       return await Telegram.sendMessage(message.chat.id,
         text, {
@@ -41,69 +42,66 @@ export function botCommandEvents(app: App) {
     if (command.command === '/start') {
       // todo: move start command processing here
 
-      const switchUserClub = async (data: { clubSlug: string }): Promise<Club> => {
-        const club = await app.repos.club.findBySlug(data.clubSlug);
+      // const switchUserClub = async (data: { clubSlug: string }): Promise<Club> => {
+      //   const club = await app.repos.club.findBySlug(data.clubSlug);
 
-        if (club && user) {
-          await app.em.createOrLazyUpdateBy(Member, {
-            user: {id: user.id},
-            club: {id: club.id},
-          }, {
-            enabled: true,
-          });
-          const userCtx = await app.contexts.user(user);
-          await userCtx.setActiveClub(club);
-        }
+      //   if (club && user) {
+      //     await app.em.createOrLazyUpdateBy(Member, {
+      //       user: {id: user.id},
+      //       club: {id: club.id},
+      //     }, {
+      //       enabled: true,
+      //     });
+      //     const userCtx = await app.contexts.user(user);
+      //     await userCtx.setActiveClub(club);
+      //   }
 
-        return club;
-      }
+      //   return club;
+      // }
 
-      if (command.param) {
-        const club = await switchUserClub({
-          clubSlug: command.param.split(' ')[0].toLowerCase(),
-        });
+      // if (command.param) {
+      //   const club = await switchUserClub({
+      //     clubSlug: command.param.split(' ')[0].toLowerCase(),
+      //   });
 
-        if (club) {
-          await Telegram.sendMessage(message.chat.id, `${club.name} is active\n\nuse /help for bot info`, {
-            reply_markup: {
-              inline_keyboard: [
-                [{
-                  text: `open ${club.name} menu`,
-                  web_app: {url: `${app.Env.tgCallbackRoot}/telegram/webapp/${club.slug}`},
-                }],
-              ],
-            },
-          });
-        } else {
-          await Telegram.sendMessage(message.chat.id, "You're binding your wallet to Telegram account", {
-            reply_markup: {
-              inline_keyboard: [
-                [{text: 'Confirm', callback_data: `${CallbackQueryCommands.signin}:${command.param}`}],
-              ],
-            },
-          });
-        }
-      } else if (!command.param) {
+      //   if (club) {
+      //     await Telegram.sendMessage(message.chat.id, `${club.name} is active\n\nuse /help for bot info`, {
+      //       reply_markup: {
+      //         inline_keyboard: [
+      //           [{
+      //             text: `open ${club.name} menu`,
+      //             web_app: {url: `${app.Env.tgCallbackRoot}/telegram/webapp/${club.slug}`},
+      //           }],
+      //         ],
+      //       },
+      //     });
+      //   } else {
+      //     await Telegram.sendMessage(message.chat.id, "You're binding your wallet to Telegram account", {
+      //       reply_markup: {
+      //         inline_keyboard: [
+      //           [{text: 'Confirm', callback_data: `${CallbackQueryCommands.signin}:${command.param}`}],
+      //         ],
+      //       },
+      //     });
+      //   }
+      // } else if (!command.param) {
         await Telegram.sendMessage(message.chat.id, [
-          "welcome to Clubeeo!",
-          "",
-          "you can use /help command to get information about available commands",
-          "or open Clubeeo app using this button:",
+          "Добро пожаловыть в Место!",
         ].join("\n"), {
           parse_mode: 'HTML',
           reply_markup: {
             inline_keyboard: [
               [{
-                text: `open clubeeo app`,
-                web_app: {url: `${app.Env.tgCallbackRoot}/telegram/webapp/clubeeo`},
+                text: `Open App`,
+                web_app: {url: `${app.Env.tgCallbackRoot}/telegram/webapp/${app.Env.defaultClub}`},
               }],
             ],
           },
         });
-      }
+      // }
     } else if (command.command === '/create') {
 
-      const club = await app.repos.club.findBySlug('clubeeo');
+      const club = await app.repos.club.findBySlug(app.Env.defaultClub);
       const createLink = `${app.Env.tgCallbackRoot}/me/club/new?telegramLoginCode=${await app.repos.extCode.fetchTgLoginCode(user, club)}`;
 
       await Telegram.sendMessage(message.chat.id, [
@@ -122,8 +120,8 @@ export function botCommandEvents(app: App) {
     } else if (command.command === '/login') {
 
       // find club by slug if provided
-      const club = await app.repos.club.findBySlug(command.param.toLowerCase() || 'clubeeo')
-        || await app.repos.club.findBySlug('clubeeo');
+      const club = await app.repos.club.findBySlug(command.param.toLowerCase() || app.Env.defaultClub)
+        || await app.repos.club.findBySlug(app.Env.defaultClub);
 
       const loginLink = `${app.Env.tgCallbackRoot}/${club.slug}/home?telegramLoginCode=${await app.repos.extCode.fetchTgLoginCode(user, club)}`;
 

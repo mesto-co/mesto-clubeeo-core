@@ -12,6 +12,7 @@ import MemberBadge from '../models/MemberBadge'
 import Member from '../models/Member'
 import {FindOptionsWhere} from 'typeorm/find-options/FindOptionsWhere'
 import ClubApp from '../engines/AppEngine/models/ClubApp'
+import ClubRole from '../models/ClubRole'
 
 export default class UserInClubContext {
   readonly app: App;
@@ -74,6 +75,10 @@ export default class UserInClubContext {
     });
 
     this.member = result.value;
+
+    if (result.isCreated) {
+      await this.assignDefaultRoles();
+    }
 
     return result;
   }
@@ -172,6 +177,30 @@ export default class UserInClubContext {
       this.app.log.warn(message, {data: this.contextModelIds});
 
       throw new mercurius.ErrorWithProps('User is not authorized', {}, StatusCodes.UNAUTHORIZED);
+    }
+  }
+
+  async assignDefaultRoles() {
+    if (!this.user || !this.club) throw new Error('User or club is not set');
+
+    const defaultRoleNames = this.club.settings.defaultRoles || ['@guest'];
+
+    const defaultRoles = await this.app.m.find(ClubRole, {
+      where: {
+        club: {id: this.club.id},
+        name: In(defaultRoleNames),
+      },
+    });
+
+    for (const role of defaultRoles) {
+      await this.app.em.findOneOrCreateBy(MemberRole, {
+        user: {id: this.user.id},
+        club: {id: this.club.id},
+        member: {id: this.member.id},
+        clubRole: {id: role.id},
+      }, {
+        enabled: true,
+      });
     }
   }
 

@@ -43,7 +43,7 @@ export default function (app: App) {
       } else if (user.activeClubId) {
         club = await app.repos.club.findById(user.activeClubId);
       } else {
-        club = await app.repos.club.findBySlugOrFail('clubeeo');
+        club = await app.repos.club.findBySlugOrFail(app.Env.defaultClub);
       }
 
       const memberCtx = await app.contexts

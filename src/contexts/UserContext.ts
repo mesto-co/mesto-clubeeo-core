@@ -75,7 +75,7 @@ export class UserContext {
   async getActiveClub() {
     return this.user.activeClubId
       ? await this.app.m.findOneBy(Club, {id: this.user.activeClubId})
-      : await this.app.m.findOneBy(Club, {slug: 'clubeeo'});
+      : await this.app.m.findOneBy(Club, {slug: this.app.Env.defaultClub});
   }
 
   async setActiveClub(club: Club) {

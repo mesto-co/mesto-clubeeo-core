@@ -28,7 +28,8 @@ createConnection({
 }).catch(error => console.log(error));
 
 const install = async (app: App) => {
-  const { value: clubeeoClub } = await app.em.findOneOrCreateBy(Club, {slug: 'clubeeo'}, {name: 'Clubeeo'});
+  const clubName = env.defaultClub[0].toUpperCase() + env.defaultClub.slice(1);
+  const { value: clubeeoClub } = await app.em.findOneOrCreateBy(Club, {slug: env.defaultClub}, {name: clubName});
 
   const clubeeoPostsApp = await app.em.createOrUpdateBy(ClubApp, {
     club: {id: clubeeoClub.id},

@@ -7,24 +7,27 @@ import telegramHookRoutes from './api/telegramHookRoutes'
 import TgAppInitData from './lib/TgAppInitData'
 import {Message} from 'typegram/message'
 import {tgUserContextByMessage} from './lib/TgUserContext'
+import { TelegramEnv } from './TelegramEnv';
 
 export class BaseTelegramContainer {
   readonly Env: AppEnv;
+  readonly tgEnv: TelegramEnv;
 
-  constructor(env: AppEnv) {
+  constructor(env: AppEnv, tgEnv?: TelegramEnv) {
     this.Env = env;
+    this.tgEnv = tgEnv || TelegramEnv.getInstance();
   }
 
   protected _Telegram: Telegram;
   get Telegram(): Telegram {
-    return this._Telegram || (this._Telegram = new Telegram(this.Env.tgToken, {
+    return this._Telegram || (this._Telegram = new Telegram(this.tgEnv.telegramToken, {
       webhookReply: true,
       apiRoot: this.Env.tgApi,
     }))
   }
 
   tgAppInitData(initData: string): TgAppInitData {
-    return new TgAppInitData(initData, this.Env.tgToken);
+    return new TgAppInitData(initData, this.tgEnv.telegramToken);
   }
 }
 
