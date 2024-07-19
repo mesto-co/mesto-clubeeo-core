@@ -46,9 +46,11 @@ export default class MemberRepo extends BaseService {
     if (memberLocator.startsWith('userId:')) {
       const userId = memberLocator.split('userId:', 2)[1];
       return {userId};
-    } else if (memberLocator.startsWith('member:')) {
-      const memberId = memberLocator.split('member:', 2)[1];
+    } else if (memberLocator.startsWith('memberId:')) {
+      const memberId = memberLocator.split('memberId:', 2)[1];
       return {memberId};
+    } else {
+      throw new Error('Invalid member locator: ' + memberLocator);
     }
   }
 
