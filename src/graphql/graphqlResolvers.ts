@@ -33,9 +33,10 @@ export const graphqlResolvers = (app: App) => ({
         where: {
           userClubRoles: {
             user: {id: user.id},
+            enabled: true,
           },
         },
-        order: {id: 'DESC'},
+        order: {id: 'ASC'},
       });
 
       return clubs;
