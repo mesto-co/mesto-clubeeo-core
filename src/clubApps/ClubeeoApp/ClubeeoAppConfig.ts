@@ -162,7 +162,7 @@ export const ClubeeoAppConfig: IAppConfig = {
       name: 'grant badge',
       description: 'assign a badge to member',
       props: {
-        badge: {
+        badgeId: {
           key: 'badgeId',
           label: 'badge',
           type: 'string',
@@ -215,9 +215,9 @@ export const ClubeeoAppConfig: IAppConfig = {
     [actionTypes.role.grant]: {
       key: actionTypes.role.grant,
       name: 'grant role',
-      description: 'assign a role to member',
+      description: 'assign role to member',
       props: {
-        badge: {
+        roleId: {
           key: 'roleId',
           label: 'role',
           type: 'string',
@@ -261,6 +261,51 @@ export const ClubeeoAppConfig: IAppConfig = {
       //     data: { memberRole, isCreated }
       //   };
       // },
+    },
+    [actionTypes.role.remove]: {
+      key: actionTypes.role.remove,
+      name: 'remove role',
+      description: 'remove role from member',
+      props: {
+        roleId: {
+          key: 'roleId',
+          label: 'role',
+          type: 'string',
+          description: 'role to grant',
+          editor: {
+            type: 'select',
+          },
+          values: listRoles,
+        },
+      },
+      input: {
+        'member.id': {
+          key: 'member.id',
+          type: 'number',
+          label: 'member ID',
+          description: 'community member identifier',
+        },
+      },
+      call: async ($: IAppMutation$, data): Promise<ICallResult> => {
+        const roleId = $.action?.actionProps?.roleId || data.roleId;
+        if (!roleId) return { state: MotionActionState.failed, error: 'no roleId' };
+
+        const clubRole = await $.app.m.findOneBy(ClubRole, {
+          id: roleId,
+          club: {id: $.club.id}
+        });
+        if (!clubRole) return { state: MotionActionState.failed, error: 'role not found' };
+
+        const {memberRole} = await $.app.engines.roleEngine.removeRole({
+          member: $.member,
+          clubRole,
+        });
+
+        return {
+          state: MotionActionState.done,
+          data: { memberRole }
+        };
+      },
     },
   },
   config: {

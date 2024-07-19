@@ -37,6 +37,7 @@ export const actionTypes = {
   },
   role: {
     grant: 'role:grant',
+    remove: 'role:remove',
   },
 
 
