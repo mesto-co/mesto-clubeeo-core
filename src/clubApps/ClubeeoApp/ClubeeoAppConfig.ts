@@ -271,7 +271,7 @@ export const ClubeeoAppConfig: IAppConfig = {
           key: 'roleId',
           label: 'role',
           type: 'string',
-          description: 'role to grant',
+          description: 'role to remove',
           editor: {
             type: 'select',
           },
