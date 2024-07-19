@@ -39,10 +39,10 @@ export class RoleEngine {
     });
 
     let emitCreatedEvent = isCreated;
-
     if (!isCreated && !memberRole.enabled) {
       memberRole.enabled = true;
       await this.app.m.save(memberRole);
+      emitCreatedEvent = true;
     }
 
     if (emitCreatedEvent) {
