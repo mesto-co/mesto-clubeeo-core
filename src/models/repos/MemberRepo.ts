@@ -25,6 +25,33 @@ export default class MemberRepo extends BaseService {
     return await this.findById(entity.id);
   }
 
+  async findByLocator(locator: string, club: Club | IEntityId): Promise<Member> {
+    const parsedLocator = this.parseMemberLocator(locator);
+
+    if ('userId' in parsedLocator) {
+      const user = await this.app.repos.user.findById(parsedLocator.userId);
+      const {value: member} = await this.findOrCreate({user, club});
+      member.user = user;
+      return member;
+    } else if ('memberId' in parsedLocator) {
+      const member = await this.app.m.findOne(Member, {
+        where: {id: parsedLocator.memberId, club: {id: club.id}},
+        relations: {user: true},
+      });
+      return member;
+    }
+  }
+
+  parseMemberLocator(memberLocator: string) {
+    if (memberLocator.startsWith('userId:')) {
+      const userId = memberLocator.split('userId:', 2)[1];
+      return {userId};
+    } else if (memberLocator.startsWith('member:')) {
+      const memberId = memberLocator.split('member:', 2)[1];
+      return {memberId};
+    }
+  }
+
   // async loadByClubUser(opts: {user: User | IEntityId, club: Club | IEntityId}) {
   //   return await this.app.m.findOneBy(Member, {
   //     club: {id: opts.club.id},

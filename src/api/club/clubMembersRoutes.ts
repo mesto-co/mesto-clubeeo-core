@@ -1,16 +1,9 @@
 import App from '../../App';
 import {arr, enumStr, id, int, nullable, num, obj, str} from 'json-schema-blocks'
-import User from '../../models/User'
 import ClubRole from '../../models/ClubRole'
 import MemberRole from '../../models/MemberRole'
 import ClubBadge, {BadgeType} from '../../models/ClubBadge'
 import MemberBadge from '../../models/MemberBadge'
-import Member from '../../models/Member'
-
-const parseMemberLocator = (memberLocator: string): { userId: string } => {
-  const userId = memberLocator.split('userId:', 2)[1];
-  return {userId: userId};
-}
 
 const memberResponseSchema = obj({
   user: obj({
@@ -74,10 +67,9 @@ export default function (app: App) {
       await memberCtx.assertCanViewMemberData({member: authMember});
       const club = memberCtx.club;
 
-      const {userId} = parseMemberLocator(memberLocator);
+      const member = await app.repos.member.findByLocator(memberLocator, club);
+      const user = member.user;
 
-      const user = await app.repos.user.findById(userId);
-      const {value: member} = await app.repos.member.findOrCreate({user, club}); //todo: request by member, not by user
       const roles = await app.m.find(MemberRole, {
         where: {
           member: {id: member.id},
@@ -149,15 +141,7 @@ export default function (app: App) {
       await cMember.requireRole('admin');
       const club = cMember.club;
 
-      const {userId} = parseMemberLocator(req.params.memberLocator);
-
-      const memberUser = await app.m.findOneBy(User, {
-        id: userId,
-      });
-      const {value: member} = await app.repos.member.findOrCreate({
-        club: {id: club.id},
-        user: {id: userId},
-      });
+      const member = await app.repos.member.findByLocator(req.params.memberLocator, club);
 
       for (const [roleId, roleEnabled] of Object.entries(req.body.roles)) {
         const clubRole = await app.m.findOneByOrFail(ClubRole, {
@@ -199,12 +183,7 @@ export default function (app: App) {
       await cMember.requireRole('admin');
       const club = cMember.club;
 
-      const {userId} = parseMemberLocator(req.params.memberLocator);
-
-      const member = await app.m.findOneByOrFail(Member, {
-        user: {id: userId},
-        club: {id: club.id},
-      });
+      const member = await app.repos.member.findByLocator(req.params.memberLocator, club);
 
       const badge = await app.m.findOneByOrFail(ClubBadge, {
         id: req.body.badge.id,
