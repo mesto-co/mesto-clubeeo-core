@@ -6,6 +6,7 @@ import {SubscriptionEngine} from './engines/SubscriptionEngine/SubscriptionEngin
 import {ContainerBase} from './lib/ContainerBase'
 import App from './App'
 import AppEngine from './engines/AppEngine/AppEngine'
+import { TranslationEngine } from './engines/TranslationEngine/TranslationEngine';
 
 export class Engines extends ContainerBase {
   protected app: App
@@ -21,6 +22,7 @@ export class Engines extends ContainerBase {
   get motionEngine() { return this.patch('motionEngine', () => new MotionEngine(this.app)) }
   get roleEngine() { return this.patch('roleEngine', () => new RoleEngine(this.app)) }
   get subscriptionsEngine() { return this.patch('subscriptionsEngine', () => new SubscriptionEngine(this.app)) }
+  get translation() { return this.patch('translation', () => new TranslationEngine(this.app)) }
 
 }
 

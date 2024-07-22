@@ -80,6 +80,9 @@ export default class App extends NoDBContainer {
   get DB(): DataSource { return this.db }
   get m(): EntityManager { return this.db.manager }
   get em() { return this.patch('em', () => new ExtendedEntityManager(this.m)) }
+  async t(code: string, lang: string, values: Record<string, string>, def?: string) {
+    return await this.engines.translation.t(code, lang, values, def)
+  }
 
   // services
   get access() { return this.patch('access', () => new AccessService(this)) }

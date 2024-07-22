@@ -352,6 +352,10 @@ export default class UserInClubContext {
 
     return new Date(Math.min(...dates));
   }
+
+  get lang() {
+    return this.user.lang || this.club.settings.defaultLang || this.app.Env.defaultLang;
+  }
 }
 
 export interface IAppMenuItem {

@@ -195,6 +195,9 @@ export class AppEnv {
   @Env(500)
   readonly taskProcessingInterval: number;
 
+  @Env('en')
+  readonly defaultLang: string;
+
   @Env('clubeeo')
   readonly defaultClub: string;
 

@@ -10,6 +10,7 @@ import {cleanupTgMessage, tgI} from '../lib/tgHelpers'
 import MemberBadge from '../../../models/MemberBadge'
 import {BadgeType} from '../../../models/ClubBadge'
 import {fetchUserAndExtByExtId} from '../../../contexts/UserExtContext'
+import { CallbackQueryCommands } from '../TelegramBotUpdates';
 
 export function botCommandEvents(app: App) {
   const events: Emitter<TBotCommandEvents> = mitt<TBotCommandEvents>();
@@ -59,11 +60,10 @@ export function botCommandEvents(app: App) {
       //   return club;
       // }
 
-      // if (command.param) {
+      if (command.param) {
       //   const club = await switchUserClub({
       //     clubSlug: command.param.split(' ')[0].toLowerCase(),
       //   });
-
       //   if (club) {
       //     await Telegram.sendMessage(message.chat.id, `${club.name} is active\n\nuse /help for bot info`, {
       //       reply_markup: {
@@ -76,17 +76,20 @@ export function botCommandEvents(app: App) {
       //       },
       //     });
       //   } else {
-      //     await Telegram.sendMessage(message.chat.id, "You're binding your wallet to Telegram account", {
-      //       reply_markup: {
-      //         inline_keyboard: [
-      //           [{text: 'Confirm', callback_data: `${CallbackQueryCommands.signin}:${command.param}`}],
-      //         ],
-      //       },
-      //     });
-      //   }
-      // } else if (!command.param) {
+        await Telegram.sendMessage(
+          message.chat.id,
+          await app.t('bot.signin', activeClubCtx.lang, {}, 'Please, confirm your login to the web app'),
+          {
+            reply_markup: {
+              inline_keyboard: [
+                [{text: 'Confirm', callback_data: `${CallbackQueryCommands.signin}:${command.param}`}],
+              ],
+            },
+          }
+        );
+      } else if (!command.param) {
         await Telegram.sendMessage(message.chat.id, [
-          "Добро пожаловыть в Место!",
+          await app.t('bot.welcome', activeClubCtx.lang, {}, 'Welcome!'),
         ].join("\n"), {
           parse_mode: 'HTML',
           reply_markup: {
@@ -98,7 +101,7 @@ export function botCommandEvents(app: App) {
             ],
           },
         });
-      // }
+      }
     } else if (command.command === '/create') {
 
       const club = await app.repos.club.findBySlug(app.Env.defaultClub);
