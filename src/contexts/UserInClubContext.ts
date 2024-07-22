@@ -78,6 +78,12 @@ export default class UserInClubContext {
 
     if (result.isCreated) {
       await this.assignDefaultRoles();
+    } else {
+      // ensure one of the required roles is assigned (one of default roles, @member or admin)
+      const hasRequiredRole = await this.hasOneOfRoles(...this.defaultRoleNames, '@member', 'admin');
+      if (!hasRequiredRole) {
+        await this.assignDefaultRoles();
+      }
     }
 
     return result;
@@ -130,7 +136,6 @@ export default class UserInClubContext {
     return !!userClubRole;
   }
 
-  //todo: rename to hasStaticRole role and add to engine
   async hasRole(role: string) {
     if (!this.user?.id || !this.club?.id) return false;
 
@@ -140,6 +145,22 @@ export default class UserInClubContext {
       clubRole: {
         club: {id: this.club.id},
         name: role,
+      },
+      enabled: true,
+    });
+
+    return !!userClubRole;
+  }
+
+  async hasOneOfRoles(...roles: string[]) {
+    if (!this.user?.id || !this.club?.id) return false;
+
+    const userClubRole = await this.app.m.findOneBy(MemberRole, {
+      user: {id: this.user.id},
+      club: {id: this.club.id},
+      clubRole: {
+        club: {id: this.club.id},
+        name: In(roles),
       },
       enabled: true,
     });
@@ -183,7 +204,7 @@ export default class UserInClubContext {
   async assignDefaultRoles() {
     if (!this.user || !this.club) throw new Error('User or club is not set');
 
-    const defaultRoleNames = this.club.settings.defaultRoles || ['@guest'];
+    const defaultRoleNames = this.defaultRoleNames;
 
     const defaultRoles = await this.app.m.find(ClubRole, {
       where: {
@@ -355,6 +376,10 @@ export default class UserInClubContext {
 
   get lang() {
     return this.user.lang || this.club.settings.defaultLang || this.app.Env.defaultLang;
+  }
+
+  get defaultRoleNames() {
+    return this.club.settings.defaultRoles || ['@guest'];
   }
 }
 
