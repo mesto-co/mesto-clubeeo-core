@@ -139,7 +139,7 @@ export default class UserInClubContext {
   async hasRole(role: string) {
     if (!this.user?.id || !this.club?.id) return false;
 
-    const userClubRole = await this.app.m.findOneBy(MemberRole, {
+    const memberRoleCount = await this.app.m.countBy(MemberRole, {
       user: {id: this.user.id},
       club: {id: this.club.id},
       clubRole: {
@@ -149,13 +149,13 @@ export default class UserInClubContext {
       enabled: true,
     });
 
-    return !!userClubRole;
+    return memberRoleCount > 0;
   }
 
   async hasOneOfRoles(...roles: string[]) {
     if (!this.user?.id || !this.club?.id) return false;
 
-    const userClubRole = await this.app.m.findOneBy(MemberRole, {
+    const membeRoleCount = await this.app.m.countBy(MemberRole, {
       user: {id: this.user.id},
       club: {id: this.club.id},
       clubRole: {
@@ -165,7 +165,7 @@ export default class UserInClubContext {
       enabled: true,
     });
 
-    return !!userClubRole;
+    return membeRoleCount > 0;
   }
 
   async canViewMemberData(opts: {member: Member}) {
@@ -214,7 +214,7 @@ export default class UserInClubContext {
     });
 
     for (const role of defaultRoles) {
-      await this.app.em.findOneOrCreateBy(MemberRole, {
+      await this.app.em.createOrLazyUpdateBy(MemberRole, {
         user: {id: this.user.id},
         club: {id: this.club.id},
         member: {id: this.member.id},
