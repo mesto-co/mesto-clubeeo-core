@@ -26,6 +26,7 @@ import pageAppRoutes from './clubApps/PageApp/api/pageAppRoutes'
 import globalRoutes from './api/globalRoutes'
 import ethGatingAppRoutes from './clubApps/EthGatingApp/api/ethGatingAppRoutes'
 import feedAppRoutes from './clubApps/FeedApp/api/feedAppRoutes';
+import telegramAppRoutes from './clubApps/TelegramApp/api/telegramAppRoutes';
 
 export default function (app: App) {
   function clubDashboardRoutes(router, opts, next) {
@@ -37,6 +38,10 @@ export default function (app: App) {
   }
 
   function clubByIdAppsRoutes(router, opts, next) {
+
+    router.register(telegramAppRoutes(app), {prefix: '/:appId/telegram'});
+
+    // todo: mount each with prefix
 
     router.register(pageAppRoutes(app));
 

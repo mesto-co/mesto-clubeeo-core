@@ -20,8 +20,6 @@ import {badgeMutations, clubBadgesResolvers} from './badgesGraphql'
 import {clubRolesResolvers, rolesMutations} from './rolesGraphql'
 import MemberBadge from '../models/MemberBadge'
 import ClubApp from '../engines/AppEngine/models/ClubApp'
-import Member from '../models/Member'
-import {nanoid} from 'nanoid'
 
 export const graphqlResolvers = (app: App) => ({
   Query: {
