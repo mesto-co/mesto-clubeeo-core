@@ -60,15 +60,18 @@ export default class App extends NoDBContainer {
   readonly clubUserEvents: Emitter<ClubUserEvents>;
   readonly postEvents: Emitter<TPostEvents>;
 
-  constructor(db: DataSource, env: AppEnv) {
+  constructor(env: AppEnv) {
     super();
 
     this.env = env;
-    this.db = db;
 
     this.tokenEvents = tokenEventsFactory(this);
     this.clubUserEvents = clubUserEventsFactory(this);
     this.postEvents = postEventsFactory(this);
+  }
+
+  async init() {
+    this.db = await this.DataSource.initialize();
   }
 
   // nested containers
@@ -77,9 +80,32 @@ export default class App extends NoDBContainer {
   get repos() { return this.patch('repos', () => new ReposContainer(this)) }
 
   // database
+  get DataSource(): DataSource {
+    return this.patch('DataSource',
+      () => new DataSource({
+        type: this.Env.databaseType as 'postgres',
+        host: this.Env.databaseHost,
+        port: this.Env.databasePort,
+        username: this.Env.databaseUser,
+        password: this.Env.databasePassword,
+        database: this.Env.databaseName,
+        ssl: this.Env.databaseSsl,
+        entities: [
+          __dirname + "/models/*.ts",
+          __dirname + "/engines/SubscriptionEngine/models/*.ts",
+          __dirname + "/engines/AppEngine/models/*.ts",
+          __dirname + "/engines/MotionEngine/models/*.ts",
+          __dirname + "/engines/TranslationEngine/models/*.ts",
+        ],
+        synchronize: true,
+      })
+    );
+  }
   get DB(): DataSource { return this.db }
   get m(): EntityManager { return this.db.manager }
   get em() { return this.patch('em', () => new ExtendedEntityManager(this.m)) }
+
+  // i18n
   async t(code: string, lang: string, values: Record<string, string>, def?: string) {
     return await this.engines.translation.t(code, lang, values, def)
   }
@@ -110,5 +136,4 @@ export default class App extends NoDBContainer {
   get Discord(): discord.Client { return this.DiscordContainer.Discord }
   get DiscordContainer() { return this.patch('DiscordContainer', () => new DiscordContainer(this)) }
   get TelegramContainer() { return this.patch('TelegramContainer', () => new TelegramContainer(this)) }
-
 }
