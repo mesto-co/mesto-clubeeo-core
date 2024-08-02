@@ -3,7 +3,7 @@ import {AccessEngine} from './engines/AccessEngine/AccessEngine'
 import {RoleEngine} from './engines/RoleEngine/RoleEngine'
 import MotionEngine from './engines/MotionEngine/MotionEngine';
 import {SubscriptionEngine} from './engines/SubscriptionEngine/SubscriptionEngine'
-import {ContainerBase} from './lib/ContainerBase'
+import {ContainerBase} from './core/lib/ContainerBase'
 import App from './App'
 import AppEngine from './engines/AppEngine/AppEngine'
 import { TranslationEngine } from './engines/TranslationEngine/TranslationEngine';
@@ -25,4 +25,3 @@ export class Engines extends ContainerBase {
   get translation() { return this.patch('translation', () => new TranslationEngine(this.app)) }
 
 }
-

@@ -1,10 +1,8 @@
 import {
   Column,
-  CreateDateColumn,
   Entity,
   Index, ManyToOne, OneToMany,
   RelationId,
-  UpdateDateColumn,
 } from 'typeorm/index';
 import UserExt from './UserExt'
 import Wallet from './Wallet'
@@ -13,25 +11,16 @@ import Club from './Club'
 import Member from './Member'
 import MemberBadge from './MemberBadge'
 import {ClubeeoPrimaryColumn} from '../lib/modelCommon';
+import UserModel from '../core/models/UserModel';
 
 @Entity()
-export default class User {
+export default class User extends UserModel {
 
   @ClubeeoPrimaryColumn()
   id: string;
 
-  @Column({type: String, nullable: true})
-  @Index({unique: true})
-  email: string;
-
-  @Column({type: String, default: ''})
-  screenName: string;
-
   @Column({type: String, default: ''})
   imgUrl: string;
-
-  @Column({type: String, default: ''})
-  password: string;
 
   @Column({type: Boolean, default: false})
   confirmed: boolean;
@@ -46,9 +35,6 @@ export default class User {
 
   @Column({nullable: true})
   changePasswordCreatedAt: Date;
-
-  @Column({type: String, default: ''})
-  timezone: string;
 
   @Column({type: String, default: ''})
   lang: string;
@@ -72,13 +58,5 @@ export default class User {
   activeClub: Club;
   @RelationId((self: User) => self.activeClub)
   activeClubId: string;
-
-  // DB insert time
-  @CreateDateColumn()
-  public createdAt: Date;
-
-  // DB last update time
-  @UpdateDateColumn()
-  public updatedAt: Date;
 
 }

@@ -10,8 +10,8 @@ import {
 import User from './User'
 import ClubExt from './ClubExt'
 import MemberRole from './MemberRole'
-import {Index} from 'typeorm'
 import {ClubeeoPrimaryColumn} from '../lib/modelCommon'
+import ClubModel from '../core/models/ClubModel';
 
 export interface IClubBuyLinks {
   opensea: string
@@ -28,27 +28,6 @@ export interface IClubRoadmapEntry {
   when: string
 }
 
-export interface IClubSocialLinks {
-  telegram: string
-  discord: string
-  instagram: string
-  twitter: string
-  etherscan: string
-  web: string
-}
-
-export interface IClubStyle {
-  color: string
-  textColor: string
-  primaryColor: string
-  primaryTextColor: string
-  font: string
-  socialColor: string
-  socialTextColor: string
-  heroImg: string
-  logoImg: string
-}
-
 export interface IClubSettings {
   eth?: {
     enabled: boolean
@@ -62,17 +41,10 @@ export interface IClubSettings {
 }
 
 @Entity()
-export default class Club {
+export default class Club extends ClubModel<Partial<IClubSettings>> {
 
   @ClubeeoPrimaryColumn()
   id: string;
-
-  @Column({type: String, default: ''})
-  name: string;
-
-  @Column({type: String, default: ''})
-  @Index({unique: true})
-  slug: string;
 
   @ManyToOne(type => User)
   user: User
@@ -81,9 +53,6 @@ export default class Club {
 
   @OneToMany(() => ClubExt, clubExt => clubExt.club)
   clubExts: ClubExt[];
-
-  @Column({type: String, default: ''})
-  description: string;
 
   @Column({type: String, default: ''})
   welcome: string;
@@ -109,41 +78,9 @@ export default class Club {
     default: () => "'{}'",
     nullable: false,
   })
-  socialLinks: Partial<IClubSocialLinks>;
-
-  @Column({
-    type: 'json',
-    array: false,
-    default: () => "'{}'",
-    nullable: false,
-  })
   roadmap: Partial<IClubRoadmap>;
-
-  @Column({
-    type: 'json',
-    array: false,
-    default: () => "'{}'",
-    nullable: false,
-  })
-  style: Partial<IClubStyle>;
-
-  @Column({
-    type: 'json',
-    array: false,
-    default: () => "'{}'",
-    nullable: false,
-  })
-  settings: Partial<IClubSettings>;
 
   @OneToMany(() => MemberRole, rel => rel.club)
   userClubRoles: MemberRole[];
-
-  // DB auto insert time
-  @CreateDateColumn()
-  public createdAt: Date;
-
-  // DB last update time
-  @UpdateDateColumn()
-  public updatedAt: Date;
 
 }

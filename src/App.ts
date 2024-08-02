@@ -1,5 +1,4 @@
 import {nanoid} from 'nanoid';
-import {EntityManager} from 'typeorm/index';
 import {AppEnv} from './appEnv';
 import AuthService from './services/AuthService';
 import {IModelHooksService, ModelHooksDummyService} from './services/ModelHooksService';
@@ -28,10 +27,12 @@ import ExtendedEntityManager from './lib/ExtendedEntityManager'
 import {Engines} from './Engines'
 import {SimpleFileUploadService} from './services/uploads/SimpleFileUploadService'
 import {ClubWidgetFactory} from './factories/ClubWidgetFactory'
-import {ContainerBase} from './lib/ContainerBase'
 import {AppFactory} from './engines/AppEngine/AppFactory'
+import { CoreApp } from './core/CoreApp';
+import { taskProcessingDaemon } from './daemons/TaskProcessingDaemon/taskProcessingDaemon';
+import discordDaemon from './clubApps/DiscordApp/discordDaemon';
 
-export class NoDBContainer extends ContainerBase {
+export class NoDBContainer extends CoreApp {
   protected env: AppEnv
 
   public fastify;
@@ -54,8 +55,6 @@ export class NoDBContainer extends ContainerBase {
  * * Interface named in snake case without "Service" suffix  (e.g. templateMailer)
  */
 export default class App extends NoDBContainer {
-  protected db: DataSource
-
   readonly tokenEvents: Emitter<TokenEvents>;
   readonly clubUserEvents: Emitter<ClubUserEvents>;
   readonly postEvents: Emitter<TPostEvents>;
@@ -70,8 +69,21 @@ export default class App extends NoDBContainer {
     this.postEvents = postEventsFactory(this);
   }
 
-  async init() {
-    this.db = await this.DataSource.initialize();
+  async run() {
+    await super.run();
+
+    if (this.Env.workers.legacyTasks) {
+      // cron(app);
+      taskProcessingDaemon(this);
+    }
+
+    if (this.Env.workers.motion) {
+      this.engines.motionEngine.runDaemon();
+    }
+
+    if (this.Env.workers.discord) {
+      discordDaemon(this.DiscordContainer);
+    }
   }
 
   // nested containers
@@ -80,29 +92,16 @@ export default class App extends NoDBContainer {
   get repos() { return this.patch('repos', () => new ReposContainer(this)) }
 
   // database
-  get DataSource(): DataSource {
-    return this.patch('DataSource',
-      () => new DataSource({
-        type: this.Env.databaseType as 'postgres',
-        host: this.Env.databaseHost,
-        port: this.Env.databasePort,
-        username: this.Env.databaseUser,
-        password: this.Env.databasePassword,
-        database: this.Env.databaseName,
-        ssl: this.Env.databaseSsl,
-        entities: [
-          __dirname + "/models/*.ts",
-          __dirname + "/engines/SubscriptionEngine/models/*.ts",
-          __dirname + "/engines/AppEngine/models/*.ts",
-          __dirname + "/engines/MotionEngine/models/*.ts",
-          __dirname + "/engines/TranslationEngine/models/*.ts",
-        ],
-        synchronize: true,
-      })
-    );
+  get _dataSourceEntities(): Array<string> {
+    return [
+      __dirname + "/models/*.ts",
+      __dirname + "/engines/SubscriptionEngine/models/*.ts",
+      __dirname + "/engines/AppEngine/models/*.ts",
+      __dirname + "/engines/MotionEngine/models/*.ts",
+      __dirname + "/engines/TranslationEngine/models/*.ts",
+    ]
   }
   get DB(): DataSource { return this.db }
-  get m(): EntityManager { return this.db.manager }
   get em() { return this.patch('em', () => new ExtendedEntityManager(this.m)) }
 
   // i18n

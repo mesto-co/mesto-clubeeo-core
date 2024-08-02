@@ -46,6 +46,8 @@
     "moustache": "^0.0.4",
     "nanoid": "^3.2.0",
     "near-api-js": "^0.44.2",
+    "pino": "^9.3.2",
+    "pino-pretty": "^11.2.2",
     "prompt-sync": "^4.2.0",
     "sanitize-html": "^2.7.0",
     "sqlite3": "^5.0.8",
