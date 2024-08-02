@@ -1,5 +1,5 @@
 import App from '../App'
-import {IFastifySession} from '../services/AuthService'
+import {IFastifySession} from '../core/services/AuthService'
 import User from '../models/User'
 import Club from '../models/Club'
 

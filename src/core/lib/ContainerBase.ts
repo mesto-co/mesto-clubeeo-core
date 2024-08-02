@@ -5,7 +5,7 @@ export class ContainerBase {
     return key in this.registry ? this.registry[key] as T : init();
   }
 
-  protected patch<T>(key: string, init: () => T): T {
+  protected once<T>(key: string, init: () => T): T {
     const val = init();
     Object.defineProperty(this, key, {get: () => val});
     return val;

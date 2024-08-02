@@ -5,7 +5,7 @@ import {FastifyRequest} from 'fastify'
 import Nonce from '../models/Nonce'
 import Wallet from '../models/Wallet'
 import User from '../models/User'
-import {IFastifySession} from '../services/AuthService'
+import {IFastifySession} from '../core/services/AuthService'
 import assert = require('assert')
 import {EvmChainsEnum, TChains} from '../lib/TChains'
 import Club from '../models/Club'

@@ -16,12 +16,12 @@ export class Engines extends ContainerBase {
     this.app = app
   }
 
-  get appEngine() { return this.patch('appEngine', () => new AppEngine(this.app)) }
-  get accessEngine() { return this.patch('accessEngine', () => new AccessEngine(this.app)) }
-  get badgeEngine() { return this.patch('badgeEngine', () => new BadgeEngine(this.app)) }
-  get motionEngine() { return this.patch('motionEngine', () => new MotionEngine(this.app)) }
-  get roleEngine() { return this.patch('roleEngine', () => new RoleEngine(this.app)) }
-  get subscriptionsEngine() { return this.patch('subscriptionsEngine', () => new SubscriptionEngine(this.app)) }
-  get translation() { return this.patch('translation', () => new TranslationEngine(this.app)) }
+  get appEngine() { return this.once('appEngine', () => new AppEngine(this.app)) }
+  get accessEngine() { return this.once('accessEngine', () => new AccessEngine(this.app)) }
+  get badgeEngine() { return this.once('badgeEngine', () => new BadgeEngine(this.app)) }
+  get motionEngine() { return this.once('motionEngine', () => new MotionEngine(this.app)) }
+  get roleEngine() { return this.once('roleEngine', () => new RoleEngine(this.app)) }
+  get subscriptionsEngine() { return this.once('subscriptionsEngine', () => new SubscriptionEngine(this.app)) }
+  get translation() { return this.once('translation', () => new TranslationEngine(this.app)) }
 
 }

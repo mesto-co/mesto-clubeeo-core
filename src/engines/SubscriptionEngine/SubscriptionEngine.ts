@@ -1,5 +1,5 @@
 import {EntityManager} from 'typeorm'
-import ExtendedEntityManager from '../../lib/ExtendedEntityManager'
+import ExtendedEntityManager from '../../core/lib/ExtendedEntityManager'
 import subscriptionApi from './api/subscriptionApi'
 import mitt, {Emitter} from 'mitt'
 import Subscription from './models/Subscription'

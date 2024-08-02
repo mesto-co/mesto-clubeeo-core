@@ -2,6 +2,7 @@ import App from '../App';
 import User from '../models/User';
 import {ExtError} from '../lib/errors/ExtError'
 import {StatusCodes} from 'http-status-codes'
+import CoreAuthService from '../core/services/AuthService'
 
 export interface IFastifySession {
   get(name: string): string
@@ -11,25 +12,12 @@ export interface IFastifySession {
   delete()
 }
 
-export default class AuthService {
+export default class AuthService extends CoreAuthService {
   protected app: App;
 
   constructor(app: App) {
+    super(app);
     this.app = app;
-  }
-
-  getUserId(req: { session: IFastifySession }): string | null {
-    const userId = req.session.get('userId')
-    return userId ? userId : null
-  }
-
-  logOut(session: IFastifySession) {
-    session.delete()
-  }
-
-  logIn(userId: string, session: IFastifySession) {
-    session.set('userId', String(userId))
-    session.set('loginAt', String(Date.now()))
   }
 
   async getUser(req: { session: IFastifySession }) {

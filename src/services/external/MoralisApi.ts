@@ -1,6 +1,5 @@
-import {BaseService} from '../BaseService';
 import assert from 'assert';
-import App, {NoDBContainer} from '../../App'
+import App from '../../App'
 
 export enum MoralisChains {
   eth = 'eth',
@@ -80,9 +79,9 @@ function assertChain(chain: MoralisChains) {
 const moralisUrl = 'https://deep-index.moralis.io';
 
 export class MoralisApi {
-  protected app: NoDBContainer
+  protected app: App
 
-  constructor(app: NoDBContainer) {
+  constructor(app: App) {
     this.app = app
   }
 
