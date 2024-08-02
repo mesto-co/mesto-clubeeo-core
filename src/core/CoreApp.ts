@@ -65,7 +65,7 @@ export class CoreApp extends ContainerBase {
     },
     transport: self.Env.nodeEnv === 'development'
       ? { target: 'pino-pretty', options: { colorize: true } }
-      : { target: 'pino' }
+      : undefined
   }))
   logger: pino.Logger;
 
