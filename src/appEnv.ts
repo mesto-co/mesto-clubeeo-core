@@ -27,6 +27,9 @@ export class AppEnv extends CoreEnv {
 
   private constructor() {
     super();
+
+    process.env.TZ = 'UTC';
+
     this.ssr = process.env.SSR === 'true' || this.nodeEnv !== 'development'; // assume development is non-SSR (SPA) by default, other environments are - SSR
     this.siteUrl = String(process.env.SITE_URL || `http://${this.domain}${this.ssr ? '' : '/#'}`);
   }
