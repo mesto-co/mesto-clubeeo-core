@@ -1,5 +1,4 @@
 import {TelegramEventCodes} from '../../../clubApps/TelegramApp/lib/telegramConsts'
-import {DiscordEventCodes} from '../../../clubApps/DiscordApp/lib/discordConsts'
 import { profileEventNames } from '../../../clubApps/MestoProfileApp/MestoProfileAppConfig'
 
 export const eventNames = {
@@ -12,11 +11,6 @@ export const eventNames = {
   },
   ...profileEventNames,
 
-
-  discord: {
-    botActivated: DiscordEventCodes['discord:botActivated'],
-    signIn: DiscordEventCodes['discord:signIn'],
-  },
   post: {
     reaction: 'post:reaction',
   },
@@ -41,10 +35,6 @@ export const actionTypes = {
     remove: 'role:remove',
   },
 
-
-  discord: {
-    SyncMemberRoles: 'discord:SyncMemberRoles',
-  },
   tg: {
     send_message: 'tg:send_message',
   },

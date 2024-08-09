@@ -6,12 +6,14 @@
       "target": "es2019",
       "module": "commonjs",
       "moduleResolution": "node",
-      "outDir": "./build",
+      "outDir": "./dist",
       "rootDir": "./src",
       "emitDecoratorMetadata": true,
       "experimentalDecorators": true,
       "sourceMap": true,
-      "esModuleInterop": true
+      "esModuleInterop": true,
+      "declaration": true,  // Generate .d.ts files for type declarations
+      "declarationDir": "./dist/types",
    },
-   "exclude": ["tests", "node_modules", "tmp"]
+   "exclude": ["tests", "node_modules", "dist", "tmp"]
 }

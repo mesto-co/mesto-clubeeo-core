@@ -5,38 +5,10 @@ import {ExtService} from '../../lib/enums'
 import * as tt from 'telegraf/src/telegram-types'
 import {ITaskResult} from './TaskProcessDaemonLogic'
 import ClubBadge from '../../models/ClubBadge'
-import {discordSyncMemberRoles} from '../../clubApps/DiscordApp/procedures/discordSyncMemberRoles'
-import User from '../../models/User'
-import Club from '../../models/Club'
-import ClubExt from '../../models/ClubExt'
 import {actionTypes} from '../../engines/MotionEngine/shared/eventNames'
 
 export const taskProcessors = (app: App) => {
   return {
-    [actionTypes.discord.SyncMemberRoles]: async (task: Task): Promise<ITaskResult> => {
-      const user = await app.m.findOneByOrFail(User, {id: task.userId});
-      const club = await app.m.findOneByOrFail(Club, {id: task.clubId});
-
-      const clubExt = task.data.clubExtId
-        ? await app.m.findOneByOrFail(ClubExt, {id: task.data.clubExtId, service: ExtService.discord})
-        : await app.m.findOneBy(ClubExt, {club: {id: club.id}, service: ExtService.discord});
-      //todo: check club ext is single
-
-      const userExt = task.data.userExtId
-        ? await app.m.findOneByOrFail(UserExt, {id: task.data.userExtId})
-        : await app.m.findOneBy(UserExt, {user: {id: user.id}, service: ExtService.discord});
-
-      const result = await discordSyncMemberRoles(
-        {app, log: app.log},
-        { user, club, clubExt, userExt }
-      )
-
-      return {
-        state: TaskState.done,
-        data: result,
-      };
-    },
-
     [actionTypes.tg.send_message]: async (task: Task): Promise<ITaskResult> => {
       const message = task.data.message;
       if (!message) return { state: TaskState.failed, error: 'no message to send' };
@@ -76,8 +48,6 @@ export const taskProcessors = (app: App) => {
         data: result,
       };
     },
-
-    // 'discord:send_message'
 
     [actionTypes.badge.grant]: async (task: Task): Promise<ITaskResult> => {
       const badgeId = task.data.badgeId;

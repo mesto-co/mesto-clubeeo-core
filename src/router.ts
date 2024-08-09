@@ -48,4 +48,5 @@ export default function (app: App) {
     next();
   }, {prefix: `/${env.apiPrefix}`});
 
+  return router;
 }

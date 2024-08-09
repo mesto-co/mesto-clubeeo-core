@@ -7,7 +7,6 @@ import ModelBase from './ModelBase';
 
 export interface IClubSocialLinks {
   telegram: string
-  discord: string
   instagram: string
   twitter: string
   etherscan: string

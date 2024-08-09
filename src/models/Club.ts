@@ -35,7 +35,7 @@ export interface IClubSettings {
   near?: {
     enabled: boolean,
   }
-  clubPostsCarouselAppId?: number
+  clubPostsCarouselAppId?: number | string
   defaultRoles?: string[]
   defaultLang?: string
 }

@@ -13,7 +13,6 @@ import { CoreEnv } from './core/CoreEnv';
 export interface IWorkersConfig {
   motion: boolean,
   legacyTasks: boolean,
-  discord: boolean,
 }
 
 export interface IGlobalConfig {
@@ -25,7 +24,7 @@ export interface IGlobalConfig {
 export class AppEnv extends CoreEnv {
   private static instance: AppEnv
 
-  private constructor() {
+  constructor() {
     super();
 
     process.env.TZ = 'UTC';
@@ -60,9 +59,6 @@ export class AppEnv extends CoreEnv {
   readonly siteUrl: string;
 
   @Env()
-  readonly moralisApiKey: string;
-
-  @Env()
   readonly tgToken: string;
 
   @Env('https://api.telegram.org')
@@ -77,19 +73,7 @@ export class AppEnv extends CoreEnv {
   @Env((self) => `${self.tgCallbackRoot}/api/telegram/hook`)
   readonly tgWebhook: string;
 
-  @Env()
-  readonly discordApplicationId: string;
-
-  @Env()
-  readonly discordPublicKey: string;
-
-  @Env()
-  readonly discordSecret: string;
-
-  @Env()
-  readonly discordBotToken: string;
-
-  @Env({default: '{"motion":true,"discord":true,"legacyTasks":false}', type: 'json'})
+  @Env({default: '{"motion":true,"legacyTasks":false}', type: 'json'})
   readonly workers: IWorkersConfig;
 
   @Env({default: '{}', type: 'json'})

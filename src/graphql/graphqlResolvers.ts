@@ -8,7 +8,6 @@ import TokenContract from '../models/TokenContract'
 import ClubRole from '../models/ClubRole'
 import assert from 'assert'
 import {UserInClubRolesSync} from '../contexts/UserInClubContext/UserInClubRolesSync'
-import DiscordApp from '../clubApps/DiscordApp/DiscordApp'
 import UserExt from '../models/UserExt'
 import ClubExt from '../models/ClubExt'
 import {ExtService} from '../lib/enums'
@@ -290,55 +289,6 @@ export const graphqlResolvers = (app: App) => ({
 
       const userInClubRolesSync = new UserInClubRolesSync(app, user, club);
       return await userInClubRolesSync.roleSync();
-    },
-    syncUserClubDiscord: async (_, {clubId, userId}, ctx: ICtx) => {
-      const club = await app.m.findOneByOrFail(Club, {id: clubId});
-      const user = await app.m.findOneByOrFail(User, {id: userId});
-
-      const userInClubContext = app.contexts.userInClub(user, club);
-      const isMember = await userInClubContext.isMember();
-
-      const discordApp = new DiscordApp({app});
-
-      const clubExt = await app.m.findOneBy(ClubExt, {
-        club: {id: club.id},
-        service: ExtService.discord,
-      })
-
-      const userExt = await app.m.findOneBy(UserExt, {
-        user: {id: user.id},
-        service: ExtService.discord,
-        enabled: true,
-      });
-
-      let isChanged: Boolean;
-      if (isMember) {
-        const roles = await userInClubContext.roles();
-        for (let role of roles) {
-          isChanged = await discordApp.enableUser({
-            userExt,
-            clubExt,
-            role: role.name,
-          });
-        }
-
-        // fallback
-        if (roles.length === 0) {
-          isChanged = await discordApp.enableUser({
-            userExt,
-            clubExt,
-          });
-
-          app.log.warn(`user is a member, but don't have certain roles: fallback to syncing "holder" role to Discord`)
-        }
-      } else {
-        isChanged = await discordApp.disableUser({
-          userExt,
-          clubExt,
-        });
-      }
-
-      return isChanged;
     },
 
     ...badgeMutations(app),

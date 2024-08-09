@@ -15,7 +15,9 @@ import {Unique} from 'typeorm/index'
 import {ClubeeoPrimaryColumn} from '../../../lib/modelCommon'
 
 export interface IClubAppConfig {
-  syncRoles: Array<string>
+  syncRoles?: Array<string>,
+  autoRoleOnReaction?: string,
+  publicView?: boolean,
 }
 
 @Entity()

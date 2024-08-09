@@ -41,8 +41,6 @@ libs:
     - extCode
     - walletNft
 - walletAmountFactory
-- Discord: discord.Client <- DiscordContainer.Discord
-- DiscordContainer
 - TelegramContainer
 - contexts
     - auth
@@ -51,7 +49,6 @@ libs:
     - contract
     - contractWallet
     - clubApp
-    - discordClubApp
     - user
     - userInClub
     - wallet

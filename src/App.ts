@@ -7,7 +7,6 @@ import {AccessService} from './services/AccessService'
 import {BricksLoggerConsole, BricksLoggerMultiProxy, IBricksLogger} from 'bricks-ts-logger';
 import {DatabaseLoggerConsole} from './services/DatabaseLogger'
 import axios from 'axios';
-import {MoralisApi} from './services/external/MoralisApi';
 import WalletService from './services/WalletService';
 import {MeInClubService} from './services/MeInClubService'
 import {TokenEvents, tokenEventsFactory} from './events/tokenEvents'
@@ -16,9 +15,7 @@ import {ReposContainer} from './models/repos/ReposContainer'
 import {ClubUserEvents, clubUserEventsFactory} from './events/clubUserEvents'
 import {DataSource} from 'typeorm/data-source/DataSource'
 import {WalletAmountFactory} from './services/walletAmount/WalletAmountFactory'
-import discord from 'discord.js'
 import {TelegramContainer} from './clubApps/TelegramApp/TelegramContainer'
-import {DiscordContainer} from './clubApps/DiscordApp/DiscordContainer'
 import {Contexts} from './Contexts'
 import {UserSenderService} from './services/UserSenderService'
 import {postEventsFactory, TPostEvents} from './clubApps/PostsApp/postEvents'
@@ -28,8 +25,6 @@ import {ClubWidgetFactory} from './factories/ClubWidgetFactory'
 import {AppFactory} from './engines/AppEngine/AppFactory'
 import CoreApp from './core/CoreApp';
 import { taskProcessingDaemon } from './daemons/TaskProcessingDaemon/taskProcessingDaemon';
-import discordDaemon from './clubApps/DiscordApp/discordDaemon';
-import { Once } from './core/lib/OnceDecorator';
 import AuthService from './services/AuthService';
 import AppSettings from './AppSettings';
 import User from './models/User';
@@ -73,10 +68,6 @@ export default class App extends CoreApp<User, UserExt> {
     if (this.Env.workers.motion) {
       this.engines.motionEngine.runDaemon();
     }
-
-    if (this.Env.workers.discord) {
-      discordDaemon(this.DiscordContainer);
-    }
   }
 
   get Env() { return this.once('Env', () => AppEnv.getInstance()) }
@@ -85,7 +76,6 @@ export default class App extends CoreApp<User, UserExt> {
 
   get AppWeb3() { return AppWeb3.getInstance(); }
 
-  get MoralisApi() { return this.once('MoralisApi', () => new MoralisApi(this)) }
   get consoleLogger(): IBricksLogger { return this.once('consoleLogger', () => new BricksLoggerConsole()) }
   get nanoid() { return nanoid }
 
@@ -129,7 +119,5 @@ export default class App extends CoreApp<User, UserExt> {
   get dbLogger(): IBricksLogger { return this.once('dbLogger', () => new DatabaseLoggerConsole(this)) }
 
   // integrations: todo: move to engines
-  get Discord(): discord.Client { return this.DiscordContainer.Discord }
-  get DiscordContainer() { return this.once('DiscordContainer', () => new DiscordContainer(this)) }
   get TelegramContainer() { return this.once('TelegramContainer', () => new TelegramContainer(this)) }
 }

@@ -99,15 +99,11 @@ export default function (app: App) {
 
     router.register(web3Routes(app), {prefix: '/web3'});
 
-    router.register(app.DiscordContainer.discordAppRoutes, {prefix: '/apps/discord'});
-
     router.register(clubByIdAppsRoutes, {prefix: '/club/:clubId/apps'});
 
     router.register(app.TelegramContainer.telegramHookRoutes, {prefix: '/telegram/hook'});
 
     router.register(app.engines.motionEngine.clubApi, {prefix: '/club/:clubLocator/motion'})
-
-    router.register(app.engines.subscriptionsEngine.api, {prefix: '/subscriptions'})
 
     next();
   }

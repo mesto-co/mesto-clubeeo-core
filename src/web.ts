@@ -6,9 +6,8 @@ import router from './router';
 
 process.env.TZ = 'UTC';
 
-const env = AppEnv.getInstance()
-
 async function main() {
+  const env = AppEnv.getInstance();
   const app = new App(env);
 
   await app.init();

@@ -1,3 +1,4 @@
+import { env } from './../appEnv';
 import "reflect-metadata";
 import {createConnection} from "typeorm";
 import {AppEnv} from '../appEnv'
@@ -5,29 +6,22 @@ import App from '../App'
 import Club from '../models/Club'
 import ClubApp from '../engines/AppEngine/models/ClubApp'
 
-const env = AppEnv.getInstance()
 
-process.env.TZ = 'UTC';
 
-createConnection({
-  type: "postgres",
-  host: env.databaseHost,
-  port: env.databasePort,
-  username: env.databaseUser,
-  password: env.databasePassword,
-  database: env.databaseName,
-  entities: [
-    __dirname + "/../models/*.ts",
-  ],
-  synchronize: true,
-}).then(async connection => {
+async function main() {
+  const env = AppEnv.getInstance();
+  const app = new App(env);
 
-  const app = new App(connection, env);
+  await app.init();
 
   await install(app);
-}).catch(error => console.log(error));
+}
+
+main().catch(error => console.error(error));
 
 const install = async (app: App) => {
+  const env = app.Env;
+
   const clubName = env.defaultClub[0].toUpperCase() + env.defaultClub.slice(1);
   const { value: clubeeoClub } = await app.em.findOneOrCreateBy(Club, {slug: env.defaultClub}, {name: clubName});
 

@@ -41,7 +41,6 @@ export const extActivationLogic = async (code: string, service: ExtService, extI
   }
 
   if (!clubExt.isCreated) {
-    await ports.reply(ExtService.discord ? `This Discord server is already activated` : `This channel is already activated`);
     return false;
   }
 

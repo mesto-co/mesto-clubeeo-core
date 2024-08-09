@@ -9,7 +9,6 @@ import App from '../../../App'
 import User from '../../../models/User'
 import Member from '../../../models/Member'
 import Club from '../../../models/Club'
-import {IMoralisGetAddressNftResultData} from '../../../services/external/MoralisApi'
 
 export default class MemberTokensUpdater {
   protected app: App;
@@ -26,7 +25,7 @@ export default class MemberTokensUpdater {
     this.club = club;
   }
 
-  async checkMemberToken(memberToken: MemberToken, currentToken: IMoralisGetAddressNftResultData) {
+  async checkMemberToken(memberToken: MemberToken, currentToken: {amount: string}) {
     // check if amount is changed
     const newAmount = Number(currentToken.amount);
     const previousAmount = memberToken.amount;
@@ -72,8 +71,9 @@ export default class MemberTokensUpdater {
     });
     const walletAddress = toChecksumAddress(wallet.address);
 
-    const result = await this.app.MoralisApi.getAddressNftToken(wallet.address, chain, contractAddress);
-    const currentTokens = result.result;
+    // const result = await this.app.MoralisApi.getAddressNftToken(wallet.address, chain, contractAddress);
+    // const currentTokens = result.result;
+    const currentTokens = [];
 
     const memberTokens = await this.app.m.find(MemberToken, {
       where: {

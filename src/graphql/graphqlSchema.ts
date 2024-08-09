@@ -47,7 +47,6 @@ type Club_BuyLinks_Collection {
 type ClubSocialLinks {
   tiktok: String
   telegram: String
-  discord: String
   instagram: String
   twitter: String
   reddit: String
@@ -238,7 +237,6 @@ input SaveClubInput {
 input ClubSocialLinksInput {
   tiktok: String
   telegram: String
-  discord: String
   instagram: String
   twitter: String
   etherscan: String

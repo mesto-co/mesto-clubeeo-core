@@ -14,8 +14,6 @@ import {ContractContext} from './contexts/ContractContext'
 import {ContractWalletContext} from './contexts/ContractWalletContext'
 import {ClubAppContext} from './contexts/ClubAppContext'
 import ClubExt from './models/ClubExt'
-import {DiscordClubUserContext, discordClubUserContextFactory} from './clubApps/DiscordApp/DiscordClubUserContext'
-import {DiscordClubAppContext} from './clubApps/DiscordApp/DiscordClubAppContext'
 import Member from './models/Member'
 import ClubApp from './engines/AppEngine/models/ClubApp'
 
@@ -53,14 +51,6 @@ export class Contexts extends BaseService {
     return this.club(await this.app.m.findOneBy(Club, {slug}));
   }
 
-  discordClubApp(club: Club, clubApp: ClubApp, clubExt: ClubExt) {
-    return new DiscordClubAppContext(this.app, this.clubApp(club, clubApp), clubExt);
-  }
-
-  async discordClubUser(discordUserId: string, discordClubId: string): Promise<DiscordClubUserContext> {
-    return await discordClubUserContextFactory(this.app, discordUserId, discordClubId);
-  }
-
   user(user: User) {
     return new UserContext(this.app, user);
   }
@@ -77,11 +67,7 @@ export class Contexts extends BaseService {
     return new WalletContext(this.app, wallet);
   }
 
-  // async discordClubAppByExt(club: Club, clubApp: ClubApp, clubExt: ClubExt) {
-  //
-  // }
 
   // const club = await app.m.findOneByOrFail(Club, {id: opts.clubExt.clubId});
   // const clubApp = await app.m.findOneBy(ClubApp, {id: opts.clubExt.clubId}) || app.m.create(ClubApp, {});
-  // new DiscordAppContext(app, new ClubAppContext(app, club, clubApp), opts.clubExt);
 }

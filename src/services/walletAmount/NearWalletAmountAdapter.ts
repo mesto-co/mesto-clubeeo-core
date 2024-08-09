@@ -1,7 +1,5 @@
-import {toChecksumAddress} from '../../lib/web3helpers'
 import {ITokenContract, IUserWallet} from '../../logic/TokenOwnershipLogic'
-import {IMoralisGetAddressNftResult, MoralisChains} from '../external/MoralisApi'
-import {EvmChainsEnum, NearChainsEnum} from '../../lib/TChains'
+import {NearChainsEnum} from '../../lib/TChains'
 import {IWalletAmountAdapter} from './walletAmountInterfaces'
 import {InMemoryKeyStore} from 'near-api-js/lib/key_stores/in_memory_key_store'
 import getNearConfig from '../../lib/near/config'
@@ -23,20 +21,6 @@ interface INearNFTEntry {
   owner_id: string,
   approved_account_ids: Record<string, string>,
   metadata: Record<string, string | number | null>,
-  // metadata:  {
-  //   title: 'Some Art',
-  //   description: 'My NFT media',
-  //   media: 'https://bafkreiabag3ztnhe5pg7js4bj6sxuvkz3sdf76cjvcuqjoidvnfjz7vwrq.ipfs.dweb.link/',
-  //   media_hash: null,
-  //   copies: 1,
-  //   issued_at: null,
-  //   expires_at: null,
-  //   starts_at: null,
-  //   updated_at: null,
-  //   extra: null,
-  //   reference: null,
-  //   reference_hash: null
-  // },
 }
 
 export class NearWalletAmountAdapter implements IWalletAmountAdapter {

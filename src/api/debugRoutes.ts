@@ -1,5 +1,4 @@
 import App from '../App';
-import {MoralisChains} from '../services/external/MoralisApi';
 import Wallet from '../models/Wallet';
 import TokenContract from '../models/TokenContract';
 import Club from '../models/Club'
@@ -9,49 +8,6 @@ import {id, str} from 'json-schema-blocks'
 
 export default function (app: App) {
   return function (router, opts, next) {
-
-    router.get('/address/:wallet', async (req, resp) => {
-      const walletAddress = req.params.wallet;
-
-      const result = await app.MoralisApi.getAddressNft(walletAddress, MoralisChains.eth);
-
-      resp.send(result);
-    });
-
-    router.get('/addressToken/:chain/:wallet/:token', async (req, resp) => {
-      const walletAddress = req.params.wallet;
-      const tokenAddress = req.params.token;
-      const chain = req.params.chain;
-
-      const result = await app.MoralisApi.getAddressNftToken(walletAddress, chain, tokenAddress);
-
-      resp.send(result);
-    });
-
-    // router.get('/iown/:tokenId', async (req, resp) => {
-    //   const tokenId = req.params.tokenId;
-    //
-    //   const doIOwn = await doIOwnTokenLogic({
-    //     app,
-    //     tokenContractGetter: () => app.m.findOneByOrFail(TokenContract, {id: tokenId}),
-    //     userWalletsGetter: async (chain: TChains) => {
-    //       const user = await app.auth.getUser(req);
-    //       return await app.m.find(Wallet, {
-    //         where: {
-    //           user: {id: user.id},
-    //           chain: baseChain(chain),
-    //         }
-    //       });
-    //     },
-    //     walletOwnsTokenCheck: (userWallet, tokenContract) => {
-    //       return app.WalletService.syncWalletOwnsToken(userWallet, tokenContract);
-    //     },
-    //   });
-    //
-    //   resp.send({
-    //     doIOwn,
-    //   });
-    // });
 
     router.get('/meinclub/:clubSlug', async (req, resp) => {
       const user = await app.auth.getUser(req);
@@ -65,33 +21,6 @@ export default function (app: App) {
         isMember,
       });
     });
-
-    // router.get('/userOwn/:userId/:tokenId', async (req, resp) => {
-    //   const userId = req.params.userId;
-    //   const tokenId = req.params.tokenId;
-    //
-    //   const doIOwn = await doIOwnTokenLogic({
-    //     app,
-    //     tokenContractGetter: () => app.m.findOneByOrFail(TokenContract, {id: tokenId}),
-    //     userWalletsGetter: async (chain: TChains) => {
-    //       const user = await app.m.findOneBy(User, {id: userId});
-    //
-    //       return await app.m.find(Wallet, {
-    //         where: {
-    //           user: {id: user.id},
-    //           chain: baseChain(chain),
-    //         }
-    //       });
-    //     },
-    //     walletOwnsTokenCheck: (userWallet, tokenContract) => {
-    //       return app.WalletService.syncWalletOwnsToken(userWallet, tokenContract);
-    //     },
-    //   });
-    //
-    //   resp.send({
-    //     doIOwn,
-    //   });
-    // });
 
     router.get('/isMember', {
       schema: {
