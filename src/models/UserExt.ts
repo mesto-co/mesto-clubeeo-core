@@ -5,7 +5,7 @@ import {
 } from 'typeorm'
 import User from './User'
 import {ClubeeoPrimaryColumn} from '../lib/modelCommon';
-import UserExtModel from '../core/models/UserExtModel';
+import UserExtModel from '../core/domains/userExt/UserExtModel';
 
 @Entity()
 export default class UserExt extends UserExtModel<User> {

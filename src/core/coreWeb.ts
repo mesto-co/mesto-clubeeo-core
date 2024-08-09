@@ -1,6 +1,6 @@
-import { CoreApp } from "./CoreApp";
+import { TCoreApp } from "./CoreApp";
 
-export function coreWebRun<App extends CoreApp>(app: App) {
+export function coreWebRun(app: TCoreApp) {
   const env = app.Env;
 
   // Run the server

@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "web": "ts-node src/web.ts",
+    "build": "tsc",
     "createChatInviteLink": "ts-node src/console/createChatInviteLink.ts",
     "web-dev": "NODE_ENV=development ts-node-dev --respawn --poll --notify false --prefer-ts --ignore-watch node_modules -- src/web.ts",
     "test": "mocha -r ts-node/register tests/**/*.test.ts",
@@ -54,7 +55,7 @@
     "telegraf": "^4.8.1",
     "ts-node": "^10.4.0",
     "typeorm": "^0.3.6",
-    "typescript": "^4.5.5",
+    "typescript": "^5.5.4",
     "vm2": "^3.9.11",
     "web3": "^1.7.3"
   },

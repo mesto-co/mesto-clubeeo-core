@@ -1,7 +1,13 @@
 import fastify from "fastify";
-import { CoreApp } from "./CoreApp";
+import CoreApp from "./CoreApp";
+import { IUserModel } from "./domains/user/UserInterfaces";
+import { IUserExtModel } from "./domains/userExt/UserExtInterfaces";
 
-export function coreRouterFactory<App extends CoreApp>(app: App) {
+export function coreRouterFactory<
+  TUser extends IUserModel,
+  TUserExt extends IUserExtModel<TUser>,
+  TApp extends CoreApp<IUserModel, IUserExtModel<IUserModel>>
+>(app: TApp) {
   const env = app.Env;
 
   // Require the framework and instantiate it

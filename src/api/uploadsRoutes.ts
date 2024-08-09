@@ -2,7 +2,7 @@ import App from '../App'
 import {StatusCodes} from 'http-status-codes'
 import {Image} from '../models/Image'
 import {getFileExt} from '../services/uploads/SimpleFileUploadService'
-import {ExtError} from '../lib/errors/ExtError'
+import {ExtError} from '../core/lib/ExtError'
 
 export default function (app: App) {
   return function (router, opts, next) {
