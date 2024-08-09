@@ -1,6 +1,6 @@
 import {TelegramEventCodes} from '../../../clubApps/TelegramApp/lib/telegramConsts'
 import {DiscordEventCodes} from '../../../clubApps/DiscordApp/lib/discordConsts'
-import {BadgeEngineEvents} from '../../BadgeEngine/BadgeEngineEvents'
+import { profileEventNames } from '../../../clubApps/MestoProfileApp/MestoProfileAppConfig'
 
 export const eventNames = {
   badge: {
@@ -10,6 +10,7 @@ export const eventNames = {
     granted: 'role:granted',
     removed: 'role:removed',
   },
+  ...profileEventNames,
 
 
   discord: {

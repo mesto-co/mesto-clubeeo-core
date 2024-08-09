@@ -5,9 +5,10 @@ import Club from '../../models/Club'
 import {IEntityId} from '../../lib/common'
 import {FindOptionsWhere} from 'typeorm/find-options/FindOptionsWhere'
 import {ILike} from 'typeorm'
-import {BaseService} from '../../services/BaseService'
 import {FindOptionsRelations} from 'typeorm/find-options/FindOptionsRelations'
 import {DeepPartial} from 'typeorm/common/DeepPartial'
+import App from '../../App';
+import UserRepoBase from './../../core/domains/user/UserRepo';
 
 export interface ISomeUserData {
   screenName?: string, firstName?: string, lastName?: string,
@@ -15,14 +16,9 @@ export interface ISomeUserData {
   language_code?: string,
 }
 
-export default class UserRepo extends BaseService {
-
-  async findById(id: string) {
-    return await this.app.m.findOneBy(User, {id});
-  }
-
-  async findByIdOrFail(id: string) {
-    return await this.app.m.findOneByOrFail(User, {id});
+export default class UserRepo extends UserRepoBase<User> {
+  constructor(protected app: App) {
+    super(User, app);
   }
 
   async loadBy(entity: {userId: string, user?: User}) {
@@ -42,10 +38,6 @@ export default class UserRepo extends BaseService {
 
   async findUserByExt(userExt: UserExt) {
     return this.findById(userExt.userId);
-  }
-
-  async create(plainObject: DeepPartial<User>) {
-    return await this.app.em.createAndSave(User, plainObject);
   }
 
   genScreenName(data: ISomeUserData) {

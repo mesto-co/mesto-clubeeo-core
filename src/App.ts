@@ -26,11 +26,14 @@ import {Engines} from './Engines'
 import {SimpleFileUploadService} from './services/uploads/SimpleFileUploadService'
 import {ClubWidgetFactory} from './factories/ClubWidgetFactory'
 import {AppFactory} from './engines/AppEngine/AppFactory'
-import { CoreApp } from './core/CoreApp';
+import CoreApp from './core/CoreApp';
 import { taskProcessingDaemon } from './daemons/TaskProcessingDaemon/taskProcessingDaemon';
 import discordDaemon from './clubApps/DiscordApp/discordDaemon';
 import { Once } from './core/lib/OnceDecorator';
 import AuthService from './services/AuthService';
+import AppSettings from './AppSettings';
+import User from './models/User';
+import UserExt from './models/UserExt';
 
 /**
  * Application service container
@@ -39,7 +42,7 @@ import AuthService from './services/AuthService';
  * * Exact implementation named as class (e.g. SyncTemplateMailerService)
  * * Interface named in snake case without "Service" suffix  (e.g. templateMailer)
  */
-export default class App extends CoreApp {
+export default class App extends CoreApp<User, UserExt> {
   readonly tokenEvents: Emitter<TokenEvents>;
   readonly clubUserEvents: Emitter<ClubUserEvents>;
   readonly postEvents: Emitter<TPostEvents>;
@@ -47,7 +50,10 @@ export default class App extends CoreApp {
   readonly axios = axios;
 
   constructor(env: AppEnv) {
-    super();
+    super({
+      User: User,
+      UserExt: UserExt
+    });
 
     this.env = env;
 
@@ -73,8 +79,9 @@ export default class App extends CoreApp {
     }
   }
 
-  @Once(() => AppEnv.getInstance())
-  Env: AppEnv;
+  get Env() { return this.once('Env', () => AppEnv.getInstance()) }
+
+  get Settings() { return this.once('Settings', () => new AppSettings(this)) }
 
   get AppWeb3() { return AppWeb3.getInstance(); }
 
@@ -86,17 +93,6 @@ export default class App extends CoreApp {
   get contexts() { return this.once('contexts', () => new Contexts(this)) }
   get engines() { return this.once('engines', () => new Engines(this)) }
   get repos() { return this.once('repos', () => new ReposContainer(this)) }
-
-  // database
-  get _dataSourceEntities(): Array<string> {
-    return [
-      __dirname + "/models/*.ts",
-      __dirname + "/engines/SubscriptionEngine/models/*.ts",
-      __dirname + "/engines/AppEngine/models/*.ts",
-      __dirname + "/engines/MotionEngine/models/*.ts",
-      __dirname + "/engines/TranslationEngine/models/*.ts",
-    ]
-  }
 
   /**
    * @deprecated
@@ -110,8 +106,7 @@ export default class App extends CoreApp {
   }
 
   // services
-  @Once((self: App) => new AuthService(self))
-  auth: AuthService;
+  get auth() { return this.once('auth', () => new AuthService(this)) }
 
   get access() { return this.once('access', () => new AccessService(this)) }
   get clubAppFactory() { return this.once('clubAppFactory', () => new AppFactory(this)) }

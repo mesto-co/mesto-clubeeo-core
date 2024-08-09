@@ -4,7 +4,13 @@ import {
   UpdateDateColumn,
 } from 'typeorm/index';
 
-export default abstract class ModelBase {
+export interface IModelBase {
+  id: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export default abstract class ModelBase implements IModelBase {
 
   @PrimaryGeneratedColumn('increment', {type: 'bigint'})
   id: string;

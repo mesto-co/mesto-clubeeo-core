@@ -13,6 +13,26 @@
       "console": "integratedTerminal",
       "cwd": "${workspaceFolder}",
       "envFile": "${workspaceFolder}/tmp/${input:envFile}"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Run Telegram Set Webhook",
+      "runtimeExecutable": "yarn",
+      "runtimeArgs": ["run", "telegram:setWebhook"],
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}",
+      "envFile": "${workspaceFolder}/tmp/${input:envFile}"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Run Telegram Set Chat Menu Button",
+      "runtimeExecutable": "yarn",
+      "runtimeArgs": ["run", "telegram:setChatMenuButton"],
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}",
+      "envFile": "${workspaceFolder}/tmp/${input:envFile}"
     }
   ],
   "inputs": [
@@ -20,7 +40,7 @@
       "id": "envFile",
       "type": "pickString",
       "description": "Select the environment file",
-      "options": [".env", "stage.env", "tmp/prod.env"],
+      "options": [".env", "tmp/dev.env", "tmp/prod.env"],
       "default": ".env"
     }
   ]

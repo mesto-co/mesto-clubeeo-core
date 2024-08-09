@@ -1,6 +1,6 @@
 import App from '../App';
 import User from '../models/User';
-import {ExtError} from '../lib/errors/ExtError'
+import {ExtError} from '../core/lib/ExtError'
 import {StatusCodes} from 'http-status-codes'
 import CoreAuthService from '../core/services/AuthService'
 
@@ -12,25 +12,12 @@ export interface IFastifySession {
   delete()
 }
 
-export default class AuthService extends CoreAuthService {
+export default class AuthService extends CoreAuthService<User> {
   protected app: App;
 
   constructor(app: App) {
     super(app);
     this.app = app;
-  }
-
-  async getUser(req: { session: IFastifySession }) {
-    const userId = this.getUserId(req);
-    if (!userId) return null;
-
-    return await this.app.m.findOneBy(User, {id: userId});
-  }
-
-  async requireUser(req: { session: IFastifySession }) {
-    const user = this.getUser(req);
-    if (!user) throw new ExtError('User is not authorized', StatusCodes.UNAUTHORIZED);
-    return user;
   }
 
   async getUserContext(req: { session: IFastifySession }) {

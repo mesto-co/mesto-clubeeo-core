@@ -11,7 +11,7 @@ import Club from './Club'
 import Member from './Member'
 import MemberBadge from './MemberBadge'
 import {ClubeeoPrimaryColumn} from '../lib/modelCommon';
-import UserModel from '../core/models/UserModel';
+import UserModel from '../core/domains/user/UserModel';
 
 @Entity()
 export default class User extends UserModel {

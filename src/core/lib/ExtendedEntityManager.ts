@@ -2,6 +2,7 @@ import {ObjectType} from 'typeorm/common/ObjectType'
 import {EntityManager} from 'typeorm/entity-manager/EntityManager'
 import {DeepPartial} from 'typeorm/common/DeepPartial'
 import {FindOptionsWhere} from 'typeorm/find-options/FindOptionsWhere'
+import { EntityTarget } from 'typeorm'
 
 export default class ExtendedEntityManager {
   protected m: EntityManager
@@ -83,7 +84,7 @@ export default class ExtendedEntityManager {
     return value;
   }
 
-  async createAndSave<Entity>(entityClass: ObjectType<Entity>, plainObject: DeepPartial<Entity>) {
+  async createAndSave<Entity>(entityClass: EntityTarget<Entity>, plainObject: DeepPartial<Entity>) {
     const value = this.m.create(entityClass, plainObject)
     await this.m.save(value);
     return value;
