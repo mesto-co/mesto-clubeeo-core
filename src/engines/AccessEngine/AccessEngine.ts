@@ -5,11 +5,12 @@ import MemberRole from '../../models/MemberRole'
 import ClubRole from '../../models/ClubRole'
 import {IEntityId} from '../../lib/common'
 import {EntityTarget} from 'typeorm/common/EntityTarget'
-import ClubApp from '../AppEngine/models/ClubApp'
+import ClubApp from '../AppsEngine/models/ClubApp'
 import Member from '../../models/Member'
-import {appRegistry} from '../AppEngine/AppRegistry'
+import {appRegistry} from '../AppsEngine/AppsRegistry'
 
 export class AccessEngine {
+  readonly type = 'engine';
   readonly app: App;
 
   constructor(app: App) {

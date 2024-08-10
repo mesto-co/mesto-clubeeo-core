@@ -10,6 +10,7 @@ import {Emitter} from 'mitt'
 import {RoleEngineEvents, roleEngineEventsFactory} from './RoleEngineEvents'
 
 export class RoleEngine {
+  readonly type = 'engine';
   readonly app: App;
   readonly events: Emitter<RoleEngineEvents>;
 

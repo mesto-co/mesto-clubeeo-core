@@ -22,7 +22,7 @@ import {postEventsFactory, TPostEvents} from './clubApps/PostsApp/postEvents'
 import {Engines} from './Engines'
 import {SimpleFileUploadService} from './services/uploads/SimpleFileUploadService'
 import {ClubWidgetFactory} from './factories/ClubWidgetFactory'
-import {AppFactory} from './engines/AppEngine/AppFactory'
+import {AppFactory} from './engines/AppsEngine/AppsFactory'
 import CoreApp from './core/CoreApp';
 import { taskProcessingDaemon } from './daemons/TaskProcessingDaemon/taskProcessingDaemon';
 import AuthService from './services/AuthService';
@@ -120,4 +120,18 @@ export default class App extends CoreApp<User, UserExt> {
 
   // integrations: todo: move to engines
   get TelegramContainer() { return this.once('TelegramContainer', () => new TelegramContainer(this)) }
+
+  // settings
+  get dataSourceSettings() {
+    return {
+      ...super.dataSourceSettings,
+      entities: [
+        __dirname + "/models/*.ts",
+        __dirname + "/engines/MotionEngine/models/*.ts",
+        ...Object.values(this.engines.apps.models),
+        ...Object.values(this.engines.translation.models),
+      ],
+    };
+  }
+
 }

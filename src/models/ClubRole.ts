@@ -10,7 +10,7 @@ import {
 import Club from './Club'
 import ClubRoleToken from './ClubRoleToken'
 import MemberRole from './MemberRole'
-import ClubAppRole from '../engines/AppEngine/models/ClubAppRole'
+import ClubAppRole from '../engines/AppsEngine/models/ClubAppRole'
 import {ClubeeoPrimaryColumn} from '../lib/modelCommon';
 
 @Entity()

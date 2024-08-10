@@ -1,5 +1,5 @@
 import {str} from 'json-schema-blocks'
-import ClubAppProp from '../../../engines/AppEngine/models/ClubAppProp'
+import ClubAppProp from '../../../engines/AppsEngine/models/ClubAppProp'
 import App from '../../../App'
 import Member from '../../../models/Member'
 

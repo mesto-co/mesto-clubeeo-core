@@ -3,7 +3,7 @@ import Post from '../../models/Post'
 import ClubExt from '../../models/ClubExt'
 import {ExtService} from '../../lib/enums'
 import Posted from '../../models/Posted'
-import ClubApp from '../../engines/AppEngine/models/ClubApp'
+import ClubApp from '../../engines/AppsEngine/models/ClubApp'
 
 export default class PostingApp {
   protected app: App

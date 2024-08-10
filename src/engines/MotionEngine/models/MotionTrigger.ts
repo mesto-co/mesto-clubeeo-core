@@ -9,7 +9,7 @@ import {
 } from 'typeorm';
 
 import Club from '../../../models/Club'
-import ClubApp from '../../AppEngine/models/ClubApp'
+import ClubApp from '../../AppsEngine/models/ClubApp'
 import {ITriggerProcessor} from '../TaskBuilderInterfaces'
 import {ClubeeoPrimaryColumn} from '../../../lib/modelCommon'
 

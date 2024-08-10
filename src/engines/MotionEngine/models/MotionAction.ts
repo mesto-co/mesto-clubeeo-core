@@ -11,7 +11,7 @@ import {
 import Club from '../../../models/Club';
 import User from '../../../models/User';
 import Event from '../../../models/Event';
-import ClubApp from '../../AppEngine/models/ClubApp';
+import ClubApp from '../../AppsEngine/models/ClubApp';
 import Member from '../../../models/Member'
 import MotionTrigger from './MotionTrigger'
 import {ClubeeoPrimaryColumn} from '../../../lib/modelCommon'

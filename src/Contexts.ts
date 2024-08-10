@@ -15,7 +15,7 @@ import {ContractWalletContext} from './contexts/ContractWalletContext'
 import {ClubAppContext} from './contexts/ClubAppContext'
 import ClubExt from './models/ClubExt'
 import Member from './models/Member'
-import ClubApp from './engines/AppEngine/models/ClubApp'
+import ClubApp from './engines/AppsEngine/models/ClubApp'
 
 export class Contexts extends BaseService {
 

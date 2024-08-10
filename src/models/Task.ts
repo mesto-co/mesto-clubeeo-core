@@ -11,7 +11,7 @@ import Club from './Club'
 import User from './User'
 import Event from './Event'
 import Trigger from './Trigger'
-import ClubApp from '../engines/AppEngine/models/ClubApp'
+import ClubApp from '../engines/AppsEngine/models/ClubApp'
 import {ClubeeoPrimaryColumn} from '../lib/modelCommon';
 
 export enum TaskState {

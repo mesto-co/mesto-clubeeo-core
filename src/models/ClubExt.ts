@@ -9,7 +9,7 @@ import {
 import {Index} from 'typeorm/index'
 import Club from './Club'
 import {ExtService} from '../lib/enums'
-import ClubApp from '../engines/AppEngine/models/ClubApp'
+import ClubApp from '../engines/AppsEngine/models/ClubApp'
 import {ClubeeoPrimaryColumn} from '../lib/modelCommon'
 
 @Entity()

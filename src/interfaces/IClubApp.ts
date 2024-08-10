@@ -1,4 +1,4 @@
-import ClubApp from '../engines/AppEngine/models/ClubApp'
+import ClubApp from '../engines/AppsEngine/models/ClubApp'
 import App from '../App'
 import Club from '../models/Club'
 import Member from '../models/Member'

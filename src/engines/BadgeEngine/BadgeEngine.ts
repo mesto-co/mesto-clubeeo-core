@@ -11,6 +11,7 @@ import ClubRole from '../../models/ClubRole'
 import Member from '../../models/Member'
 
 export class BadgeEngine {
+  readonly type = 'engine';
   readonly app: App;
   readonly events: Emitter<BadgeEngineEvents>;
 

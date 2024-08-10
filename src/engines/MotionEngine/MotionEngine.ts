@@ -13,16 +13,17 @@ import {MergeProcessor} from './triggerProcessors/MergeProcessor'
 import {StaticProcessor} from './triggerProcessors/StaticProcessor'
 import motionClubApi from './api/motionAdminApi'
 import {JavaScriptProcessor} from './triggerProcessors/JavaScriptProcessor'
-import ClubApp from '../AppEngine/models/ClubApp'
+import ClubApp from '../AppsEngine/models/ClubApp'
 import {actionProcessingDaemon} from './lib/actionProcessingDaemon'
 import {IEngineDaemon} from '../../lib/EngineBase/EngineInterfaces'
 import MotionAction, {MotionActionState} from './models/MotionAction'
 import MotionTrigger from './models/MotionTrigger'
 import {ActionBuilderLogic} from './lib/ActionBuilderLogic'
 import Member from '../../models/Member'
-import {appRegistry} from '../AppEngine/AppRegistry'
+import {appRegistry} from '../AppsEngine/AppsRegistry'
 
 export default class MotionEngine implements IEngineDaemon {
+  readonly type = 'engine';
   readonly app: App;
   readonly taskBuilder: TaskBuilderLogic;
   readonly actionBuilder: ActionBuilderLogic;
@@ -46,7 +47,9 @@ export default class MotionEngine implements IEngineDaemon {
     this.taskBuilder.register('merge', new LegacyMergeProcessor(this.taskBuilder));
   }
 
-  get clubApi() { return motionClubApi(this) }
+  get api() { return motionClubApi(this) }
+
+  apiConfig = {prefix: '/club/:clubLocator/motion'}
 
   runDaemon() { actionProcessingDaemon(this.app); }
 

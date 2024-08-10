@@ -1,7 +1,7 @@
 import App from '../App';
 import PageApp from '../clubApps/StaticContentApp/PageApp'
 import Club from '../models/Club'
-import ClubApp from '../engines/AppEngine/models/ClubApp'
+import ClubApp from '../engines/AppsEngine/models/ClubApp'
 import BasicApp from '../clubApps/BasicApp/BaseApp'
 
 export class ClubAppFactory {

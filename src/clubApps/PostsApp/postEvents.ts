@@ -6,7 +6,7 @@ import PostReaction from '../../models/PostReaction'
 import User from '../../models/User'
 import PostingApp from '../PostingApp/PostingApp'
 import {eventNames} from '../../engines/MotionEngine/shared/eventNames'
-import ClubApp from '../../engines/AppEngine/models/ClubApp'
+import ClubApp from '../../engines/AppsEngine/models/ClubApp'
 
 export type TPostEvents = {
   reaction: {

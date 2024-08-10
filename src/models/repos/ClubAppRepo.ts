@@ -1,6 +1,6 @@
 import {BaseService} from '../../services/BaseService'
 import Club from '../Club'
-import ClubApp from '../../engines/AppEngine/models/ClubApp'
+import ClubApp from '../../engines/AppsEngine/models/ClubApp'
 
 export default class ClubAppRepo extends BaseService {
   async findById(club: Club, appId: string): Promise<ClubApp | null> {

@@ -18,7 +18,7 @@ import {ICtx} from './graphqlCommon'
 import {badgeMutations, clubBadgesResolvers} from './badgesGraphql'
 import {clubRolesResolvers, rolesMutations} from './rolesGraphql'
 import MemberBadge from '../models/MemberBadge'
-import ClubApp from '../engines/AppEngine/models/ClubApp'
+import ClubApp from '../engines/AppsEngine/models/ClubApp'
 
 export const graphqlResolvers = (app: App) => ({
   Query: {

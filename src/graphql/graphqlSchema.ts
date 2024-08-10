@@ -47,6 +47,7 @@ type Club_BuyLinks_Collection {
 type ClubSocialLinks {
   tiktok: String
   telegram: String
+  discord: String
   instagram: String
   twitter: String
   reddit: String

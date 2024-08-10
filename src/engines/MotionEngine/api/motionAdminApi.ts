@@ -2,7 +2,7 @@ import MotionEngine from '../MotionEngine'
 import Trigger from '../../../models/Trigger'
 import {JSONObject} from '../../../lib/common'
 import {bool, id, obj, str} from 'json-schema-blocks'
-import ClubApp from '../../AppEngine/models/ClubApp'
+import ClubApp from '../../AppsEngine/models/ClubApp'
 import MotionTrigger from '../models/MotionTrigger'
 
 const serializeTrigger = (trigger: MotionTrigger) => {

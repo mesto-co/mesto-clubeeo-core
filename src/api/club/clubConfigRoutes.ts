@@ -4,7 +4,7 @@ import Trigger from '../../models/Trigger'
 import ClubRole from '../../models/ClubRole'
 import ClubBadge from '../../models/ClubBadge'
 import ClubExt from '../../models/ClubExt'
-import ClubApp from '../../engines/AppEngine/models/ClubApp'
+import ClubApp from '../../engines/AppsEngine/models/ClubApp'
 
 export default function (app: App) {
   return function (router, opts, next) {

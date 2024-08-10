@@ -10,7 +10,7 @@ import {
 import Club from './Club'
 import {Index} from 'typeorm'
 import {ITriggerProcessor} from '../engines/MotionEngine/TaskBuilderInterfaces'
-import ClubApp from '../engines/AppEngine/models/ClubApp'
+import ClubApp from '../engines/AppsEngine/models/ClubApp'
 import {ClubeeoPrimaryColumn} from '../lib/modelCommon';
 
 @Entity()

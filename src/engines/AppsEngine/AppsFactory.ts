@@ -5,7 +5,7 @@ import {IAction, IActionProp, IAppConfig, IConfigProp, IEvent, IEventProp} from 
 import PageApp from '../../clubApps/StaticContentApp/PageApp'
 import BasicApp from '../../clubApps/BasicApp/BaseApp'
 import ClubApp from './models/ClubApp'
-import {appRegistry} from './AppRegistry'
+import {appRegistry} from './AppsRegistry'
 
 export class AppFactory {
   readonly app: App;

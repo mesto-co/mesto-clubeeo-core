@@ -2,7 +2,7 @@ import App from '../App';
 import {bool, id, nullable, obj, str} from 'json-schema-blocks'
 import Club from '../models/Club'
 import {In} from 'typeorm'
-import ClubApp from '../engines/AppEngine/models/ClubApp'
+import ClubApp from '../engines/AppsEngine/models/ClubApp'
 
 export default function (app: App) {
   return function (router, opts, next) {

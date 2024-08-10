@@ -1,8 +1,8 @@
 import App from '../../../App'
 import ActionProcessDaemonLogic, {IActionResult, TActionProcessor} from '../lib/ActionProcessDaemonLogic'
 import MotionAction, {MotionActionState} from '../models/MotionAction'
-import {appRegistry} from '../../AppEngine/AppRegistry'
-import ClubApp from '../../AppEngine/models/ClubApp'
+import {appRegistry} from '../../AppsEngine/AppsRegistry'
+import ClubApp from '../../AppsEngine/models/ClubApp'
 import Member from '../../../models/Member'
 
 export const actionProcessingDaemon = (app: App) => {

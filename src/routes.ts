@@ -59,13 +59,22 @@ export default function (app: App) {
   }
 
   return function (router, opts, next) {
+
+    // register all engines with api
+    for (const engineName of app.engines.enginesList) {
+      const engine = app.engines[engineName];
+
+      if ('api' in engine) {
+        app.logger.info({engineName}, 'Registering engine');
+        router.register(engine.api, engine.apiConfig);
+      }
+    }
+
     router.register(authRoutes(app), {prefix: '/auth'});
 
     router.register(clubRoutes(app), {prefix: '/club'});
 
     router.register(clubAppsRoutes(app), {prefix: '/clubApps'});
-
-    router.register(app.engines.appEngine.api, {prefix: '/club/:clubSlug/app'});
 
     router.register(clubConfigRoutes(app), {prefix: '/club/:clubSlug/config'});
 
@@ -102,8 +111,6 @@ export default function (app: App) {
     router.register(clubByIdAppsRoutes, {prefix: '/club/:clubId/apps'});
 
     router.register(app.TelegramContainer.telegramHookRoutes, {prefix: '/telegram/hook'});
-
-    router.register(app.engines.motionEngine.clubApi, {prefix: '/club/:clubLocator/motion'})
 
     next();
   }

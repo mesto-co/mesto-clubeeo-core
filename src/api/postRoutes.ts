@@ -8,7 +8,7 @@ import PostReaction, {PostReactionTypes} from '../models/PostReaction'
 import User from '../models/User'
 import PostComment from '../models/PostComment'
 import {sanitizeHtmlDefault} from '../lib/sanitize'
-import ClubApp from '../engines/AppEngine/models/ClubApp'
+import ClubApp from '../engines/AppsEngine/models/ClubApp'
 
 // fields presented in all requests & responses
 export const postBaseSchema = {

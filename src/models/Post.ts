@@ -9,7 +9,7 @@ import {
 
 import Club from './Club'
 import User from './User'
-import ClubApp from '../engines/AppEngine/models/ClubApp'
+import ClubApp from '../engines/AppsEngine/models/ClubApp'
 import {ClubeeoPrimaryColumn} from '../lib/modelCommon';
 import Member from './Member'
 

@@ -11,7 +11,7 @@ import Wallet from '../models/Wallet'
 import MemberBadge from '../models/MemberBadge'
 import Member from '../models/Member'
 import {FindOptionsWhere} from 'typeorm/find-options/FindOptionsWhere'
-import ClubApp from '../engines/AppEngine/models/ClubApp'
+import ClubApp from '../engines/AppsEngine/models/ClubApp'
 import ClubRole from '../models/ClubRole'
 
 export default class UserInClubContext {

@@ -9,7 +9,7 @@ import {IFastifySession} from '../core/services/AuthService'
 import assert = require('assert')
 import {EvmChainsEnum, TChains} from '../lib/TChains'
 import Club from '../models/Club'
-import ClubApp from '../engines/AppEngine/models/ClubApp'
+import ClubApp from '../engines/AppsEngine/models/ClubApp'
 import {ethWalletEventTypes} from '../clubApps/EthWalletApp/EthWalletAppConfig'
 // import assert from 'assert'
 // import {nftMoralisNorm} from '../norm/nftNorm'

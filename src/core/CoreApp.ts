@@ -51,7 +51,7 @@ export default class CoreApp<
    */
   get Settings() { return this.once('Settings', () => new CoreSettings(this)) }
 
-  get db() { return this.once('db', () => new DataSource(this.Settings.dataSourceSettings)) }
+  get db() { return this.once('db', () => new DataSource(this.dataSourceSettings)) }
 
 
   // Quick access to EntityManager
@@ -79,5 +79,21 @@ export default class CoreApp<
   // services
 
   get auth() { return this.once('auth', () => new AuthService(this as TCoreApp)) }
+
+  // settings
+
+  get dataSourceSettings() {
+    return {
+      type: this.Env.databaseType as 'postgres',
+      host: this.Env.databaseHost,
+      port: this.Env.databasePort,
+      username: this.Env.databaseUser,
+      password: this.Env.databasePassword,
+      database: this.Env.databaseName,
+      ssl: this.Env.databaseSsl,
+      entities: [],
+      synchronize: true,
+    }
+  }
 
 }
