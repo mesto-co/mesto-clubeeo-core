@@ -96,7 +96,7 @@ export function botCommandEvents(app: App) {
             inline_keyboard: [
               [{
                 text: `Open App`,
-                web_app: {url: `${app.Env.tgCallbackRoot}/telegram/webapp/${app.Env.defaultClub}`},
+                web_app: {url: `${app.Env.siteUrl}/telegram/webapp/${app.Env.defaultClub}`},
               }],
             ],
           },
