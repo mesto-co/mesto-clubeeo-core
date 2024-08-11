@@ -1,17 +1,18 @@
-import "reflect-metadata";
-
-import {AppEnv} from "./appEnv";
-import App from './App';
-import router from './router';
-
-process.env.TZ = 'UTC';
+import { MestoApp } from "./App";
+import MestoEnv from "./Env";
+import { mestoRouter } from "./router";
 
 async function main() {
-  const env = AppEnv.getInstance();
-  const app = new App(env);
+  const env = new MestoEnv();
+
+  const app = new MestoApp(env);
+
+  console.log(await app.engines.translation.t('Hello, world!'));
 
   await app.init();
-  router(app);
+
+  mestoRouter(app);
+
   await app.run();
 }
 
