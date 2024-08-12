@@ -1,4 +1,5 @@
 import { MestoApp } from "./App";
+import profileApp from "./apps/profileApp";
 import MestoEnv from "./Env";
 import { mestoRouter } from "./router";
 
@@ -7,11 +8,16 @@ async function main() {
 
   const app = new MestoApp(env);
 
-  console.log(await app.engines.translation.t('Hello, world!'));
-
   await app.init();
 
   mestoRouter(app);
+
+  profileApp(app);
+
+  // app.router.get('/api/login', async (req, reply) => {
+  //   app.auth.logIn('1', req['session']);
+  //   return { data: 'Logged in!' };
+  // });
 
   await app.run();
 }

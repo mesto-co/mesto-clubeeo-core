@@ -1,6 +1,7 @@
 import {App, Engines} from "clubeeo-core";
 import DummyTranslationEngine from 'clubeeo-core/dist/engines/TranslationEngine/DummyTranslationEngine';
 import MestoEnv from "./Env";
+import MemberProfile from "./models/MemberProfile";
 
 export class MestoApp extends App {
   constructor(env: MestoEnv) {
@@ -15,6 +16,7 @@ export class MestoApp extends App {
         "node_modules/clubeeo-core/dist/engines/MotionEngine/models/*.ts",
         ...Object.values(this.engines.apps.models),
         ...Object.values(this.engines.translation.models),
+        MemberProfile,
       ],
     };
   }
