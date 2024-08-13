@@ -1,67 +1,63 @@
 import { App } from "clubeeo-core";
-// import Member from "clubeeo-core/dist/models/Member";
-// import { IFastifySession } from "clubeeo-core/dist/types/services/AuthService";
-import { FastifyInstance } from "fastify";
+// import { FastifyInstance } from "fastify";
 
-// export function createApp<TApp extends App>(name: string, options: {
-//   routes?: (c: TApp, fastify: FastifyInstance & {
-//     session: IFastifySession;
-// }) => void;
-// }) {
-//   return function(c: TApp) {
-//     // register routes
-//     if (options.routes) {
-//       // todo: rename to fastify in clubeeo-core
-//       c.router.register((r, opts, next) => {
-//         options.routes(c, r as any);
-//         next();
-//       }, {prefix: `/${c.Env.apiPrefix}/club/:clubId/apps/:appSlug/${name}`});
-//     }
-//   }
-// }
+export type TAppBuilderHandler<TDomain> = (d: TDomain, req: any, reply: any) => Promise<any>;
 
-export type TAppBuilderHandler<TApp extends App> = (c: TApp, req: any, reply: any) => Promise<any>;
-
-export class AppBuilder<TApp extends App> {
+export class AppBuilder<TApp extends App, TEntity> {
   routes: Record<string, {
     method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',
     opts: any,
     path: string,
-    handler: (c: TApp, req: any, reply: any) => Promise<any>,
+    handler: (c: TEntity, req: any, reply: any) => Promise<any>,
   }> = {};
 
-  constructor(protected name: string) {}
+  _onInit?: (c: TApp, $: TEntity) => Promise<void>;
 
-  get(path: string, opts: any, handler: TAppBuilderHandler<TApp>) {
+  constructor(
+    protected name: string,
+    protected domainFactory: (c: TApp) => TEntity,
+  ) {}
+
+  get(path: string, opts: any, handler: TAppBuilderHandler<TEntity>) {
     return this.route(path, opts, 'GET', handler);
   }
 
-  post(path: string, opts: any, handler: TAppBuilderHandler<TApp>) {
+  post(path: string, opts: any, handler: TAppBuilderHandler<TEntity>) {
     return this.route(path, opts, 'POST', handler);
   }
 
-  put(path: string, opts: any, handler: TAppBuilderHandler<TApp>) {
+  put(path: string, opts: any, handler: TAppBuilderHandler<TEntity>) {
     return this.route(path, opts, 'PUT', handler);
   }
 
-  patch(path: string, opts: any, handler: TAppBuilderHandler<TApp>) {
+  patch(path: string, opts: any, handler: TAppBuilderHandler<TEntity>) {
     return this.route(path, opts, 'PATCH', handler);
   }
 
-  delete(path: string, opts: any, handler: TAppBuilderHandler<TApp>) {
+  delete(path: string, opts: any, handler: TAppBuilderHandler<TEntity>) {
     return this.route(path, opts, 'DELETE', handler);
   }
 
-  route(path: string, opts: any, method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE', handler: TAppBuilderHandler<TApp>) {
+  route(path: string, opts: any, method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE', handler: TAppBuilderHandler<TEntity>) {
     this.routes[method + ':' + path] = {method, opts, path, handler};
     return this;
   }
 
-  attachTo(c: TApp) {
-    this.registerRoutes(c, c.router);
+  async onInit(fn: (c: TApp, d: TEntity) => Promise<void>) {
+    this._onInit = fn;
   }
 
-  registerRoutes(c: TApp, router: FastifyInstance) {
+  async attachTo(c: TApp) {
+    const domian = this.domainFactory(c);
+
+    this.registerRoutes(c, domian);
+
+    if (this._onInit) {
+      await this._onInit!(c, domian);
+    }
+  }
+
+  registerRoutes(c: TApp, domian: TEntity) {
     c.router.register((r, opts, next) => {
       for (const route of Object.values(this.routes)) {
         r[route.method.toLowerCase()](route.path, route.opts, async (req, reply) => {
@@ -73,8 +69,8 @@ export class AppBuilder<TApp extends App> {
             user,
             member,
           };
-          
-          return await route.handler(c, req, reply);
+
+          return await route.handler(domian, req, reply);
         });
       }
       next();

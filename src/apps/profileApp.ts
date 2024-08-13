@@ -1,28 +1,68 @@
 import { MestoApp } from "../App";
-import Member from "clubeeo-core/dist/models/Member";
+import { fetchUserAndExtByExtId, Member, UserExt } from "clubeeo-core";
 import MemberProfile from "../models/MemberProfile";
-import UserExt from "clubeeo-core/dist/models/UserExt";
-import { ExtService } from "clubeeo-core/dist/core/lib/enums";
-import _ from "lodash";
 import { AppBuilder } from "../lib/createApp";
 import { arr, obj, str } from "json-schema-blocks";
+import { Telegraf } from "telegraf";
 
-const profileApp = new AppBuilder<MestoApp>('mesto-profile');
+export class ProfileRepo {
+  constructor(protected c: MestoApp) {}
 
-profileApp.get('/my-profile', {}, async (c, {ctx: {member, user}}, reply) => {
-  // todo: findOneOrCreateBy - allow to pass async function as default value
-  let profile = await c.m.findOneBy(MemberProfile, {member: {id: member.id}});
-  // const {value: profile, isCreated} = await c.em.findOneOrCreateBy(MemberProfile, {member: {id: member.id}}, {});
-  if (!profile) {
-    // todo: UserExt model, allow string for service
-    const tgUser = await c.m.findOneBy<UserExt>(UserExt, {id: user.id, service: ExtService.tg});
-    // todo: getters/helpers in tg engine
-    const tgFromData = tgUser.data?.from || {};
-    await c.em.createAndSave(MemberProfile, {
-      name: [tgFromData.first_name, tgFromData.last_name].filter(Boolean).join(' ') || tgFromData.username || tgFromData.id,
-      member: {id: member.id},
-    });
+  async fetchProfileByMember(member: Member | {id: string, userId: string}) {
+    let isCreated = false;
+    let profile = await this.c.m.findOneBy(MemberProfile, {member: {id: member.id}});
+
+    // const {value: profile, isCreated} = await c.em.findOneOrCreateBy(MemberProfile, {member: {id: member.id}}, {});
+    if (!profile) {
+      // todo: UserExt model, allow string for service
+      const tgUser = await this.c.m.findOneBy<UserExt>(UserExt, {id: member.userId, service: 'tg'});
+
+      // todo: getters/helpers in tg engine
+      const tgFromData = tgUser.data['from'] || {};
+      await this.c.em.createAndSave(MemberProfile, {
+        name: [tgFromData.first_name, tgFromData.last_name].filter(Boolean).join(' ') || tgFromData.username || tgFromData.id,
+        member: {id: member.id},
+      });
+      isCreated = true;
+    }
+
+    return {profile, isCreated};
   }
+
+  async fetchProfileByTgId(clubId: string, extId: string) {
+    const userExt = await this.c.m.findOne<UserExt>(UserExt, {
+      where: {extId: extId, service: 'tg'},
+      order: {id: 'DESC'},
+    });
+
+    if (!userExt) {
+      return {};
+    }
+
+    // const member = await this.c.m.findOneBy(Member, {userId: userExt.userId, clubId});
+
+    return {
+      extId,
+      // ...await this.fetchProfileByMember(userExt.user),
+    };
+  }
+}
+
+export class ProfileEntity {
+  repo: ProfileRepo;
+  bot: Telegraf;
+
+  constructor(public c: MestoApp) {
+    this.repo = new ProfileRepo(c);
+    this.bot = c.engines.telegram.bot;
+  }
+}
+
+const profileApp = new AppBuilder<MestoApp, ProfileEntity>('mesto-profile', (c) => new ProfileEntity(c));
+
+profileApp.get('/my-profile', {}, async ({repo: actions}, {ctx: {member}}, reply) => {
+  // todo: findOneOrCreateBy - allow to pass async function as default value
+  let { profile } = await actions.fetchProfileByMember(member);
 
   return { data: profile };
 });
@@ -46,20 +86,9 @@ profileApp.patch('/my-profile', {
       education: arr(str()),
     }, {required: ['name']}),
   }
-}, async (c, req, reply) => {
-  const clubId = req.params.clubId as string;
-
-  const {user} = await c.auth.getUserContext(req as any);
-  const member = await c.m.findOneByOrFail<Member>(Member, {user: {id: user.id}, club: {id: clubId}});
-
-  const profile = await c.m.findOneByOrFail(MemberProfile, {member: {id: member.id}});
-
-  const allowedKeys = [
-    'name', 'description', 'whoami', 'aboutMe', 'location',
-    'projectName', 'projectAbout', 'projectUrl', 'projectStatuses',
-    'professions', 'industries', 'skills', 'workplaces', 'education',
-  ];
-  Object.assign(profile, _.pick(req.body, allowedKeys));
+}, async ({c, repo: actions}, {body, ctx: {member, user}}, reply) => {
+  const { profile } = await actions.fetchProfileByMember(member);
+  Object.assign(profile, body);
   await c.m.save(profile);
 
   if (user.screenName !== profile.name) {
@@ -73,6 +102,34 @@ profileApp.patch('/my-profile', {
   }
 
   return { data: profile };
+});
+
+profileApp.onInit(async (c, $) => {
+  const clubId = '1';
+
+  $.bot.start(async (ctx) => {
+    const {userExt, user, isCreated: isUserCreated} = await fetchUserAndExtByExtId(c, {extId: ctx.from.id.toString(), service: 'tg', userData: ctx.from, sourceData: ctx});
+    const {value: member, isCreated: isMemberCreated} = await c.em.findOneOrCreateBy(Member, {user: {id: user.id}, club: {id: clubId}}, {});
+
+    if (isUserCreated || isMemberCreated) {
+      ctx.reply(`Добро пожаловать, ${user.screenName}!`, {
+        reply_markup: {
+          keyboard: [
+            [{text: 'Заполнить профиль', web_app: {url: `${c.Env.siteUrl}/#/mesto/profile/edit`}}],
+          ],
+        },
+      })
+    } else {
+      ctx.reply(`Привет, ${user.screenName}!`, {
+        reply_markup: {
+          keyboard: [
+            [{text: 'Заполнить профиль', web_app: {url: `${c.Env.siteUrl}/#/mesto/profile/edit`}}],
+          ],
+        },
+      });
+    }
+  });
+
 });
 
 export default profileApp;
