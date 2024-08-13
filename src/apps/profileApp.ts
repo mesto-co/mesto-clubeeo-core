@@ -4,62 +4,75 @@ import MemberProfile from "../models/MemberProfile";
 import UserExt from "clubeeo-core/dist/models/UserExt";
 import { ExtService } from "clubeeo-core/dist/core/lib/enums";
 import _ from "lodash";
-import { createApp } from "../lib/createApp";
+import { AppBuilder } from "../lib/createApp";
+import { arr, obj, str } from "json-schema-blocks";
 
-const profileApp = createApp<MestoApp>('mesto-profile', {
-  routes: (c, r) => {
-    r.get('/my-profile', async (req, reply) => {
-      const clubId = req.query['clubId'] as string;
+const profileApp = new AppBuilder<MestoApp>('mesto-profile');
 
-      const {user} = await c.auth.getUserContext(req as any);
-      const member = await c.m.findOneByOrFail<Member>(Member, {user: {id: user.id}, club: {id: clubId}});
-
-      // todo: findOneOrCreateBy - allow to pass async function as default value
-      let profile = await c.m.findOneBy(MemberProfile, {member: {id: member.id}});
-      // const {value: profile, isCreated} = await c.em.findOneOrCreateBy(MemberProfile, {member: {id: member.id}}, {});
-      if (!profile) {
-        // todo: UserExt model, allow string for service
-        const tgUser = await c.m.findOneBy<UserExt>(UserExt, {id: user.id, service: ExtService.tg});
-        // todo: getters/helpers in tg engine
-        const tgFromData = tgUser.data?.from || {};
-        await c.em.createAndSave(MemberProfile, {
-          name: [tgFromData.first_name, tgFromData.last_name].filter(Boolean).join(' ') || tgFromData.username || tgFromData.id,
-          member: {id: member.id},
-        });
-      }
-
-      return { data: profile };
+profileApp.get('/my-profile', {}, async (c, {ctx: {member, user}}, reply) => {
+  // todo: findOneOrCreateBy - allow to pass async function as default value
+  let profile = await c.m.findOneBy(MemberProfile, {member: {id: member.id}});
+  // const {value: profile, isCreated} = await c.em.findOneOrCreateBy(MemberProfile, {member: {id: member.id}}, {});
+  if (!profile) {
+    // todo: UserExt model, allow string for service
+    const tgUser = await c.m.findOneBy<UserExt>(UserExt, {id: user.id, service: ExtService.tg});
+    // todo: getters/helpers in tg engine
+    const tgFromData = tgUser.data?.from || {};
+    await c.em.createAndSave(MemberProfile, {
+      name: [tgFromData.first_name, tgFromData.last_name].filter(Boolean).join(' ') || tgFromData.username || tgFromData.id,
+      member: {id: member.id},
     });
+  }
 
-    r.post('/my-profile', async (req, reply) => {
-      const clubId = req.query['clubId'] as string;
+  return { data: profile };
+});
 
-      const {user} = await c.auth.getUserContext(req as any);
-      const member = await c.m.findOneByOrFail<Member>(Member, {user: {id: user.id}, club: {id: clubId}});
+profileApp.patch('/my-profile', {
+  schema: {
+    body: obj({
+      name: str(1),
+      description: str(),
+      whoami: str(),
+      aboutMe: str(),
+      location: str(),
+      projectName: str(),
+      projectAbout: str(),
+      projectUrl: str(),
+      projectStatuses: arr(str()),
+      professions: arr(str()),
+      industries: arr(str()),
+      skills: arr(str()),
+      workplaces: arr(str()),
+      education: arr(str()),
+    }, {required: ['name']}),
+  }
+}, async (c, req, reply) => {
+  const clubId = req.params.clubId as string;
 
-      const profile = await c.m.findOneByOrFail(MemberProfile, {member: {id: member.id}});
+  const {user} = await c.auth.getUserContext(req as any);
+  const member = await c.m.findOneByOrFail<Member>(Member, {user: {id: user.id}, club: {id: clubId}});
 
-      const allowedKeys = [
-        'name', 'description', 'whoami', 'aboutMe', 'location',
-        'projectName', 'projectAbout', 'projectUrl', 'projectStatuses',
-        'professions', 'industries', 'skills', 'workplaces', 'education',
-      ];
-      Object.assign(profile, _.pick(req.body, allowedKeys));
-      await c.m.save(profile);
+  const profile = await c.m.findOneByOrFail(MemberProfile, {member: {id: member.id}});
 
-      if (user.screenName !== profile.name) {
-        user.screenName = profile.name;
-        await c.m.save(user);
-      }
+  const allowedKeys = [
+    'name', 'description', 'whoami', 'aboutMe', 'location',
+    'projectName', 'projectAbout', 'projectUrl', 'projectStatuses',
+    'professions', 'industries', 'skills', 'workplaces', 'education',
+  ];
+  Object.assign(profile, _.pick(req.body, allowedKeys));
+  await c.m.save(profile);
 
-      if (member.name !== profile.name) {
-        member.name = profile.name;
-        await c.m.save(member);
-      }
+  if (user.screenName !== profile.name) {
+    user.screenName = profile.name;
+    await c.m.save(user);
+  }
 
-      return { data: profile };
-    });
-  },
+  if (member.name !== profile.name) {
+    member.name = profile.name;
+    await c.m.save(member);
+  }
+
+  return { data: profile };
 });
 
 export default profileApp;

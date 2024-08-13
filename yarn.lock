@@ -2932,7 +2932,7 @@ json-buffer@3.0.1:
   resolved "https://registry.yarnpkg.com/json-buffer/-/json-buffer-3.0.1.tgz#9338802a30d3b6605fbe0613e094008ca8c05a13"
   integrity sha512-4bV5BfR2mqfQTJm+V5tPPdf+ZpuhiIvTuAB5g8kcrXOZpTT/QwwVRWBywX1ozr6lEuPdbHxwaJlm9G6mI2sfSQ==
 
-json-schema-blocks@^0.2.1:
+json-schema-blocks@^0.2.1, json-schema-blocks@^0.2.2:
   version "0.2.2"
   resolved "https://registry.yarnpkg.com/json-schema-blocks/-/json-schema-blocks-0.2.2.tgz#a7c8ad19bd435d8ed0391213729b51dffe3c5b0f"
   integrity sha512-AfljM+GlVjNIqFYLE3HEObQohANvpmeW1NauTGxk/z0DQaXXFlirM0U7BPWqhRl0SuQwXxsC2jeJCyS2jY5T/A==

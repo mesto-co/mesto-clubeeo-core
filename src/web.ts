@@ -12,12 +12,7 @@ async function main() {
 
   mestoRouter(app);
 
-  profileApp(app);
-
-  // app.router.get('/api/login', async (req, reply) => {
-  //   app.auth.logIn('1', req['session']);
-  //   return { data: 'Logged in!' };
-  // });
+  profileApp.attachTo(app);
 
   await app.run();
 }

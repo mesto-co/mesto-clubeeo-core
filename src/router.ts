@@ -7,7 +7,7 @@ export function mestoRouter(app: MestoApp) {
 
   if (app.Env.nodeEnv === 'development') {
     r.get('/api/login/:userId', (req, res) => {
-      app.auth.logIn(req.query.userId as string, req.session);
+      app.auth.logIn(req.params.userId, req.session);
       res.send({ logged: true });
     });
   }
