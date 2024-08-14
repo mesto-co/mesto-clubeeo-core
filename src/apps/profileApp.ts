@@ -115,7 +115,7 @@ profileApp.onInit(async (c, $) => {
       ctx.reply(`Добро пожаловать, ${user.screenName}!`, {
         reply_markup: {
           keyboard: [
-            [{text: 'Заполнить профиль', web_app: {url: `${c.Env.siteUrl}/#/mesto/profile/edit`}}],
+            [{text: 'Заполнить профиль', web_app: {url: `${c.Env.siteUrl}/mesto/profile/edit`}}],
           ],
         },
       })
@@ -123,7 +123,7 @@ profileApp.onInit(async (c, $) => {
       ctx.reply(`Привет, ${user.screenName}!`, {
         reply_markup: {
           keyboard: [
-            [{text: 'Заполнить профиль', web_app: {url: `${c.Env.siteUrl}/#/mesto/profile/edit`}}],
+            [{text: 'Заполнить профиль', web_app: {url: `${c.Env.siteUrl}/mesto/profile/edit`}}],
           ],
         },
       });
