@@ -12,7 +12,7 @@ export class MestoApp extends App {
   async init() {
     await super.init();
 
-    this.engines.callEachEngine('init');
+    await this.engines.callEachEngine('init');
   }
 
   async run() {
@@ -20,7 +20,7 @@ export class MestoApp extends App {
 
     await super.run();
 
-    this.engines.callEachEngine('run');
+    await this.engines.callEachEngine('run');
   }
 
   get dataSourceSettings() {
@@ -37,7 +37,6 @@ export class MestoApp extends App {
   }
 
   get engines() { return this.once('engines', () => new MestoEngines(this)) }
-
 }
 
 export class MestoEngines extends Engines {
