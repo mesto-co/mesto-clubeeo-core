@@ -2,6 +2,7 @@ import { EngineBase } from "clubeeo-core";
 import { MestoApp } from "../../App";
 import { TelegramEnv } from "./TelegramEnv";
 import { Telegraf } from "telegraf";
+import { telegramApi } from "./telegramApi";
 
 export class TelegramEngine extends EngineBase {
   readonly type = "engine";
@@ -28,5 +29,9 @@ export class TelegramEngine extends EngineBase {
     this.bot.launch();
   }
 
+  get api() { return telegramApi(this.c) }
+  apiConfig = {prefix: '/telegram'}
+
   get env() { return this.once('env', () => TelegramEnv.getInstance() ) }
+
 }

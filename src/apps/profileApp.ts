@@ -147,7 +147,7 @@ profileApp.onInit(async (c, $) => {
       if (isUserCreated || isMemberCreated) {
         ctx.reply(`🎉 Добро пожаловать, ${user.screenName}! 👋`, {
           reply_markup: {
-            keyboard: [
+            inline_keyboard: [
               [{text: '📝 Заполнить профиль', web_app: {url: `${c.Env.siteUrl}/mesto/profile/edit`}}],
             ],
           },
@@ -155,7 +155,7 @@ profileApp.onInit(async (c, $) => {
       } else {
         ctx.reply(`Привет, ${user.screenName}! 👋`, {
           reply_markup: {
-            keyboard: [
+            inline_keyboard: [
               [{text: '📝 Заполнить профиль', web_app: {url: `${c.Env.siteUrl}/mesto/profile/edit`}}],
             ],
           },
