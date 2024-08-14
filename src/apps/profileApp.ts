@@ -1,9 +1,12 @@
 import { MestoApp } from "../App";
-import { fetchUserAndExtByExtId, Member, UserExt } from "clubeeo-core";
+import { ExtCode, ExtServicesEnum, fetchUserAndExtByExtId, Member, UserExt } from "clubeeo-core";
 import MemberProfile from "../models/MemberProfile";
 import { AppBuilder } from "../lib/createApp";
 import { arr, obj, str } from "json-schema-blocks";
 import { Telegraf } from "telegraf";
+import { ISignInUserResult } from "clubeeo-core/dist/clubApps/TelegramApp/TelegramBotUpdates";
+import { CallbackQuery } from "telegraf/src/core/types/typegram";
+import { ExtCodeTypes } from "clubeeo-core/dist/models/ExtCode";
 
 export class ProfileRepo {
   constructor(protected c: MestoApp) {}
@@ -54,15 +57,14 @@ export class ProfileEntity {
 
   constructor(public c: MestoApp) {
     this.repo = new ProfileRepo(c);
-    this.bot = c.engines.telegram.bot;
   }
 }
 
 const profileApp = new AppBuilder<MestoApp, ProfileEntity>('mesto-profile', (c) => new ProfileEntity(c));
 
-profileApp.get('/my-profile', {}, async ({repo: actions}, {ctx: {member}}, reply) => {
+profileApp.get('/my-profile', {}, async ({repo}, {ctx: {member}}, reply) => {
   // todo: findOneOrCreateBy - allow to pass async function as default value
-  let { profile } = await actions.fetchProfileByMember(member);
+  let { profile } = await repo.fetchProfileByMember(member);
 
   return { data: profile };
 });
@@ -86,8 +88,8 @@ profileApp.patch('/my-profile', {
       education: arr(str()),
     }, {required: ['name']}),
   }
-}, async ({c, repo: actions}, {body, ctx: {member, user}}, reply) => {
-  const { profile } = await actions.fetchProfileByMember(member);
+}, async ({c, repo}, {body, ctx: {member, user}}, reply) => {
+  const { profile } = await repo.fetchProfileByMember(member);
   Object.assign(profile, body);
   await c.m.save(profile);
 
@@ -105,31 +107,127 @@ profileApp.patch('/my-profile', {
 });
 
 profileApp.onInit(async (c, $) => {
+  const bot = c.engines.telegram.bot;
   const clubId = '1';
 
-  $.bot.start(async (ctx) => {
-    const {userExt, user, isCreated: isUserCreated} = await fetchUserAndExtByExtId(c, {extId: ctx.from.id.toString(), service: 'tg', userData: ctx.from, sourceData: ctx});
-    const {value: member, isCreated: isMemberCreated} = await c.em.findOneOrCreateBy(Member, {user: {id: user.id}, club: {id: clubId}}, {});
+  bot.start(async (ctx) => {
+    const { userExt, user, isCreated: isUserCreated } = await fetchUserAndExtByExtId(c, {extId: ctx.from.id.toString(), service: 'tg', userData: ctx.from, sourceData: ctx});
+    const { value: member, isCreated: isMemberCreated } = await c.em.findOneOrCreateBy(Member, {user: {id: user.id}, club: {id: clubId}}, {});
 
-    if (isUserCreated || isMemberCreated) {
-      ctx.reply(`Добро пожаловать, ${user.screenName}!`, {
-        reply_markup: {
-          keyboard: [
-            [{text: 'Заполнить профиль', web_app: {url: `${c.Env.siteUrl}/mesto/profile/edit`}}],
-          ],
+    let isHandled = false;
+    if (ctx.payload) {
+      const extCode = await c.m.findOne(ExtCode, {
+        where: {
+          service: ExtServicesEnum.tg,
+          codeType: ExtCodeTypes.login,
+          code: ctx.payload,
+          used: false,
         },
-      })
-    } else {
-      ctx.reply(`Привет, ${user.screenName}!`, {
-        reply_markup: {
-          keyboard: [
-            [{text: 'Заполнить профиль', web_app: {url: `${c.Env.siteUrl}/mesto/profile/edit`}}],
-          ],
-        },
+        relations: {user: true, club: true}
       });
+
+      if (extCode) {
+        await ctx.reply(
+          await c.t('bot.signin', user.lang, {}, 'Пожалуйста, подтвердите вход в систему'),
+          {
+            reply_markup: {
+              inline_keyboard: [
+                [{text: 'Подтвердить вход', callback_data: `signin:${ctx.payload}`}],
+                [{text: 'Отмена', callback_data: 'deleteMessage'}],
+              ],
+            },
+          }
+        );
+
+        isHandled = true;
+      }
+    }
+    
+    if (!isHandled) {
+      if (isUserCreated || isMemberCreated) {
+        ctx.reply(`🎉 Добро пожаловать, ${user.screenName}! 👋`, {
+          reply_markup: {
+            keyboard: [
+              [{text: '📝 Заполнить профиль', web_app: {url: `${c.Env.siteUrl}/mesto/profile/edit`}}],
+            ],
+          },
+        })
+      } else {
+        ctx.reply(`Привет, ${user.screenName}! 👋`, {
+          reply_markup: {
+            keyboard: [
+              [{text: '📝 Заполнить профиль', web_app: {url: `${c.Env.siteUrl}/mesto/profile/edit`}}],
+            ],
+          },
+        });
+      }
     }
   });
 
+  bot.action('deleteMessage', ctx => ctx.deleteMessage());
+
+  bot.action(/^signin:(.*)$/, async ctx => {
+    const [_, payload] = ctx.match;
+
+    const signInUser = async (data: {tgUserId: number, code: string, data: CallbackQuery}): Promise<ISignInUserResult> => {
+      const extCode = await c.m.findOne(ExtCode, {
+        where: {
+          service: ExtServicesEnum.tg,
+          codeType: ExtCodeTypes.login,
+          code: data.code,
+          used: false,
+        },
+        relations: {user: true, club: true}
+      });
+
+      if (extCode) {
+        extCode.used = true;
+        await c.m.save(extCode);
+
+        const club = extCode.club;
+
+        const {userExt, user} = await fetchUserAndExtByExtId(c, {
+          service: ExtServicesEnum.tg,
+          extId: String(data.tgUserId),
+          userData: data.data.from,
+          sourceData: data.data,
+        });
+
+        const tgUser = data.data.from;
+
+        //todo: process using event bus
+        await c.repos.user.defaultScreenName(user, {
+          screenName: tgUser.username,
+          firstName: tgUser.first_name,
+          lastName: tgUser.last_name,
+        });
+
+        // create new loginConfirmed code
+        await c.em.createAndSave(ExtCode, {
+          code: extCode.code,
+          user: {id: user.id},
+          club: {id: extCode.clubId},
+          service: ExtServicesEnum.tg,
+          codeType: ExtCodeTypes.loginConfirmed,
+          used: false,
+        });
+
+        // todo: remove prevUserExt
+        return {loggedIn: true, club, user, prevUserExt: null};
+      } else {
+        c.logger.warn({data}, 'signInUser: extCode is not found');
+        return {loggedIn: false};
+      }
+    };
+
+    const { loggedIn } = await signInUser({tgUserId: ctx.from.id, code: payload, data: ctx.callbackQuery});
+
+    if (loggedIn) {
+      ctx.reply('👋 Вы успешно вошли в систему!\n\nТеперь вы можете вернуться на страницу браузера.');
+    } else {
+      ctx.reply('❌ Ошибка входа в систему. Попробуйте еще раз.');
+    }
+  });
 });
 
 export default profileApp;
