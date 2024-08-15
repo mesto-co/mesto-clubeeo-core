@@ -12,6 +12,11 @@ export class TelegramEngine extends EngineBase {
     super();
 
     this.bot = new Telegraf(this.env.telegramToken);
+
+    // this.bot.use(async (ctx, next) => {
+    //   ctx['c'] = this.c;
+    //   next();
+    // });
   }
 
   async init() {

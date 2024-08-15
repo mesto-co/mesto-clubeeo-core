@@ -57,20 +57,24 @@ export class AppBuilder<TApp extends App, TEntity> {
     }
   }
 
-  registerRoutes(c: TApp, domian: TEntity) {
+  registerRoutes(c: TApp, entity: TEntity) {
     c.router.register((r, opts, next) => {
       for (const route of Object.values(this.routes)) {
         r[route.method.toLowerCase()](route.path, route.opts, async (req, reply) => {
           const clubId = req.params.clubId as string;
+          const club = await c.m.findOneByOrFail('Club', {id: clubId});
           const {user} = await c.auth.getUserContext(req as any);
-          const member = await c.m.findOneByOrFail('Member', {user: {id: user.id}, club: {id: clubId}});
+          const member = await c.m.findOneByOrFail('Member', {user: {id: user.id}, club: {id: club.id}});
+          const app = await c.m.findOneByOrFail('ClubApp', {appSlug: req.params.appSlug, club: {id: club.id}});
 
           req.ctx = {
             user,
             member,
+            club,
+            app,
           };
 
-          return await route.handler(domian, req, reply);
+          return await route.handler(entity, req, reply);
         });
       }
       next();

@@ -2,7 +2,7 @@ import { MestoApp } from "../App";
 import { ExtCode, ExtServicesEnum, fetchUserAndExtByExtId, Member, UserExt } from "clubeeo-core";
 import MemberProfile from "../models/MemberProfile";
 import { AppBuilder } from "../lib/createApp";
-import { arr, obj, str } from "json-schema-blocks";
+import { arr, obj, str, bool } from "json-schema-blocks";
 import { Telegraf } from "telegraf";
 import { ISignInUserResult } from "clubeeo-core/dist/clubApps/TelegramApp/TelegramBotUpdates";
 import { CallbackQuery } from "telegraf/src/core/types/typegram";
@@ -62,11 +62,14 @@ export class ProfileEntity {
 
 const profileApp = new AppBuilder<MestoApp, ProfileEntity>('mesto-profile', (c) => new ProfileEntity(c));
 
-profileApp.get('/my-profile', {}, async ({repo}, {ctx: {member}}, reply) => {
+profileApp.get('/my-profile', {}, async ({c, repo}, {ctx: {member, club}}, reply) => {
   // todo: findOneOrCreateBy - allow to pass async function as default value
   let { profile } = await repo.fetchProfileByMember(member);
 
-  return { data: profile };
+  const roles = await c.engines.access.service
+      .getRolesMap(member, club, ['applicant', 'member', 'guest', 'rejected']);
+
+  return { data: profile, roles };
 });
 
 profileApp.patch('/my-profile', {
@@ -88,7 +91,7 @@ profileApp.patch('/my-profile', {
       education: arr(str()),
     }, {required: ['name']}),
   }
-}, async ({c, repo}, {body, ctx: {member, user}}, reply) => {
+}, async ({c, repo}, {body, query, ctx: {member, user, club}}, reply) => {
   const { profile } = await repo.fetchProfileByMember(member);
   Object.assign(profile, body);
   await c.m.save(profile);
@@ -103,7 +106,36 @@ profileApp.patch('/my-profile', {
     await c.m.save(member);
   }
 
-  return { data: profile };
+  const roles = await c.engines.access.service
+      .getRolesMap(member, club, ['applicant', 'member', 'guest', 'rejected']);
+
+  return { data: profile, roles };
+});
+
+profileApp.post('/my-profile/apply', {}, async ({c, repo}, {ctx: {member, club}}, reply) => {
+  const accessService = c.engines.access.service;
+
+  const roles = await c.engines.access.service
+      .getRolesMap(member, club, ['applicant', 'member', 'guest', 'rejected']);
+
+  if (roles.member) {
+    throw new Error('Already a member');
+  }
+
+  if (roles.applicant) {
+    throw new Error('Already applied');
+  }
+
+  if (roles.rejected) {
+    throw new Error('Your previous applcaion was rejected');
+  }
+
+  await accessService.addRole(member, club, 'applicant');
+
+  const extUser = await c.m.findOneBy(UserExt, {user: {id: member.userId}, service: 'tg'});
+  await c.engines.telegram.bot.telegram.sendMessage(extUser.extId, `📝 Вы подали заявку на вступление в Место.`);
+
+  return { roles };
 });
 
 profileApp.onInit(async (c, $) => {
