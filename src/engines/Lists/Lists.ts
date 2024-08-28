@@ -45,7 +45,6 @@ export class Lists extends EngineBase {
   }
 
   async run() {
-    await this.fixtures();
   }
 
   models = {

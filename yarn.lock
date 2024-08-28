@@ -1366,10 +1366,10 @@ clone-response@^1.0.2:
   dependencies:
     mimic-response "^1.0.0"
 
-clubeeo-core@^0.6.3:
-  version "0.6.3"
-  resolved "https://registry.yarnpkg.com/clubeeo-core/-/clubeeo-core-0.6.3.tgz#05820ab3f7ff14630ef8185f757649499c4961b2"
-  integrity sha512-hRAM/ui6reFTKic2N9GNvNjJHKDZY7Gqin3NvMnt/krqHWdUKqjN6+XTm0BJ66/KalmUM5G2YrLeA1mwV9BQAQ==
+clubeeo-core@^0.6.4:
+  version "0.6.4"
+  resolved "https://registry.yarnpkg.com/clubeeo-core/-/clubeeo-core-0.6.4.tgz#01d847339b726d753d082ab1d04ac7c25cf455d4"
+  integrity sha512-HwANQYMG7Mop8JavF6mAIIVvPeZ59VfH8iSayydEUOr+m16azBULOPqjwy7AO4iSvrLy4Cx/Edz0+UU55WmT6g==
   dependencies:
     "@fast-csv/format" "^4.3.5"
     "@fastify/formbody" "^7.3.0"

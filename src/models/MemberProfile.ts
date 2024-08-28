@@ -8,9 +8,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-import {env} from 'clubeeo-core';
-// import User from 'clubeeo-core/dist/types/models/User';
-import Member from 'clubeeo-core/dist/models/Member';
+import {env, Member} from 'clubeeo-core';
 
 const ClubeeoPrimaryColumn = () => {
   return PrimaryGeneratedColumn(env.databasePkStrategy, env.databasePkOptions)
