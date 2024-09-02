@@ -1,5 +1,5 @@
 import { MestoApp } from "../App";
-import { Member, Club } from "clubeeo-core";
+import { Member, Club, MemberRole } from "clubeeo-core";
 import MemberProfile from "../models/MemberProfile";
 import { AppBuilder } from "../lib/createApp";
 
@@ -18,11 +18,11 @@ export class ApplicantsRepo {
           clubRole: { name: role }
         }
       },
-      relations: {
-        memberRoles: {
-          clubRole: true,
-        },
-      },
+      // relations: {
+      //   memberRoles: {
+      //     clubRole: true,
+      //   },
+      // },
       order: {
         id: 'DESC',
       },
@@ -34,6 +34,11 @@ export class ApplicantsRepo {
       const profile = await this.c.m.findOneBy(MemberProfile, { member: { id: member.id } });
       member['profile'] = profile;
       member['rolesMap'] = await this.c.engines.access.service.getRolesMap({member, hub: club.id}, ['applicant', 'member', 'rejected', 'guest']);
+      member['memberRoles'] = await this.c.m.find(MemberRole, {
+        where: { member: { id: member.id }, club: { id: club.id }, enabled: true },
+        relations: ['clubRole'],
+        order: { clubRole: { name: 'ASC' } },
+      });
     }
 
     return { members, total };
