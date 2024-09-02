@@ -66,7 +66,7 @@ profileApp.get('/my-profile', {}, async ({c, repo}, {ctx: {member, club}}, reply
   let { profile } = await repo.fetchProfileByMember(member);
 
   const roles = await c.engines.access.service
-      .getRolesMap(member, club, ['applicant', 'member', 'guest', 'rejected']);
+      .getRolesMap({member, hub: club}, ['applicant', 'member', 'guest', 'rejected']);
 
   return { data: profile, roles };
 });
@@ -106,7 +106,7 @@ profileApp.patch('/my-profile', {
   }
 
   const roles = await c.engines.access.service
-      .getRolesMap(member, club, ['applicant', 'member', 'guest', 'rejected']);
+      .getRolesMap({member, hub: club}, ['applicant', 'member', 'guest', 'rejected']);
 
   return { data: profile, roles };
 });
@@ -115,7 +115,7 @@ profileApp.post('/my-profile/apply', {}, async ({c, repo}, {ctx: {member, club}}
   const accessService = c.engines.access.service;
 
   const roles = await c.engines.access.service
-      .getRolesMap(member, club, ['applicant', 'member', 'guest', 'rejected']);
+      .getRolesMap({member, hub: club}, ['applicant', 'member', 'guest', 'rejected']);
 
   if (roles.member) {
     throw new Error('Already a member');
@@ -129,7 +129,7 @@ profileApp.post('/my-profile/apply', {}, async ({c, repo}, {ctx: {member, club}}
     throw new Error('Your previous applcaion was rejected');
   }
 
-  await accessService.addRole(member, club, 'applicant');
+  await accessService.addRole({member, hub: club}, 'applicant');
 
   const extUser = await c.m.findOneBy(UserExt, {user: {id: member.userId}, service: 'tg'});
   await c.engines.telegram.bot.telegram.sendMessage(extUser.extId, `📝 Вы подали заявку на вступление в Место.`);
