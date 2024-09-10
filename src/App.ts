@@ -32,7 +32,7 @@ export class MestoApp extends App {
         'node_modules/clubeeo-core/dist/models/*.js',
         "node_modules/clubeeo-core/dist/engines/MotionEngine/models/*.ts",
         ...Object.values(this.engines.apps.models),
-        ...Object.values(this.engines.translation.models),
+        ...Object.values(this.engines.translations.models),
         ...Object.values(this.engines.lists.models),
         MemberProfile,
       ] as any,
@@ -43,7 +43,7 @@ export class MestoApp extends App {
     return this.once('engines', () => Engines.buildDefault(this)
       .mount('lists', Lists)
       .mount('telegram', TelegramEngine)
-      .mount('translation', DummyTranslationEngine)
+      .mount('translations', DummyTranslationEngine)
     );
   }
 }
