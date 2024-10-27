@@ -62,9 +62,13 @@ export class ListsService {
     take: number;
     skip: number;
   }) {
-    const listGroup = await this.c.m.findOneByOrFail(ListType, {
+    const listGroup = await this.c.m.findOneBy(ListType, {
       slug: listGroupSlug || '',
     });
+
+    if (!listGroup) {
+      return { data: [], take, skip, listGroup };
+    }
 
     let where = {
       group: { id: listGroup.id },

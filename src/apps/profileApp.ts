@@ -7,6 +7,23 @@ import { Telegraf } from "telegraf";
 import { ISignInUserResult } from "clubeeo-core/dist/clubApps/TelegramApp/TelegramBotUpdates";
 import { CallbackQuery } from "telegraf/src/core/types/typegram";
 
+// Add these interfaces
+interface IWorkplace {
+  organization: string;
+  position: string;
+  startDate: string;
+  endDate: string;
+  current: boolean;
+  skills: string[];
+}
+
+interface IEducation {
+  institution: string;
+  degree: string;
+  startYear: string;
+  endYear: string;
+}
+
 export class ProfileRepo {
   constructor(protected c: MestoApp) {}
 
@@ -76,7 +93,6 @@ profileApp.patch('/my-profile', {
     body: obj({
       name: str(1),
       description: str(),
-      whoami: str(),
       aboutMe: str(),
       location: str(),
       projectName: str(),
@@ -86,12 +102,44 @@ profileApp.patch('/my-profile', {
       professions: arr(str()),
       industries: arr(str()),
       skills: arr(str()),
-      workplaces: arr(str()),
-      education: arr(str()),
+      workplaces: arr(obj({
+        organization: str(),
+        position: str(),
+        startDate: str(),
+        endDate: str(),
+        current: bool(),
+        skills: arr(str())
+      })),
+      education: arr(obj({
+        institution: str(),
+        degree: str(),
+        startYear: str(),
+        endYear: str()
+      })),
+      socialLinks: obj({}, { additionalProperties: true })
     }, {required: ['name']}),
   }
 }, async ({c, repo}, {body, query, ctx: {member, user, club}}, reply) => {
-  const { profile } = await repo.fetchProfileByMember(member);
+  const { profile } = await repo.fetchProfileByMember(member);
+  
+  // Validate dates in workplaces
+  if (body.workplaces) {
+    body.workplaces = body.workplaces.map((workplace: IWorkplace) => ({
+      ...workplace,
+      startDate: workplace.startDate ? new Date(workplace.startDate).toISOString().split('T')[0] : '',
+      endDate: workplace.current ? '' : workplace.endDate ? new Date(workplace.endDate).toISOString().split('T')[0] : ''
+    }));
+  }
+
+  // Validate years in education
+  if (body.education) {
+    body.education = body.education.map((edu: IEducation) => ({
+      ...edu,
+      startYear: edu.startYear?.toString() || '',
+      endYear: edu.endYear?.toString() || ''
+    }));
+  }
+
   Object.assign(profile, body);
   await c.m.save(profile);
 

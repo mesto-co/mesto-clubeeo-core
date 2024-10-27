@@ -14,6 +14,30 @@ const ClubeeoPrimaryColumn = () => {
   return PrimaryGeneratedColumn(env.databasePkStrategy, env.databasePkOptions)
 }
 
+interface IWorkplace {
+  organization: string;
+  position: string;
+  startDate: string;
+  endDate: string;
+  current: boolean;
+  skills: string[];
+}
+
+interface IEducation {
+  institution: string;
+  degree: string;
+  startYear: string;
+  endYear: string;
+}
+
+// Add new interface for projects
+interface IProject {
+  name: string;
+  link: string;
+  description: string;
+  statuses: string[];
+}
+
 @Entity()
 export default class MemberProfile {
 
@@ -32,30 +56,18 @@ export default class MemberProfile {
   description: string;
 
   @Column({type: String, default: '', nullable: false})
-  whoami: string;
-
-  @Column({type: String, default: '', nullable: false})
   aboutMe: string;
 
   @Column({type: String, default: '', nullable: false})
   location: string;
 
-  @Column({type: String, default: '', nullable: false})
-  projectName: string;
-
-  @Column({type: String, default: '', nullable: false})
-  projectAbout: string;
-
-  @Column({type: String, default: '', nullable: false})
-  projectUrl: string;
-
   @Column({
-    array: true,
-    type: String,
-    default: () => 'ARRAY[]::VARCHAR[]',
+    type: 'json',
+    array: false,
+    default: () => "'[]'",
     nullable: false,
   })
-  projectStatuses: Array<string>;
+  projects: Array<IProject>;
 
   @Column({
     type: 'json',
@@ -90,20 +102,20 @@ export default class MemberProfile {
   skills: Array<string>;
 
   @Column({
-    array: true,
-    type: String,
-    default: () => 'ARRAY[]::VARCHAR[]',
+    type: 'json',
+    array: false,
+    default: () => "'[]'",
     nullable: false,
   })
-  workplaces: Array<string>;
+  workplaces: Array<IWorkplace>;
 
   @Column({
-    array: true,
-    type: String,
-    default: () => 'ARRAY[]::VARCHAR[]',
+    type: 'json',
+    array: false,
+    default: () => "'[]'",
     nullable: false,
   })
-  education: Array<string>;
+  education: Array<IEducation>;
 
   // DB auto insert time
   @CreateDateColumn()
@@ -114,5 +126,3 @@ export default class MemberProfile {
   public updatedAt: Date;
 
 }
-
-
