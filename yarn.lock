@@ -786,10 +786,10 @@ cliui@^8.0.1:
     strip-ansi "^6.0.1"
     wrap-ansi "^7.0.0"
 
-clubeeo-core@^0.6.7:
-  version "0.6.8"
-  resolved "https://registry.yarnpkg.com/clubeeo-core/-/clubeeo-core-0.6.8.tgz#53af2510f9f8e8b7b9422c45ba7ae895440bfd41"
-  integrity sha512-+7545sqRTb303zaBCW22swLo4S43DPBfKy+DDiY9mfVhbn/9MmmQk34zK9eCT79mG//4/NDQ4stliBftLXCRJg==
+clubeeo-core@^0.6.10:
+  version "0.6.10"
+  resolved "https://registry.yarnpkg.com/clubeeo-core/-/clubeeo-core-0.6.10.tgz#a72b6e0f1e10d3d811c6e3f3a106039aea1b8ac3"
+  integrity sha512-+pcXEQOF+sv3Eh2Si9HI6qaNfnmLvp8yQzEj1v4KJ+W/VBFgw/zeNJfmYQvbJaQM7vTlfWewWlfjwUpTtGTP6g==
   dependencies:
     "@fast-csv/format" "^4.3.5"
     "@fastify/formbody" "^7.3.0"
@@ -2951,7 +2951,7 @@ tunnel-agent@^0.6.0:
   dependencies:
     safe-buffer "^5.0.1"
 
-typeorm@^0.3.6:
+typeorm@^0.3.20, typeorm@^0.3.6:
   version "0.3.20"
   resolved "https://registry.yarnpkg.com/typeorm/-/typeorm-0.3.20.tgz#4b61d737c6fed4e9f63006f88d58a5e54816b7ab"
   integrity sha512-sJ0T08dV5eoZroaq9uPKBoNcGslHBR4E4y+EBHs//SiGbblGe7IeduP/IH4ddCcj0qp3PHwDwGnuvqEAnKlq/Q==
