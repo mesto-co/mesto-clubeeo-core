@@ -24,7 +24,7 @@ deploy_prod:
     - main
   script:
     # Create host directory if it doesn't exist
-    - mkdir -p /var/storage/mesto/static
+    # - mkdir -p /var/storage/mesto/static
 
     # restart web container #1
     - docker stop clubeeo_mesto_app_2 || true
