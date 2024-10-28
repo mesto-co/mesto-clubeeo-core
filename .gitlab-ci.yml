@@ -26,19 +26,20 @@ deploy_prod:
     # Create host directory if it doesn't exist
     # - mkdir -p /var/storage/mesto/static
 
-    # restart web container #1
+    # restart web container #2
     - docker stop clubeeo_mesto_app_2 || true
     - docker container rm clubeeo_mesto_app_2 || true
     - docker run --name clubeeo_mesto_app_2 --env-file $PROD_ENV -d -p 127.0.0.1:9961:9900
-      -v /var/storage/mesto/static:/app/static
+      -v /var/storage/mesto/static/uploads:/app/static/uploads
       --restart unless-stopped $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
     - sleep 12 # let first container restart
     
-    # restart web container #2
+    # restart web container #1
     - docker stop clubeeo_mesto_app_1 || true
     - docker container rm clubeeo_mesto_app_1 || true
     - docker run --name clubeeo_mesto_app_1 --env=RUN_WORKER=true --env-file $PROD_ENV -d -p 127.0.0.1:9960:9900
-      -v /var/storage/mesto/static:/app/static
+      -v /var/storage/mesto/static/uploads:/app/static/uploads
       --restart unless-stopped $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
-    # restart web container #1
+
+    # stop temporary container
     - docker stop clubeeo_mesto_app_2 || true
