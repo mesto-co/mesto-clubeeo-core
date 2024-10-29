@@ -30,6 +30,7 @@ deploy_prod:
     - docker stop clubeeo_mesto_app_2 || true
     - docker container rm clubeeo_mesto_app_2 || true
     - docker run --name clubeeo_mesto_app_2 --env-file $PROD_ENV -d -p 127.0.0.1:9961:9900
+      --env RUN_MIGRATIONS=true
       -v /var/storage/mesto/static/uploads:/app/static/uploads
       --restart unless-stopped $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
     - sleep 12 # let first container restart

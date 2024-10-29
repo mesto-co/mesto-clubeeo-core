@@ -1,5 +1,6 @@
 import { MestoApp } from "./App";
 import applicantsApp from "./apps/applicantsApp";
+import memberProfilesApp from "./apps/memberProfilesApp";
 import profileApp from "./apps/profileApp";
 import MestoEnv from "./Env";
 import { mestoRouter } from "./router";
@@ -11,10 +12,15 @@ async function main() {
 
   await app.init();
 
+  if (process.env.RUN_MIGRATIONS) {
+    await app.db.runMigrations();
+  }
+
   mestoRouter(app);
 
   await profileApp.attachTo(app);
   await applicantsApp.attachTo(app);
+  await memberProfilesApp.attachTo(app);
 
   await app.run();
 

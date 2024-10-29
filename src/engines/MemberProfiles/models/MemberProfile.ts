@@ -117,6 +117,9 @@ export default class MemberProfile {
   })
   education: Array<IEducation>;
 
+  @Column({ type: "tsvector", nullable: true })
+  search_vector: string;
+
   // DB auto insert time
   @CreateDateColumn()
   public createdAt: Date;

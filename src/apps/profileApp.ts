@@ -1,6 +1,6 @@
 import { MestoApp } from "../App";
 import { ExtCode, ExtServicesEnum, fetchUserAndExtByExtId, Member, UserExt, ExtCodeTypes } from "clubeeo-core";
-import MemberProfile from "../models/MemberProfile";
+import MemberProfile from "../engines/MemberProfiles/models/MemberProfile";
 import { AppBuilder } from "../lib/createApp";
 import { arr, obj, str, bool } from "json-schema-blocks";
 import { Telegraf } from "telegraf";

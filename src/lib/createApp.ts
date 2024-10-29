@@ -71,6 +71,7 @@ export class AppBuilder<TApp extends App, TEntity> {
             user,
             member,
             club,
+            hub: club,
             app,
           };
 
