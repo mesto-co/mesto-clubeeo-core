@@ -42,6 +42,13 @@ export default class ListItem {
   })
   data: Record<string, string>;
 
+  @Column({
+    type: Boolean,
+    default: true,
+    nullable: false,
+  })
+  enable: boolean
+
   // DB auto insert time
   @CreateDateColumn()
   public createdAt: Date;

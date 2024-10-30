@@ -1,6 +1,7 @@
 import { MestoApp } from "./App";
 import applicantsApp from "./apps/applicantsApp";
 import profileApp from "./apps/profileApp";
+import listsApp from './apps/listsApp';
 import MestoEnv from "./Env";
 import { mestoRouter } from "./router";
 
@@ -15,6 +16,7 @@ async function main() {
 
   await profileApp.attachTo(app);
   await applicantsApp.attachTo(app);
+  await listsApp.attachTo(app);
 
   await app.run();
 
