@@ -10,9 +10,11 @@
   },
   "dependencies": {
     "@types/node": "^22.1.0",
-    "clubeeo-core": "^0.6.10",
+    "clubeeo-core": "^0.6.11",
     "json-schema-blocks": "^0.2.2",
     "lodash": "^4.17.21",
+    "mercurius": "^14.1.0",
+    "mercurius-auth": "^5.0.0",
     "pg": "^8.12.0",
     "reflect-metadata": "^0.2.2",
     "telegraf": "^4.16.3",
