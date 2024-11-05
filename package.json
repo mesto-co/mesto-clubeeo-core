@@ -9,6 +9,8 @@
     "web-dev": "NODE_ENV=development ts-node-dev --respawn --poll --notify false --prefer-ts --ignore-watch node_modules -- src/web.ts"
   },
   "dependencies": {
+    "@apollo/server": "^4.11.2",
+    "@as-integrations/fastify": "^2.1.1",
     "@types/node": "^22.1.0",
     "clubeeo-core": "^0.6.11",
     "json-schema-blocks": "^0.2.2",

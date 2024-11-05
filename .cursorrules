@@ -1,0 +1,30 @@
+Tech Stack:
+- Node.js v22
+- Typescript v5.5
+- yarn
+- Fastify v4.4
+- mercurius v14.1 (refactoring to Apollo Server)
+- Database: PostgreSQL, typeorm
+
+Code modules is ordanized by:
+- `/src/engines` (domains), each engine has its own router, graphql schema, etc.:
+  - `/src/engines/${engineName}/${engineName}.ts` - engine class
+  - `/src/engines/${engineName}/${engineName}Api.ts` - engine api (REST API)
+  - `/src/engines/${engineName}/${engineName}/models/*.ts` - engine models (typeorm)
+  - `/src/engines/${engineName}/${engineName}Service.ts` - engine service class (business logic, accessible via `c.engines.${engineName}.service`)
+- `/src/apps` (mini-apps), each app has its own router, graphql schema, etc, and can be installed into main app by admins (think of them as plugins).
+- `/src/lib` - libraries (abstract of the project, think of them as potential npm packages)
+
+Dependency inversion using App class (`/src/App.ts`), passed as `app` or `c` parameter.
+Properties of `app` object:
+- `app.engines` - engines classes sub-container
+- `app.env` (`/src/Env.ts`) - environment variables (in camelCase)
+- `app.logger` - logger (pino)
+- `app.db` - datasource instance (typeorm)
+- `app.m` - entity manager (typeorm)
+
+Code Style and Structure
+- Use prettier for code formatting
+- Use async/await for asynchronous code
+- Use named exports for functions and multiple-class files
+- Use default exports for single-class files
