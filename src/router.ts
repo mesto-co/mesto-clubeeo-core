@@ -1,19 +1,15 @@
-import { Query } from './../node_modules/@apollo/server/src/plugin/schemaReporting/generated/operations.d';
-import {router, graphqlResolvers, graphqlSchema, Club} from 'clubeeo-core';
+import {router, graphqlResolvers, graphqlSchema} from 'clubeeo-core';
 import {MestoApp} from './App';
 import { ApolloServer } from '@apollo/server';
 import { fastifyApolloHandler } from '@as-integrations/fastify';
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
 import { makeExecutableSchema } from '@graphql-tools/schema';
-import { ICtx } from 'clubeeo-core/dist/graphql/graphqlCommon';
 
 export const graphqlLoaders = (app: MestoApp) => ({
 });
 
 export async function mestoRouter(app: MestoApp) {
   const r = router(app);
-
-  const resolvers = graphqlResolvers(app) as any;
 
   const schema = makeExecutableSchema({
     typeDefs: graphqlSchema,
