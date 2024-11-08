@@ -14,6 +14,7 @@ export class MemberProfilesService {
         .leftJoinAndSelect("memberRoles.clubRole", "clubRole")
         .where("memberProfile.search_vector @@ plainto_tsquery(:query)", { query })
         .andWhere("clubRole.name = :roleName", { roleName: 'member' })
+        .andWhere("memberRoles.enabled = true")
         .getMany();
   }
 

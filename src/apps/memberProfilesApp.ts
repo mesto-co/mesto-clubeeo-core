@@ -74,6 +74,7 @@ memberProfilesApp.get('/search', {}, async ({c}, {query: {q, show_default}, ctx}
             id: ctx.club.id,
           },
           memberRoles: {
+            enabled: true,
             clubRole: {
               name: 'member',
             },
