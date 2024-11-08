@@ -9,7 +9,11 @@ export class MemberProfilesService {
     return await this.c.db
         .getRepository(MemberProfile)
         .createQueryBuilder("memberProfile")
+        .leftJoinAndSelect("memberProfile.member", "member")
+        .leftJoinAndSelect("member.memberRoles", "memberRoles")
+        .leftJoinAndSelect("memberRoles.clubRole", "clubRole")
         .where("memberProfile.search_vector @@ plainto_tsquery(:query)", { query })
+        .andWhere("clubRole.name = :roleName", { roleName: 'member' })
         .getMany();
   }
 
@@ -18,10 +22,22 @@ export class MemberProfilesService {
       .createQueryBuilder()
       .update(MemberProfile)
       .set({
-          search_vector: () => `
-              to_tsvector('english', coalesce(name, '') || ' ' || coalesce(description, '') || ' ' || coalesce(aboutMe, '')) ||
-              to_tsvector('russian', coalesce(name, '') || ' ' || coalesce(description, '') || ' ' || coalesce(aboutMe, ''))
-          `
+          search_vector: () => `(
+              WITH search_text AS (
+                SELECT 
+                  coalesce(name, '') || ' ' || 
+                  coalesce(description, '') || ' ' || 
+                  coalesce(aboutMe, '') || ' ' || 
+                  coalesce(array_to_string(professions, ' '), '') || ' ' || 
+                  coalesce(array_to_string(industries, ' '), '') || ' ' || 
+                  coalesce(array_to_string(skills, ' '), '') || ' ' ||
+                  coalesce(workplaces::text, '') || ' ' ||
+                  coalesce(education::text, '') as text
+              )
+              SELECT 
+                to_tsvector('english', (SELECT text FROM search_text)) ||
+                to_tsvector('russian', (SELECT text FROM search_text))
+          )`
       })
       .where("id = :id", { id: memberId })
       .execute();

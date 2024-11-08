@@ -68,6 +68,18 @@ memberProfilesApp.get('/search', {}, async ({c}, {query: {q, show_default}, ctx}
     profiles = await c.engines.memberProfiles.service.searchMembers(q);
   } else if (show_default === 'new') {
     profiles = await c.db.getRepository(MemberProfile).find({
+      where: {
+        member: {
+          club: {
+            id: ctx.club.id,
+          },
+          memberRoles: {
+            clubRole: {
+              name: 'member',
+            },
+          },
+        },
+      },
       order: {
         createdAt: 'DESC',
       },
