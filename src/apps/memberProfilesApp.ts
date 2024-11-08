@@ -56,14 +56,24 @@ export class MemberProfilesEntity {
 
 const memberProfilesApp = new AppBuilder<MestoApp, MemberProfilesEntity>('member-profiles', (c) => new MemberProfilesEntity(c));
 
-memberProfilesApp.get('/search', {}, async ({c}, {query: {q}, ctx}, reply) => {
+memberProfilesApp.get('/search', {}, async ({c}, {query: {q, show_default}, ctx}, reply) => {
   const mctx = c.engines.access.service.memberCtx(ctx.member, ctx.user, ctx.club);
   const isMember = await mctx.hasRole('member'); //todo: dynamic check
   if (!isMember) {
     throw new Error('Only members can search profiles');
   }
 
-  const profiles = await c.engines.memberProfiles.service.searchMembers(q);
+  let profiles = [];
+  if (q) {
+    profiles = await c.engines.memberProfiles.service.searchMembers(q);
+  } else if (show_default === 'new') {
+    profiles = await c.db.getRepository(MemberProfile).find({
+      order: {
+        createdAt: 'DESC',
+      },
+    });
+  }
+
   return { data: profiles };
 });
 

@@ -1,4 +1,4 @@
-import { IsNull } from "typeorm";
+import { IsNull, Repository } from "typeorm";
 import { MestoApp } from "../../App";
 import MemberProfile from "./models/MemberProfile";
 import { memberProfilesApi } from "./memberProfilesApi";
@@ -8,9 +8,15 @@ export class MemberProfiles {
   readonly type = "engine";
 
   service: MemberProfilesService;
+  // repos: {
+  //   MemberProfile: Repository<MemberProfile>,
+  // }
 
   constructor(protected c: MestoApp) {
     this.service = new MemberProfilesService(c);
+    // this.repos = {
+    //   MemberProfile: c.db.getRepository(MemberProfile),
+    // }
   }
 
   async init() {
