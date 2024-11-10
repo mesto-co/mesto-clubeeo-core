@@ -19,7 +19,7 @@ build_image:
 deploy_prod:
   stage: deploy
   tags:
-    - specific-hetzner
+    - mesto
   only:
     - main
   script:
