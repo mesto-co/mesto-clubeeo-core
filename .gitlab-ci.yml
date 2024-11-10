@@ -5,7 +5,7 @@ stages:
 build_image:
   stage: build
   tags:
-    - specific-hetzner
+    - mesto
   only:
     - main
   script:
