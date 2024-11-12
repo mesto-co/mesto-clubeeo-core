@@ -1,6 +1,5 @@
-import {App, Engines, DummyTranslationEngine, TranslationEngine, EnginesContainerBase} from "clubeeo-core";
+import {App, TranslationEngine} from "clubeeo-core";
 import MestoEnv from "./Env";
-import MemberProfile from "./engines/MemberProfiles/models/MemberProfile";
 import { TelegramEngine } from "./engines/TelegramEngine/TelegramEngine";
 import { Lists } from "./engines/Lists/Lists";
 import { MemberProfiles } from "./engines/MemberProfiles/MemberProfiles";
@@ -29,14 +28,13 @@ export class MestoApp extends App {
     await super.run();
 
     // await this.engines.callEachEngine('run');
-
     for (const engineName of this.engines.enabledEngines) {
       if ('run' in this.engines[engineName]) {
         await this.engines[engineName].run();
       }
     }
 
-    console.log(this.engines.enabledEngines);
+    this.logger.info({engines: this.engines.enabledEngines}, 'Engines run');
   }
 
   get dataSourceSettings() {
@@ -51,31 +49,11 @@ export class MestoApp extends App {
         ...Object.values(this.engines.memberProfiles.models),
         // ...Object.values(this.engines.motion.models),
         // ...Object.values(this.engines.fileStorage.models),
-        MemberProfile,
       ] as any,
     };
   }
 
-  // get engines(): Engines & Record<'apps', AppsEngine>
-  //     & Record<'access', AccessEngine>
-  //     & Record<'badge', BadgeEngine>
-  //     & Record<'hubs', Clubs>
-  //     & Record<'motion', MotionEngine>
-  //     & Record<'role', RoleEngine>
-  //     & Record<'lists', Lists>
-  //     & Record<'telegram', TelegramEngine>
-  //     & Record<'translations', TranslationEngine>
-  //     & Record<'memberProfiles', MemberProfiles> {
-  //   return this.once('engines', () => Engines.buildDefault(this)
-  //     .mount('lists', Lists)
-  //     .mount('telegram', TelegramEngine)
-  //     .mount('translations', DummyTranslationEngine)
-  //     .mount('memberProfiles', MemberProfiles)
-  //   )
-  // }
-
   get engines() {
-    // return Engines.buildDefault(this);
     return this.once('engines', () => {
       const engines = {
         apps: new AppsEngine(this),
@@ -93,13 +71,11 @@ export class MestoApp extends App {
 
       engines.enabledEngines = Object.keys(engines);
 
+      // backwards compatibility
+      engines.motionEngine = engines.motion;
+      engines.accessEngine = engines.access;
+
       return engines;
     });
   }
 }
-
-// class FileStorageEngine<TApp extends MestoApp> {
-//   constructor(c: TApp) {
-//     return fileStorageEngine(c);
-//   }
-// }

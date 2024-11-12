@@ -28,3 +28,4 @@ Code Style and Structure
 - Use async/await for asynchronous code
 - Use named exports for functions and multiple-class files
 - Use default exports for single-class files
+- Use pino-style logging: pass objects as a single argument to the logger before the message string

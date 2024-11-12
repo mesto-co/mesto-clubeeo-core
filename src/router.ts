@@ -18,17 +18,10 @@ export async function mestoRouter(app: MestoApp) {
       ...graphqlResolvers(app),
       Query: {
         ...graphqlResolvers(app).Query,
-        club: async (_, obj, ctx, info) => {
-          const {slug} = obj;
-          const time = Date.now();
-          const result = await app.m.findOneOrFail(Club, {
+        club: async (_, {slug}, ctx, info) => {
+          return await app.m.findOneOrFail(Club, {
             where: {slug},
           });
-          const timeEnd = Date.now();
-          app.logger.info(`GraphQL club resolver took ${timeEnd - time}ms`, {
-            path: info.fieldNodes[0].name.value,
-          });
-          return result;
         },
       },
     },
@@ -39,7 +32,7 @@ export async function mestoRouter(app: MestoApp) {
     schema,
     plugins: [
       ApolloServerPluginDrainHttpServer({ httpServer: r.server }),
-      apolloMeasurePlugin(app, {threshold: 10}),
+      apolloMeasurePlugin(app, {threshold: 300}),
     ],
     formatError: (error) => {
       // Log the error using the app logger
