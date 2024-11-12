@@ -74,6 +74,8 @@ export class MestoApp extends App {
       // backwards compatibility
       engines.motionEngine = engines.motion;
       engines.accessEngine = engines.access;
+      engines.roleEngine = engines.role;
+      engines.badgeEngine = engines.badge;
 
       return engines;
     });
