@@ -1,9 +1,10 @@
-import {router, graphqlResolvers, graphqlSchema} from 'clubeeo-core';
+import {router, graphqlResolvers, graphqlSchema, Club} from 'clubeeo-core';
 import {MestoApp} from './App';
 import { ApolloServer } from '@apollo/server';
 import { fastifyApolloHandler } from '@as-integrations/fastify';
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
 import { makeExecutableSchema } from '@graphql-tools/schema';
+import { apolloMeasurePlugin } from './graphql/plugins/apolloMeasurePlugin';
 
 export const graphqlLoaders = (app: MestoApp) => ({
 });
@@ -13,14 +14,32 @@ export async function mestoRouter(app: MestoApp) {
 
   const schema = makeExecutableSchema({
     typeDefs: graphqlSchema,
-    resolvers: graphqlResolvers(app),
+    resolvers: {
+      ...graphqlResolvers(app),
+      Query: {
+        ...graphqlResolvers(app).Query,
+        club: async (_, obj, ctx, info) => {
+          const {slug} = obj;
+          const time = Date.now();
+          const result = await app.m.findOneOrFail(Club, {
+            where: {slug},
+          });
+          const timeEnd = Date.now();
+          app.logger.info(`GraphQL club resolver took ${timeEnd - time}ms`, {
+            path: info.fieldNodes[0].name.value,
+          });
+          return result;
+        },
+      },
+    },
   });
 
   // Create Apollo Server instance
   const apollo = new ApolloServer<{app: MestoApp, auth: any}>({
     schema,
     plugins: [
-      ApolloServerPluginDrainHttpServer({ httpServer: r.server })
+      ApolloServerPluginDrainHttpServer({ httpServer: r.server }),
+      apolloMeasurePlugin(app, {threshold: 10}),
     ],
     formatError: (error) => {
       // Log the error using the app logger
@@ -50,7 +69,12 @@ export async function mestoRouter(app: MestoApp) {
     url: '/graphql',
     handler: fastifyApolloHandler(apollo, {
       context: async (request, reply) => {
+        const time = Date.now();
         const auth = app.contexts.auth(request as any);
+        const timeEnd = Date.now();
+        app.logger.info(`GraphQL auth took ${timeEnd - time}ms`, {
+          path: request,
+        });
         return {
           app,
           auth: {

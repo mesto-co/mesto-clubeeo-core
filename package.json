@@ -6,7 +6,8 @@
   "author": "Roman Exemplarov",
   "scripts": {
     "web": "ts-node src/web.ts",
-    "web-dev": "NODE_ENV=development ts-node-dev --respawn --poll --notify false --prefer-ts --ignore-watch node_modules -- src/web.ts"
+    "web-dev": "NODE_ENV=development ts-node-dev --respawn --poll --notify false --prefer-ts --ignore-watch node_modules -- src/web.ts",
+    "console": "tsx src/scripts/console.ts"
   },
   "dependencies": {
     "@apollo/server": "^4.11.2",

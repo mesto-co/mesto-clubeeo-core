@@ -3,6 +3,7 @@ import { MestoApp } from "../../App";
 import { TelegramEnv } from "./TelegramEnv";
 import { Telegraf } from "telegraf";
 import { telegramApi } from "./telegramApi";
+import telegramFileApi from "./telegramFileApi";
 
 export class TelegramEngine extends EngineBase {
   readonly type = "engine";
@@ -34,7 +35,15 @@ export class TelegramEngine extends EngineBase {
     this.bot.launch();
   }
 
-  get api() { return telegramApi(this.c) }
+  get mainApi() { return telegramApi(this.c) }
+  get fileApi() { return telegramFileApi(this.c, this) }
+  get api() {
+    return (router, opts, done) => {
+      router.register(this.mainApi);
+      router.register(this.fileApi);
+      done();
+    }
+  }
   apiConfig = {prefix: '/telegram'}
 
   get env() { return this.once('env', () => TelegramEnv.getInstance() ) }
