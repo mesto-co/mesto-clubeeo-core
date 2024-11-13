@@ -14,6 +14,7 @@
     "@as-integrations/fastify": "^2.1.1",
     "@types/node": "^22.1.0",
     "clubeeo-core": "^0.6.11",
+    "flambo": "^0.1.2",
     "json-schema-blocks": "^0.2.2",
     "lodash": "^4.17.21",
     "mercurius": "^14.1.0",

@@ -10,14 +10,14 @@ export const graphqlLoaders = (app: MestoApp) => ({
 });
 
 export async function mestoRouter(app: MestoApp) {
-  const r = router(app);
+  const r = router(app as any);
 
   const schema = makeExecutableSchema({
     typeDefs: graphqlSchema,
     resolvers: {
-      ...graphqlResolvers(app),
+      ...graphqlResolvers(app as any),
       Query: {
-        ...graphqlResolvers(app).Query,
+        ...graphqlResolvers(app as any).Query,
         club: async (_, {slug}, ctx, info) => {
           return await app.m.findOneOrFail(Club, {
             where: {slug},

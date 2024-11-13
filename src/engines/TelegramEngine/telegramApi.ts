@@ -28,7 +28,7 @@ export function telegramApi(app: App) {
       const userData = tgAppInitData.userData;
 
       const { user } = await fetchUserAndExtByExtId(
-        app,
+        app as any,
         { extId: userData.id.toString(), service: 'tg', userData, sourceData: tgAppInitData }
       );
 

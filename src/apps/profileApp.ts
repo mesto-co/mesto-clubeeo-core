@@ -190,7 +190,7 @@ profileApp.onInit(async (c, $) => {
   const clubId = '1';
 
   bot.start(async (ctx) => {
-    const { userExt, user, isCreated: isUserCreated } = await fetchUserAndExtByExtId(c, {extId: ctx.from.id.toString(), service: 'tg', userData: ctx.from, sourceData: ctx});
+    const { userExt, user, isCreated: isUserCreated } = await fetchUserAndExtByExtId(c as any, {extId: ctx.from.id.toString(), service: 'tg', userData: ctx.from, sourceData: ctx});
     const { value: member, isCreated: isMemberCreated } = await c.em.findOneOrCreateBy(Member, {user: {id: user.id}, club: {id: clubId}}, {});
 
     let isHandled = false;
@@ -265,7 +265,7 @@ profileApp.onInit(async (c, $) => {
 
         const club = extCode.club;
 
-        const {userExt, user} = await fetchUserAndExtByExtId(c, {
+        const {userExt, user} = await fetchUserAndExtByExtId(c as any, {
           service: ExtServicesEnum.tg,
           extId: String(data.tgUserId),
           userData: data.data.from,

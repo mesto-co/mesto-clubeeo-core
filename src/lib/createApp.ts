@@ -1,9 +1,21 @@
-import { App } from "clubeeo-core";
-// import { FastifyInstance } from "fastify";
+import { App, User } from "clubeeo-core";
+import { EntityManager } from "typeorm";
+import { FastifyInstance } from "fastify";
 
 export type TAppBuilderHandler<TDomain> = (d: TDomain, req: any, reply: any) => Promise<any>;
 
-export class AppBuilder<TApp extends App, TEntity> {
+export interface IApp {
+  router: FastifyInstance;
+  m: EntityManager;
+  auth: {
+    getUserContext: (req: any) => Promise<{user: User}>;
+  };
+  Env: {
+    apiPrefix: string;
+  };
+}
+
+export class AppBuilder<TApp extends IApp, TEntity> {
   routes: Record<string, {
     method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',
     opts: any,
