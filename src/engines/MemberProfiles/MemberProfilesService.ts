@@ -10,6 +10,13 @@ export class MemberProfilesService {
       ...profile,
       projects: profile.projects?.map(project => ({
         ...project,
+        name: project.name || '',
+        link: project.link || '',
+        description: project.description || '',
+        stage: project.stage || '',
+        status: project.status || '',
+        category: project.category || '',
+        market: project.market || '',
         tags: project.tags || [],
         needs: project.needs || []
       })) || [],

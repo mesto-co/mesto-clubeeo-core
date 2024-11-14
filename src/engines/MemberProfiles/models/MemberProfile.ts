@@ -35,8 +35,8 @@ interface IProject {
   name: string;
   link: string;
   description: string;
-  stage: 'idea' | 'mvp' | 'first_sales' | 'invested' | 'operating_business';
-  status: 'active' | 'paused' | 'closed' | 'available';
+  stage: '' | 'idea' | 'mvp' | 'first_sales' | 'invested' | 'operating_business';
+  status: '' | 'active' | 'paused' | 'closed' | 'available';
   logo?: string;
   pitchDeck?: string;
   videoPitch?: string;
