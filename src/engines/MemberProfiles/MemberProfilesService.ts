@@ -5,6 +5,23 @@ export class MemberProfilesService {
   constructor(protected c: App) {
   }
 
+  private sanitizeProfile(profile: MemberProfile): MemberProfile {
+    return {
+      ...profile,
+      projects: profile.projects?.map(project => ({
+        ...project,
+        tags: project.tags || [],
+        needs: project.needs || []
+      })) || [],
+      professions: profile.professions || [],
+      industries: profile.industries || [],
+      skills: profile.skills || [],
+      workplaces: profile.workplaces || [],
+      education: profile.education || [],
+      communityGoals: profile.communityGoals || []
+    };
+  }
+
   async searchMembers(query: string, pagination?: { page: number; pageSize: number }): Promise<MemberProfile[]> {
     const page = pagination?.page || 1;
     const pageSize = pagination?.pageSize || 20;
@@ -26,10 +43,12 @@ export class MemberProfilesService {
       queryBuilder.orderBy("memberProfile.updatedAt", "DESC");
     }
 
-    return await queryBuilder
+    const profiles = await queryBuilder
         .skip(offset)
         .take(pageSize)
         .getMany();
+
+    return profiles.map(profile => this.sanitizeProfile(profile));
   }
 
   async updateSearchVector(memberId: string) {
@@ -58,5 +77,13 @@ export class MemberProfilesService {
       })
       .where("id = :id", { id: memberId })
       .execute();
+  }
+
+  async getMemberProfile(profileId: string): Promise<MemberProfile> {
+    const profile = await this.c.db
+      .getRepository(MemberProfile)
+      .findOneByOrFail({ id: profileId });
+
+    return this.sanitizeProfile(profile);
   }
 }

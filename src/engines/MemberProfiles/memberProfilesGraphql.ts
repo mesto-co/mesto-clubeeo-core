@@ -110,10 +110,10 @@ const resolvers = (memberProfiles: MemberProfiles) => ({
     memberProfileGet: async (
       club: Club,
       { profileId }: { profileId: string },
-      { app, canOrFail }: { app: MestoApp, canOrFail: (resource: string, action: string) => Promise<boolean> }
+      { canOrFail }: { app: MestoApp, canOrFail: (resource: string, action: string) => Promise<boolean> }
     ) => {
       await canOrFail('MemberProfile', 'read');
-      return await app.m.findOneByOrFail(MemberProfile, { id: profileId });
+      return await memberProfiles.service.getMemberProfile(profileId);
     },
   },
   // Mutation: {
