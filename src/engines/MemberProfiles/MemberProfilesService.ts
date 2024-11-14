@@ -5,16 +5,30 @@ export class MemberProfilesService {
   constructor(protected c: App) {
   }
 
-  async searchMembers(query: string): Promise<MemberProfile[]> {
-    return await this.c.db
+  async searchMembers(query: string, pagination?: { page: number; pageSize: number }): Promise<MemberProfile[]> {
+    const page = pagination?.page || 1;
+    const pageSize = pagination?.pageSize || 20;
+    const offset = (page - 1) * pageSize;
+
+    const queryBuilder = this.c.db
         .getRepository(MemberProfile)
         .createQueryBuilder("memberProfile")
         .leftJoinAndSelect("memberProfile.member", "member")
         .leftJoinAndSelect("member.memberRoles", "memberRoles")
         .leftJoinAndSelect("memberRoles.clubRole", "clubRole")
-        .where("memberProfile.search_vector @@ plainto_tsquery(:query)", { query })
         .andWhere("clubRole.name = :roleName", { roleName: 'member' })
-        .andWhere("memberRoles.enabled = true")
+        .andWhere("memberRoles.enabled = true");
+
+    if (query.trim()) {
+      queryBuilder
+        .andWhere("memberProfile.search_vector @@ plainto_tsquery(:query)", { query })
+    } else {
+      queryBuilder.orderBy("memberProfile.updatedAt", "DESC");
+    }
+
+    return await queryBuilder
+        .skip(offset)
+        .take(pageSize)
         .getMany();
   }
 

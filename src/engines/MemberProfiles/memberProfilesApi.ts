@@ -12,7 +12,7 @@ export function memberProfilesApi(app: App, {service}: MemberProfiles) {
       const club = await app.m.findOneByOrFail(Club, {slug: 'mesto'});
       const member = await app.m.findOneByOrFail(Member, {club: {id: club.id}, user: {id: user.id}});
 
-      const mCtx = await app.ng.access.service.memberCtx(member, user, club);
+      const mCtx = await app.engines.access.service.memberCtx(member, user, club);
       const isMember = await mCtx.hasRole('member');
       if (!isMember) {
         throw new Error('Not a member');
