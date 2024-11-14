@@ -17,7 +17,6 @@ export class MestoApp extends App {
   async init() {
     await this.db.initialize();
 
-    // await this.engines.callEachEngine('init');
     for (const engineName of this.engines.enabledEngines) {
       if ('init' in this.engines[engineName]) {
         this.logger.info({engineName}, 'Initializing engine');
@@ -31,7 +30,6 @@ export class MestoApp extends App {
   async run() {
     this.logger.info('Running MestoApp');
 
-    // await this.engines.callEachEngine('run');
     for (const engineName of this.engines.enabledEngines) {
       if ('run' in this.engines[engineName]) {
         this.logger.info({engineName}, 'Running engine');

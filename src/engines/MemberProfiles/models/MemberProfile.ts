@@ -35,7 +35,18 @@ interface IProject {
   name: string;
   link: string;
   description: string;
-  statuses: string[];
+  stage: 'idea' | 'mvp' | 'first_sales' | 'invested' | 'operating_business';
+  status: 'active' | 'paused' | 'closed' | 'available';
+  logo?: string;
+  pitchDeck?: string;
+  videoPitch?: string;
+  website?: string;
+  category: string;
+  tags: string[];
+  market: string;
+  needs: string[];
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 @Entity()
@@ -53,7 +64,7 @@ export default class MemberProfile {
   name: string;
 
   @Column({type: String, default: '', nullable: false})
-  description: string;
+  headline: string;
 
   @Column({type: String, default: '', nullable: false})
   aboutMe: string;
@@ -119,6 +130,14 @@ export default class MemberProfile {
 
   @Column({ type: "tsvector", nullable: true })
   search_vector: string;
+
+  @Column({
+    array: true,
+    type: String,
+    default: () => 'ARRAY[]::VARCHAR[]',
+    nullable: false,
+  })
+  communityGoals: string[];
 
   // DB auto insert time
   @CreateDateColumn()

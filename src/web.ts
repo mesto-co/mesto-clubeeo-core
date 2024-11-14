@@ -3,7 +3,6 @@ import applicantsApp from "./apps/applicantsApp";
 import memberProfilesApp from "./apps/memberProfilesApp";
 import profileApp from "./apps/profileApp";
 import listsApp from './apps/listsApp';
-import MestoEnv from "./Env";
 import { mestoRouter } from "./router";
 
 async function main() {

@@ -27,12 +27,14 @@ export class MemberProfilesService {
               WITH search_text AS (
                 SELECT 
                   coalesce(name, '') || ' ' || 
-                  coalesce(description, '') || ' ' || 
+                  coalesce(headline, '') || ' ' || 
                   coalesce(aboutMe, '') || ' ' || 
+                  coalesce(location, '') || ' ' || 
                   coalesce(array_to_string(professions, ' '), '') || ' ' || 
                   coalesce(array_to_string(industries, ' '), '') || ' ' || 
                   coalesce(array_to_string(skills, ' '), '') || ' ' ||
                   coalesce(workplaces::text, '') || ' ' ||
+                  coalesce(array_to_string(communityGoals, ' '), '') || ' ' ||
                   coalesce(education::text, '') as text
               )
               SELECT 
