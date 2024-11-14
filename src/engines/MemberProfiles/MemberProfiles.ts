@@ -57,9 +57,12 @@ export class MemberProfiles {
   get canRules(): TCanRules {
     return {
       MemberProfile: {
-        read: ({hasRole}) => hasRole('member'),
-        edit: ({member}, profile: {memberId: string}) => member && member.id === profile.memberId,
-        search: ({hasRole}) => hasRole('member'),
+        read: async ({member, hasRole}, profile: {memberId: string}) => (member && member.id === profile.memberId) || await hasRole('member') || await hasRole('admin'),
+        update: ({member}, profile: {memberId: string}) => member && member.id === profile.memberId,
+        search: async ({hasRole}) => await hasRole('member') || await hasRole('admin'),
+      },
+      MemberRole: {
+        index: ({member}, obj: {memberId: string}) => member && member.id === obj.memberId,
       }
     }
   }

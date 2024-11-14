@@ -8,7 +8,7 @@ import MemberProfile from './models/MemberProfile';
 const typeDefs = gql`
   type Project {
     name: String!
-    link: String!
+    link: String
     description: String!
     stage: String!
     status: String!
@@ -24,6 +24,22 @@ const typeDefs = gql`
     updatedAt: String!
   }
 
+  input ProjectInput {
+    name: String!
+    link: String
+    description: String!
+    stage: String!
+    status: String!
+    logo: String
+    pitchDeck: String
+    videoPitch: String
+    website: String
+    category: String!
+    tags: [String!]!
+    market: String!
+    needs: [String!]!
+  }
+
   type Workplace {
     organization: String!
     position: String!
@@ -33,7 +49,23 @@ const typeDefs = gql`
     skills: [String!]!
   }
 
+  input WorkplaceInput {
+    organization: String!
+    position: String!
+    startDate: String!
+    endDate: String!
+    current: Boolean!
+    skills: [String!]!
+  }
+
   type Education {
+    institution: String!
+    degree: String!
+    startYear: String!
+    endYear: String!
+  }
+
+  input EducationInput {
     institution: String!
     degree: String!
     startYear: String!
@@ -59,6 +91,21 @@ const typeDefs = gql`
     updatedAt: String!
   }
 
+  input ProfileUpdateInput {
+    name: String!
+    headline: String
+    aboutMe: String
+    location: String
+    projects: [ProjectInput!]
+    socialLinks: JSON
+    professions: [String!]
+    industries: [String!]
+    skills: [String!]
+    workplaces: [WorkplaceInput!]
+    education: [EducationInput!]
+    communityGoals: [String!]
+  }
+
   type PaginatedUserProfiles {
     items: [UserProfile!]!
     total: Int!
@@ -75,11 +122,13 @@ const typeDefs = gql`
   extend type Club {
     memberProfileSearch(query: String!, pagination: PaginationInput): PaginatedUserProfiles!
     memberProfileGet(profileId: ID!): UserProfile!
-  }  
+    memberRoles: JSON!
+  }
 
-  # type Mutation {
-  #   updateUserProfile(id: ID!, name: String!, age: Int): UserProfile
-  # }
+  extend type Mutation {
+    memberProfileUpdate(input: ProfileUpdateInput!): UserProfile!
+    memberProfileApply: Boolean!
+  }
 `;
 
 const resolvers = (memberProfiles: MemberProfiles) => ({
@@ -110,17 +159,85 @@ const resolvers = (memberProfiles: MemberProfiles) => ({
     memberProfileGet: async (
       club: Club,
       { profileId }: { profileId: string },
-      { canOrFail }: { app: MestoApp, canOrFail: (resource: string, action: string) => Promise<boolean> }
+      { canOrFail, member }: { app: MestoApp, member: Member, canOrFail: (resource: string, action: string, obj?: any) => Promise<boolean> }
     ) => {
-      await canOrFail('MemberProfile', 'read');
-      return await memberProfiles.service.getMemberProfile(profileId);
+      let profile;
+      if (profileId === 'my') {
+        profile = await memberProfiles.service.getMemberProfileByMemberId(member.id);
+      } else {
+        profile = await memberProfiles.service.getMemberProfile(profileId);
+      }
+      await canOrFail('MemberProfile', 'read', profile);
+      return profile;
     },
+    memberRoles: async (club: Club, _: any, {app, member, canOrFail}: {app: MestoApp, member: Member, canOrFail: (resource: string, action: string, obj?: any) => Promise<boolean>}) => {
+      await canOrFail('MemberRole', 'index', {memberId: member.id});
+      const accessService = app.engines.access.service;
+      const roles = await accessService.getRolesMap({member, hub: club}, ['applicant', 'member', 'guest', 'rejected']);
+      return roles;
+    }
   },
-  // Mutation: {
-  //   updateUserProfile: async (_: any, { id, name, age }: { id: string; name: string; age: number }) => {
-  //     // Update and return user profile
-  //   },
-  // },
+  Mutation: {
+    memberProfileUpdate: async (
+      _: any,
+      { input }: { input: any },
+      { app, member, club, canOrFail }: { app: MestoApp; member: Member; club: Club; canOrFail: (resource: string, action: string, obj?: any) => Promise<boolean> }
+    ) => {
+      const { value: profile, isCreated } = await app.em.findOneOrInitBy(MemberProfile, {
+        member: {id: member.id}
+      }, {});
+
+      await canOrFail('MemberProfile', 'update', profile);
+
+      // Validate dates in workplaces
+      if (input.workplaces) {
+        input.workplaces = input.workplaces.map((workplace: any) => ({
+          ...workplace,
+          startDate: workplace.startDate ? new Date(workplace.startDate).toISOString().split('T')[0] : '',
+          endDate: workplace.current ? '' : workplace.endDate ? new Date(workplace.endDate).toISOString().split('T')[0] : ''
+        }));
+      }
+
+      // Validate years in education
+      if (input.education) {
+        input.education = input.education.map((edu: any) => ({
+          ...edu,
+          startYear: edu.startYear?.toString() || '',
+          endYear: edu.endYear?.toString() || ''
+        }));
+      }
+
+      Object.assign(profile, input);
+
+      return await memberProfiles.service.updateMemberProfile(profile);
+    },
+
+    memberProfileApply: async (
+      _: any,
+      __: any,
+      { app, member, club, canOrFail }: { app: MestoApp; member: Member; club: Club; canOrFail: (resource: string, action: string, obj?: any) => Promise<boolean> }
+    ) => {
+      const { value: profile, isCreated } = await app.em.findOneOrInitBy(MemberProfile, {
+        member: {id: member.id}
+      }, {});
+
+      await canOrFail('MemberProfile', 'update', profile);
+      
+      const accessService = app.engines.access.service;
+      const roles = await accessService.getRolesMap({member, hub: club}, ['applicant', 'member', 'guest', 'rejected']);
+
+      if (roles.member) throw new Error('Already a member');
+      if (roles.applicant) throw new Error('Already applied');
+      if (roles.rejected) throw new Error('Your previous application was rejected');
+
+      await accessService.addRole({member, hub: club}, 'applicant');
+
+      // const extUser = await app.m.findOneBy(UserExt, {user: {id: member.userId}, service: 'tg'});
+      // await app.engines.telegram.bot.telegram.sendMessage(extUser.extId, `📝 Вы подали заявку на вступление в Место.`);
+
+      return true;
+    }
+  }
 });
 
 export const memberProfilesGraphql = (memberProfiles: MemberProfiles) => ({

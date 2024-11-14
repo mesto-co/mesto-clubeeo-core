@@ -100,8 +100,8 @@ export async function mestoRouter(app: MestoApp) {
           return await actionRule({member, hasRole: (roleSlug: string) => memberCtx.hasRole(roleSlug)}, obj);
         }
 
-        const canOrFail = async (resource: string, action: string) => {
-          if (await can(resource, action)) {
+        const canOrFail = async (resource: string, action: string, obj?: any) => {
+          if (await can(resource, action, obj)) {
             return true;
           }
           throw new Error(`You are not allowed to ${action} ${resource}`);
