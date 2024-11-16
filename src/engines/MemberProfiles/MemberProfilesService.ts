@@ -94,10 +94,10 @@ export class MemberProfilesService {
     return this.sanitizeProfile(profile);
   }
 
-  async getMemberProfileByMemberId(memberId: string): Promise<MemberProfile> {
-    const profile = await this.c.db
-      .getRepository(MemberProfile)
-      .findOneByOrFail({ member: { id: memberId } });
+  async fetchMemberProfileByMemberId(memberId: string): Promise<MemberProfile> {
+    const {value: profile} = await this.c.em.findOneOrCreateBy(MemberProfile, {
+      member: {id: memberId}
+    }, {});
 
     return this.sanitizeProfile(profile);
   }

@@ -171,7 +171,7 @@ const resolvers = (memberProfiles: MemberProfiles) => ({
     ) => {
       let profile;
       if (profileId === 'my') {
-        profile = await memberProfiles.service.getMemberProfileByMemberId(member.id);
+        profile = await memberProfiles.service.fetchMemberProfileByMemberId(member.id);
       } else {
         profile = await memberProfiles.service.getMemberProfile(profileId);
       }
