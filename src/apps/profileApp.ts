@@ -192,6 +192,9 @@ profileApp.onInit(async (c, $) => {
   bot.start(async (ctx) => {
     const { userExt, user, isCreated: isUserCreated } = await fetchUserAndExtByExtId(c as any, {extId: ctx.from.id.toString(), service: 'tg', userData: ctx.from, sourceData: ctx});
     const { value: member, isCreated: isMemberCreated } = await c.em.findOneOrCreateBy(Member, {user: {id: user.id}, club: {id: clubId}}, {});
+    if (isMemberCreated) {
+      await c.engines.access.service.addRole({member, hub: {id: clubId}}, 'guest');
+    }
 
     let isHandled = false;
     if (ctx.payload) {
