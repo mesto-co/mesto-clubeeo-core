@@ -194,6 +194,11 @@ profileApp.onInit(async (c, $) => {
     const { value: member, isCreated: isMemberCreated } = await c.em.findOneOrCreateBy(Member, {user: {id: user.id}, club: {id: clubId}}, {});
     if (isMemberCreated) {
       await c.engines.access.service.addRole({member, hub: {id: clubId}}, 'guest');
+    } else {
+      const roles = await c.engines.access.service.getRolesMap({member, hub: {id: clubId}}, ['guest', 'member', 'applicant', 'rejected']);
+      if (!Object.values(roles).some(Boolean)) {
+        await c.engines.access.service.addRole({member, hub: {id: clubId}}, 'guest');
+      }
     }
 
     let isHandled = false;
