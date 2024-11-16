@@ -78,10 +78,13 @@ export async function mestoRouter(app: MestoApp) {
 
         const club = await app.m.findOneBy(Club, {id: '1'});
         const user = await auth.getUserOrFail();
-        const member = user ? await app.m.findOneBy(Member, {
+        const {value: member, isCreated} = await app.em.findOneOrCreateBy(Member, {
           user: {id: user.id},
           club: {id: club.id},
-        }) : null;
+        }, {});
+        if (isCreated) {
+          await app.engines.access.service.addRole({member, hub: club}, 'guest');
+        }
         const memberCtx = await app.engines.access.service.memberCtx(member, user, club);
 
         const timeEnd = Date.now();

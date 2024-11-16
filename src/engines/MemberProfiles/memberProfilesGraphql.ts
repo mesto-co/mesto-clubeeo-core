@@ -1,7 +1,7 @@
 import { gql } from 'graphql-tag';
 import { MemberProfiles } from './MemberProfiles';
 import { MestoApp } from '../../App';
-import { Club, Member } from 'clubeeo-core';
+import { Club, Member, User } from 'clubeeo-core';
 import MemberProfile from './models/MemberProfile';
 // import { AuthContext } from 'clubeeo-core';
 
@@ -131,6 +131,14 @@ const typeDefs = gql`
   }
 `;
 
+interface ICtx {
+  app: MestoApp;
+  user: User;
+  club: Club;
+  member: Member;
+  canOrFail: (resource: string, action: string, obj?: any) => Promise<boolean>;
+}
+
 const resolvers = (memberProfiles: MemberProfiles) => ({
   Club: {
     memberProfileSearch: async (
@@ -142,7 +150,7 @@ const resolvers = (memberProfiles: MemberProfiles) => ({
         query: string; 
         pagination?: { page: number; pageSize: number; }
       },
-      {canOrFail}: {app: MestoApp, canOrFail: (resource: string, action: string) => Promise<boolean>}
+      {canOrFail}: ICtx
     ) => {
       // todo: use club & user ctx
       await canOrFail('MemberProfile', 'search');
@@ -159,7 +167,7 @@ const resolvers = (memberProfiles: MemberProfiles) => ({
     memberProfileGet: async (
       club: Club,
       { profileId }: { profileId: string },
-      { canOrFail, member }: { app: MestoApp, member: Member, canOrFail: (resource: string, action: string, obj?: any) => Promise<boolean> }
+      { canOrFail, member }: ICtx
     ) => {
       let profile;
       if (profileId === 'my') {
@@ -170,7 +178,7 @@ const resolvers = (memberProfiles: MemberProfiles) => ({
       await canOrFail('MemberProfile', 'read', profile);
       return profile;
     },
-    memberRoles: async (club: Club, _: any, {app, member, canOrFail}: {app: MestoApp, member: Member, canOrFail: (resource: string, action: string, obj?: any) => Promise<boolean>}) => {
+    memberRoles: async (club: Club, _: any, {app, member, canOrFail}: ICtx) => {
       await canOrFail('MemberRole', 'index', {memberId: member.id});
       const accessService = app.engines.access.service;
       const roles = await accessService.getRolesMap({member, hub: club}, ['applicant', 'member', 'guest', 'rejected']);
@@ -181,7 +189,7 @@ const resolvers = (memberProfiles: MemberProfiles) => ({
     memberProfileUpdate: async (
       _: any,
       { input }: { input: any },
-      { app, member, club, canOrFail }: { app: MestoApp; member: Member; club: Club; canOrFail: (resource: string, action: string, obj?: any) => Promise<boolean> }
+      { app, member, canOrFail }: ICtx
     ) => {
       const { value: profile, isCreated } = await app.em.findOneOrInitBy(MemberProfile, {
         member: {id: member.id}
@@ -215,7 +223,7 @@ const resolvers = (memberProfiles: MemberProfiles) => ({
     memberProfileApply: async (
       _: any,
       __: any,
-      { app, member, club, canOrFail }: { app: MestoApp; member: Member; club: Club; canOrFail: (resource: string, action: string, obj?: any) => Promise<boolean> }
+      { app, member, club, canOrFail }: ICtx
     ) => {
       const { value: profile, isCreated } = await app.em.findOneOrInitBy(MemberProfile, {
         member: {id: member.id}
