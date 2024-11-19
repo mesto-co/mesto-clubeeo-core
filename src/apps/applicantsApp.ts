@@ -1,5 +1,5 @@
 import { MestoApp } from "../App";
-import { Member, Club, MemberRole } from "clubeeo-core";
+import { Member, Club, MemberRole, User } from "clubeeo-core";
 import MemberProfile from "../engines/MemberProfiles/models/MemberProfile";
 import { AppBuilder } from "../lib/createApp";
 
@@ -32,8 +32,9 @@ export class ApplicantsRepo {
 
     for (const member of members) {
       const profile = await this.c.m.findOneBy(MemberProfile, { member: { id: member.id } });
+      const user = await this.c.m.findOneBy(User, {id: member.userId});
       member['profile'] = profile;
-      member['rolesMap'] = await this.c.engines.access.service.getRolesMap({member, hub: {id: club.id}}, ['applicant', 'member', 'rejected', 'guest']);
+      member['rolesMap'] = await this.c.engines.access.service.getRolesMap({member, user, hub: {id: club.id}}, ['applicant', 'member', 'rejected', 'guest']);
       member['memberRoles'] = await this.c.m.find(MemberRole, {
         where: { member: { id: member.id }, club: { id: club.id }, enabled: true },
         relations: ['clubRole'],
@@ -60,12 +61,14 @@ export class ApplicantsRepo {
       throw new Error('Member not found');
     }
 
+    const user = await this.c.m.findOneBy(User, {id: member.userId});
+
     const rolesToRemove = ['applicant', 'member', 'rejected', 'guest'].filter(role => role !== newRole);
     for (const role of rolesToRemove) {
-      await this.c.engines.access.service.removeRole({member, hub: {id: clubId}}, role);
+      await this.c.engines.access.service.removeRole({member, user, hub: {id: clubId}}, role);
     }
 
-    await this.c.engines.access.service.addRole({member, hub: {id: clubId}}, newRole);
+    await this.c.engines.access.service.addRole({member, user, hub: {id: clubId}}, newRole);
     return { newRole };
   }
 }

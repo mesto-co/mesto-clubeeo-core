@@ -146,7 +146,7 @@ const resolvers = (memberProfiles: MemberProfiles) => ({
       { 
         query, 
         pagination = { page: 1, pageSize: 20 } 
-      }: { 
+      }: {
         query: string; 
         pagination?: { page: number; pageSize: number; }
       },
@@ -178,10 +178,10 @@ const resolvers = (memberProfiles: MemberProfiles) => ({
       await canOrFail('MemberProfile', 'read', profile);
       return profile;
     },
-    memberRoles: async (club: Club, _: any, {app, member, canOrFail}: ICtx) => {
+    memberRoles: async (club: Club, _: any, {app, member, user, canOrFail}: ICtx) => {
       await canOrFail('MemberRole', 'index', {memberId: member.id});
       const accessService = app.engines.access.service;
-      const roles = await accessService.getRolesMap({member, hub: club}, ['applicant', 'member', 'guest', 'rejected']);
+      const roles = await accessService.getRolesMap({member, user, hub: club}, ['applicant', 'member', 'guest', 'rejected']);
       return roles;
     }
   },
@@ -223,7 +223,7 @@ const resolvers = (memberProfiles: MemberProfiles) => ({
     memberProfileApply: async (
       _: any,
       __: any,
-      { app, member, club, canOrFail }: ICtx
+      { app, member, club, user, canOrFail }: ICtx
     ) => {
       const { value: profile, isCreated } = await app.em.findOneOrInitBy(MemberProfile, {
         member: {id: member.id}
@@ -232,13 +232,13 @@ const resolvers = (memberProfiles: MemberProfiles) => ({
       await canOrFail('MemberProfile', 'update', profile);
       
       const accessService = app.engines.access.service;
-      const roles = await accessService.getRolesMap({member, hub: club}, ['applicant', 'member', 'guest', 'rejected']);
+      const roles = await accessService.getRolesMap({member, user, hub: club}, ['applicant', 'member', 'guest', 'rejected']);
 
       if (roles.member) throw new Error('Already a member');
       if (roles.applicant) throw new Error('Already applied');
       if (roles.rejected) throw new Error('Your previous application was rejected');
 
-      await accessService.addRole({member, hub: club}, 'applicant');
+      await accessService.addRole({member, user, hub: club}, 'applicant');
 
       // const extUser = await app.m.findOneBy(UserExt, {user: {id: member.userId}, service: 'tg'});
       // await app.engines.telegram.bot.telegram.sendMessage(extUser.extId, `📝 Вы подали заявку на вступление в Место.`);

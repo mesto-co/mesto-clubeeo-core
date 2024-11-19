@@ -21,7 +21,7 @@ export default function telegramFileApi(app: App, engine: TelegramEngine) {
             stream.on('data', data => {
               reply.raw.write(data);
             });
-      
+
             stream.on('end', () => {
               reply.raw.end()
               resolve(true);

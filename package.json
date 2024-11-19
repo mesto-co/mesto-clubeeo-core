@@ -13,7 +13,7 @@
     "@apollo/server": "^4.11.2",
     "@as-integrations/fastify": "^2.1.1",
     "@types/node": "^22.1.0",
-    "clubeeo-core": "^0.6.11",
+    "clubeeo-core": "^0.6.12",
     "flambo": "^0.1.2",
     "graphql-tag": "^2.12.6",
     "json-schema-blocks": "^0.2.2",

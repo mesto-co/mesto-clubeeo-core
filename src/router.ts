@@ -83,7 +83,7 @@ export async function mestoRouter(app: MestoApp) {
           club: {id: club.id},
         }, {});
         if (isCreated) {
-          await app.engines.access.service.addRole({member, hub: club}, 'guest');
+          await app.engines.access.service.addRole({member, user, hub: club}, 'guest');
         }
         const memberCtx = await app.engines.access.service.memberCtx(member, user, club);
 
