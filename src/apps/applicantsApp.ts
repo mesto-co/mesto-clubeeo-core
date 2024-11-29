@@ -1,5 +1,5 @@
 import { MestoApp } from "../App";
-import { Member, Club, MemberRole, User } from "clubeeo-core";
+import { Member, Club, MemberRole, User, UserExt } from "clubeeo-core";
 import MemberProfile from "../engines/MemberProfiles/models/MemberProfile";
 import { AppBuilder } from "../lib/createApp";
 
@@ -33,6 +33,7 @@ export class ApplicantsRepo {
     for (const member of members) {
       const profile = await this.c.m.findOneBy(MemberProfile, { member: { id: member.id } });
       const user = await this.c.m.findOneBy(User, {id: member.userId});
+      const userExts = await this.c.m.findBy(UserExt, {user: {id: member.userId}});
       member['profile'] = profile;
       member['rolesMap'] = await this.c.engines.access.service.getRolesMap({member, user, hub: {id: club.id}}, ['applicant', 'member', 'rejected', 'guest']);
       member['memberRoles'] = await this.c.m.find(MemberRole, {
@@ -40,6 +41,7 @@ export class ApplicantsRepo {
         relations: ['clubRole'],
         order: { clubRole: { name: 'ASC' } },
       });
+      member['userExts'] = userExts;
     }
 
     return { members, total };
