@@ -33,6 +33,16 @@
       "console": "integratedTerminal",
       "cwd": "${workspaceFolder}",
       "envFile": "${workspaceFolder}/tmp/${input:envFile}"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Run Console",
+      "runtimeExecutable": "yarn",
+      "runtimeArgs": ["run", "console"],
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}",
+      "envFile": "${workspaceFolder}/tmp/${input:envFile}"
     }
   ],
   "inputs": [

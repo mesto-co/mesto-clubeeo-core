@@ -314,6 +314,8 @@ profileApp.onInit(async (c, $) => {
     } else {
       ctx.reply('❌ Ошибка входа в систему. Попробуйте еще раз.');
     }
+
+    ctx.deleteMessage();
   });
 });
 
