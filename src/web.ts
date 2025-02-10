@@ -4,6 +4,7 @@ import memberProfilesApp from "./apps/memberProfilesApp";
 import profileApp from "./apps/profileApp";
 import listsApp from './apps/listsApp';
 import { mestoRouter } from "./router";
+import { bootTelegramBot } from "./boot/telegramBotBoot";
 
 async function main() {
   const app = new MestoApp();
@@ -16,6 +17,8 @@ async function main() {
   }
 
   mestoRouter(app);
+
+  bootTelegramBot(app);
 
   await profileApp.attachTo(app);
   await applicantsApp.attachTo(app);
