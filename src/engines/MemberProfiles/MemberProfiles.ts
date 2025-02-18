@@ -4,7 +4,7 @@ import { memberProfilesApi } from "./memberProfilesApi";
 import { MemberProfilesService } from "./MemberProfilesService";
 import { Once } from "flambo";
 import { memberProfilesGraphql } from "./memberProfilesGraphql";
-import { Member } from "clubeeo-core";
+import Member from "../../models/Member";
 
 type TCanRules = {
   [key: string]: {
@@ -18,7 +18,7 @@ export class MemberProfiles {
   constructor(protected c: MestoApp) {}
 
   async init() {
-    const memberProfiles = await this.c.m.find(this.models.MemberProfile, {
+    const memberProfiles = await this.c.m.find(MemberProfile, {
       // where: {
       //   search_vector: IsNull()
       // }

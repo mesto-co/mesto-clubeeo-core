@@ -1,4 +1,4 @@
-import {AppEnv} from "clubeeo-core";
+import {AppEnv} from "./appEnv";
 
 export default class MestoEnv extends AppEnv {
 

@@ -1,4 +1,4 @@
-import { EngineBase } from "clubeeo-core";
+import { EngineBase } from "../../core/lib/EngineBase";
 import { MestoApp } from "../../App";
 import { TelegramEnv } from "./TelegramEnv";
 import { Telegraf } from "telegraf";

@@ -1,9 +1,10 @@
 import { gql } from 'graphql-tag';
 import { MemberProfiles } from './MemberProfiles';
 import { MestoApp } from '../../App';
-import { Club, Member, User } from 'clubeeo-core';
+import Club from '../../models/Club';
+import Member from '../../models/Member';
+import User from '../../models/User';
 import MemberProfile from './models/MemberProfile';
-// import { AuthContext } from 'clubeeo-core';
 
 const typeDefs = gql`
   type Project {

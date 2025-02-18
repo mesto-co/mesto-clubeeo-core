@@ -1,3 +1,4 @@
+import { ClubeeoPrimaryColumn } from '../../../lib/modelCommon';
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -7,11 +8,6 @@ import {
   Index,
 } from 'typeorm';
 
-import {env} from 'clubeeo-core';
-
-const ClubeeoPrimaryColumn = () => {
-  return PrimaryGeneratedColumn(env.databasePkStrategy, env.databasePkOptions)
-}
 
 @Entity()
 export default class ListType {

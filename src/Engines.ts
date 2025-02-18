@@ -1,13 +1,18 @@
-import { TranslationEngine } from "clubeeo-core";
+import TranslationEngine from "./engines/TranslationEngine/TranslationEngine";
 import { Once, PushTo } from "flambo";
 import { TelegramEngine } from "./engines/TelegramEngine/TelegramEngine";
 import { Lists } from "./engines/Lists/Lists";
 import { MemberProfiles } from "./engines/MemberProfiles/MemberProfiles";
-import { AppsEngine, Clubs, AccessEngine, BadgeEngine, MotionEngine, RoleEngine } from "clubeeo-core";
+import AppsEngine from "./engines/AppsEngine/AppsEngine";
+import MotionEngine from "./engines/MotionEngine/MotionEngine";
+import { Clubs } from "./engines/Clubs/Clubs";
+import { AccessEngine } from "./engines/AccessEngine/AccessEngine";
+import { BadgeEngine } from "./engines/BadgeEngine/BadgeEngine";
+import { RoleEngine } from "./engines/RoleEngine/RoleEngine";
 import { fileStorageEngine } from "./engines/FileStorageEngine/FileStorageEngine";
 import { MestoApp } from "./App";
 
-class Engines {
+export class Engines {
   public enabledEngines: string[];
 
   constructor(private app: MestoApp) {}

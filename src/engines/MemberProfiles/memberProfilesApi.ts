@@ -1,4 +1,5 @@
-import { Club, Member } from "clubeeo-core";
+import Club from "../../models/Club";
+import Member from "../../models/Member";
 import { MestoApp as App } from "../../App";
 import { MemberProfiles } from "./MemberProfiles";
 

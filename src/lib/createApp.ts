@@ -1,4 +1,4 @@
-import { App, User } from "clubeeo-core";
+import User from "../models/User";
 import { EntityManager } from "typeorm";
 import { FastifyInstance } from "fastify";
 

@@ -1,11 +1,18 @@
 import { MestoApp } from "../App";
-import { ExtCode, ExtServicesEnum, fetchUserAndExtByExtId, Member, UserExt, ExtCodeTypes } from "clubeeo-core";
+import Member from "../models/Member";
+import UserExt from "../models/UserExt";
+import Club from "../models/Club";
+import User from "../models/User";
+import { ExtServicesEnum } from "../core/lib/enums";
+import ExtCode, {ExtCodeTypes} from '../models/ExtCode';
+import { fetchUserAndExtByExtId } from "../contexts/UserExtContext";
 import MemberProfile from "../engines/MemberProfiles/models/MemberProfile";
 import { AppBuilder } from "../lib/createApp";
 import { arr, obj, str, bool } from "json-schema-blocks";
 import { Telegraf } from "telegraf";
-import { ISignInUserResult } from "clubeeo-core/dist/clubApps/TelegramApp/TelegramBotUpdates";
 import { CallbackQuery } from "telegraf/src/core/types/typegram";
+
+export type ISignInUserResult = { loggedIn: false } | { loggedIn: true, club: Club, user: User, prevUserExt: UserExt }
 
 // Add these interfaces
 interface IWorkplace {

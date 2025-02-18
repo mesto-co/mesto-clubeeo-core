@@ -1,4 +1,7 @@
-import {router, graphqlResolvers, graphqlSchema, Club, Member} from 'clubeeo-core';
+import Club from './models/Club';
+import Member from './models/Member';
+import {graphqlResolvers} from './graphql/graphqlResolvers';
+import {graphqlSchema} from './graphql/graphqlSchema';
 import {MestoApp} from './App';
 import { ApolloServer } from '@apollo/server';
 import { fastifyApolloHandler } from '@as-integrations/fastify';
@@ -7,18 +10,71 @@ import { makeExecutableSchema } from '@graphql-tools/schema';
 import { mergeTypeDefs, mergeResolvers } from '@graphql-tools/merge';
 import { apolloMeasurePlugin } from './graphql/plugins/apolloMeasurePlugin';
 
+import routes from './routes';
+// import mercurius from 'mercurius';
+// import {graphqlResolvers} from './graphql/graphqlResolvers';
+// import {graphqlSchema} from './graphql/graphqlSchema';
+// import mercuriusAuth from 'mercurius-auth';
+// import {graphqlLoaders} from './graphql/graphqlLoaders';
+import path from 'path';
+import webhooksApi from './clubApps/WebhookEndpointApp/api/webhooksApi';
+
+export function baseRouter(app: MestoApp) {
+  const env = app.Env;
+
+  // Require the framework and instantiate it
+  const router = app.router as any;
+
+  router.register(require('@fastify/static'), {
+    root: path.join(app.Env.rootDir, 'static'),
+    prefix: '/static/',
+  });
+
+  // router.register(mercurius, {
+  //   schema: graphqlSchema,
+  //   resolvers: graphqlResolvers(app),
+  //   loaders: graphqlLoaders(app),
+  //   graphiql: true
+  // });
+
+  // router.register(mercuriusAuth, {
+  //   authContext: async (context) => {
+  //     return {
+  //       ctx: app.contexts.auth(context.reply.request),
+  //     }
+  //   },
+  //   async applyPolicy (authDirectiveAST, parent, args, context, info) {
+  //     return Boolean(await context.auth.getUser());
+  //   },
+  //   authDirective: 'auth'
+  // });
+
+  router.register(function (router, opts, next) {
+    router.register(webhooksApi(app));
+    next();
+  }, {prefix: `/m`});
+
+  router.register(function (router, opts, next) {
+    router.register(routes(app));
+    next();
+  }, {prefix: `/${env.apiPrefix}`});
+
+  return router;
+}
+
+
 export const graphqlLoaders = (app: MestoApp) => ({
 });
 
 export async function mestoRouter(app: MestoApp) {
-  const r = router(app as any);
+  const r = baseRouter(app as any);
 
   const typeDefs = mergeTypeDefs([
     'scalar JSON',
     graphqlSchema,
     app.engines.memberProfiles.graphql.typeDefs,
   ]);
-  
+
   const resolvers = mergeResolvers([
     graphqlResolvers(app as any),
     {

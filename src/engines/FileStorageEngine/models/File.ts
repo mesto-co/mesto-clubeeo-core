@@ -1,3 +1,4 @@
+import User from '../../../models/User';
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -58,9 +59,9 @@ export class File<TUser extends { id: string } = any> {
   objectKey: string;
 
   // Relations
-  @ManyToOne('TUser', { nullable: false })
+  @ManyToOne(type => User, { nullable: false })
   @JoinColumn({ name: 'uploadedById' })
-  uploadedBy: TUser;
+  uploadedBy: User;
 
   @Column({ type: 'bigint' })
   uploadedById: string;

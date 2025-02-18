@@ -1,11 +1,11 @@
 import { DataSource, EntityTarget, Repository } from "typeorm";
 import { fileEntityFactory } from "./models/fileEntityFactory";
-import { ContainerBase } from "clubeeo-core";
 import fs from 'fs';
 import axios from 'axios';
 import path from "path";
 import { v4 as uuidv4 } from 'uuid';
 import pino from 'pino';
+import { ContainerBase } from '../../core/lib/ContainerBase';
 
 export interface IFileStorageEngineDeps<
   TUser extends EntityTarget<{ id: string }> = any

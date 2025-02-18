@@ -1,5 +1,7 @@
 import { MestoApp as App } from "../../App";
-import { Club, Member, fetchUserAndExtByExtId } from "clubeeo-core";
+import Club from "../../models/Club";
+import Member from "../../models/Member";
+import { fetchUserAndExtByExtId } from "../../contexts/UserExtContext";
 import TgAppInitData from "./TgAppInitData";
 import { StatusCodes } from "http-status-codes";
 

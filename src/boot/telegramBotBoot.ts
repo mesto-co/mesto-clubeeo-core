@@ -1,5 +1,7 @@
 import { MestoApp } from "../App";
-import { ExtCode, ExtServicesEnum, fetchUserAndExtByExtId, Member, ExtCodeTypes } from "clubeeo-core";
+import Member from "../models/Member";
+import ExtCode, {ExtCodeTypes} from '../models/ExtCode';
+import { ExtServicesEnum, fetchUserAndExtByExtId } from "../contexts/UserExtContext";
 
 export function bootTelegramBot(c: MestoApp) {
   const bot = c.engines.telegram.bot;

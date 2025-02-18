@@ -1,17 +1,28 @@
 import "reflect-metadata";
 
-import {App, ExtendedEntityManager} from "clubeeo-core";
+import {App} from "./BaseApp";
 import MestoEnv from "./Env";
 import pino from 'pino';
 import { Once } from "flambo";
 import { EntityManager } from "typeorm";
 import { DataSource } from "typeorm";
 import { Engines } from "./engines/Engines";
+import { AppFactory } from "./engines/AppsEngine/AppsFactory";
+import { ExtendedEntityManager } from "./core/lib/ExtendedEntityManager";
+import {postEventsFactory, TPostEvents} from './clubApps/PostsApp/postEvents'
+import {Emitter} from 'mitt'
+import {ClubUserEvents, clubUserEventsFactory} from './events/clubUserEvents'
 
 export class MestoApp extends App {
+  readonly clubUserEvents: Emitter<ClubUserEvents>;
+  readonly postEvents: Emitter<TPostEvents>;
+
   constructor() {
     // todo: remove super, use this.env()
     super(new MestoEnv());
+
+    this.clubUserEvents = clubUserEventsFactory();
+    this.postEvents = postEventsFactory(this);
   }
 
   async init() {
@@ -74,14 +85,17 @@ export class MestoApp extends App {
       ssl: this.env.databaseSsl,
       synchronize: true,
       entities: [
-        'node_modules/clubeeo-core/dist/models/*.js',
-        "node_modules/clubeeo-core/dist/engines/MotionEngine/models/*.ts",
-        ...Object.values(this.engines.apps.models),
+        __dirname + '/models/*.ts',
+        __dirname + '/engines/MotionEngine/models/*.ts',
+        __dirname + '/engines/AppsEngine/models/*.ts',
+        // 'engines/MemberProfiles/models/*.ts',
+        __dirname + '/engines/FileStorageEngine/models/*.ts',
+        // ...Object.values(this.engines.apps.models),
         ...Object.values(this.engines.translations.models),
         ...Object.values(this.engines.lists.models),
         ...Object.values(this.engines.memberProfiles.models),
         // ...Object.values(this.engines.motion.models),
-        ...Object.values(this.engines.fileStorage.models),
+        // ...Object.values(this.engines.fileStorage.models),
       ],
     } as any;
   }
@@ -103,7 +117,6 @@ export class MestoApp extends App {
   }
 
   @Once()
-  // @ts-ignore
   get engines() {
     return new Engines(this);
   }
@@ -135,6 +148,9 @@ export class MestoApp extends App {
     }
   }
 
+  // @ts-ignore
+  get clubAppFactory() { return this.once('clubAppFactory', () => new AppFactory(this)) }
+
   // removed
 
   /**
@@ -145,3 +161,5 @@ export class MestoApp extends App {
   //   throw new Error('TelegramContainer is deprecated; use app.engines.telegram instead');
   // }
 }
+
+export default MestoApp;

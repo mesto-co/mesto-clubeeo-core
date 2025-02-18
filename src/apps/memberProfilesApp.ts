@@ -1,5 +1,4 @@
 import { MestoApp } from "../App";
-import { Member, UserExt } from "clubeeo-core";
 import MemberProfile from "../engines/MemberProfiles/models/MemberProfile";
 import { AppBuilder } from "../lib/createApp";
 

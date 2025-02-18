@@ -1,6 +1,5 @@
 import {
   Entity,
-  PrimaryGeneratedColumn,
   ManyToOne,
   RelationId,
   Column,
@@ -8,11 +7,8 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-import {env, Member} from 'clubeeo-core';
-
-const ClubeeoPrimaryColumn = () => {
-  return PrimaryGeneratedColumn(env.databasePkStrategy, env.databasePkOptions)
-}
+import { Member } from '../../../models/Member';
+import { ClubeeoPrimaryColumn } from '../../../lib/modelCommon';
 
 interface IWorkplace {
   organization: string;
