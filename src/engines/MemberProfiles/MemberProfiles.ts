@@ -18,14 +18,14 @@ export class MemberProfiles {
   constructor(protected c: MestoApp) {}
 
   async init() {
-    const memberProfiles = await this.c.m.find(MemberProfile, {
-      // where: {
-      //   search_vector: IsNull()
-      // }
-    });
-    for (const memberProfile of memberProfiles) {
-      await this.service.updateSearchVector(memberProfile.id);
-    }
+    // const memberProfiles = await this.c.m.find(MemberProfile, {
+    //   // where: {
+    //   //   search_vector: IsNull()
+    //   // }
+    // });
+    // for (const memberProfile of memberProfiles) {
+    //   await this.service.updateSearchVector(memberProfile.id);
+    // }
   }
 
   @Once()

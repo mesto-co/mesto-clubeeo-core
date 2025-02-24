@@ -47,7 +47,7 @@ export class MemberProfilesService {
       queryBuilder
         .andWhere("memberProfile.search_vector @@ plainto_tsquery(:query)", { query })
     } else {
-      queryBuilder.orderBy("memberProfile.updatedAt", "DESC");
+      queryBuilder.orderBy("memberProfile.createdAt", "DESC");
     }
 
     const profiles = await queryBuilder

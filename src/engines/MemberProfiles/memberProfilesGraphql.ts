@@ -162,7 +162,7 @@ const resolvers = (memberProfiles: MemberProfiles) => ({
         total: items.length,
         page: pagination.page,
         pageSize: pagination.pageSize,
-        hasMore: (pagination.page * pagination.pageSize) < items.length
+        hasMore: pagination.pageSize === items.length
       };
     },
     memberProfileGet: async (
