@@ -1,9 +1,9 @@
-import mercurius from 'mercurius'
 import {StatusCodes} from 'http-status-codes'
 import {AuthContext} from '../contexts/AuthContext'
+import { ExtError } from '@/core/lib/ExtError'
 
 export const forbiddenError = () => {
-  return new mercurius.ErrorWithProps('Access denied', {}, StatusCodes.FORBIDDEN);
+  return new ExtError('Access denied', StatusCodes.FORBIDDEN);
 }
 
 export interface ICtx {

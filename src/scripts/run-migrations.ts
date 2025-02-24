@@ -1,10 +1,8 @@
 import "reflect-metadata";
 import { DataSource } from "typeorm";
-import MestoEnv from "../Env";
 import { MestoApp } from "../App";
 
-const env = new MestoEnv();
-const app = new MestoApp(env);
+const app = new MestoApp();
 
 export const AppDataSource = new DataSource({
     ...app.dataSourceSettings,

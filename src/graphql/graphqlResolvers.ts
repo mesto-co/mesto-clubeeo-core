@@ -7,19 +7,19 @@ import assert from 'assert'
 import {UserInClubRolesSync} from '../contexts/UserInClubContext/UserInClubRolesSync'
 import UserExt from '../models/UserExt'
 import {ExtServicesEnum} from '../lib/enums'
-import { ErrorWithProps } from 'mercurius';
 import {StatusCodes} from 'http-status-codes'
 import {ICtx} from './graphqlCommon'
 import {badgeMutations, clubBadgesResolvers} from './badgesGraphql'
 import {clubRolesResolvers, rolesMutations} from './rolesGraphql'
 import MemberBadge from '../models/MemberBadge'
 import ClubApp from '../engines/AppsEngine/models/ClubApp'
+import { ExtError } from '@/core/lib/ExtError'
 
 export const graphqlResolvers = (app: App) => ({
   Query: {
     clubs: async (_, obj, ctx: ICtx) => {
       const user = await ctx.auth.ctx.getUser();
-      if (!user) throw new ErrorWithProps('User is not authorized', {}, StatusCodes.UNAUTHORIZED);
+      if (!user) throw new ExtError('User is not authorized', StatusCodes.UNAUTHORIZED);
 
       const clubs = await app.m.find(Club, {
         where: {

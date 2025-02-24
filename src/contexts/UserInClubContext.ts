@@ -5,12 +5,12 @@ import MemberRole from '../models/MemberRole'
 import {UserInClubRolesSync} from './UserInClubContext/UserInClubRolesSync'
 import {In, IsNull, Not} from 'typeorm'
 import {StatusCodes} from 'http-status-codes'
-import mercurius from 'mercurius'
 import MemberBadge from '../models/MemberBadge'
 import Member from '../models/Member'
 import {FindOptionsWhere} from 'typeorm/find-options/FindOptionsWhere'
 import ClubApp from '../engines/AppsEngine/models/ClubApp'
 import ClubRole from '../models/ClubRole'
+import { ExtError } from '@/core/lib/ExtError'
 
 export default class UserInClubContext {
   readonly app: App;
@@ -166,8 +166,7 @@ export default class UserInClubContext {
     if (!await this.hasRole(role)) {
       const message = `Role ${role} is required for user#${this.user.id} in club#${this.club.id}`;
       this.app.log.warn(message, {data: this.contextModelIds});
-
-      throw new mercurius.ErrorWithProps('User is not authorized', {}, StatusCodes.UNAUTHORIZED);
+      throw new ExtError('User is not authorized', StatusCodes.UNAUTHORIZED);
     }
   }
 

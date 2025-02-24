@@ -12,8 +12,7 @@ process.env.TZ = 'UTC';
 (async (): Promise<void> => {
   console.log('App logic preloaded: DB connected, DI container initialized');
 
-  const env = new MestoEnv();
-  const app = new App(env);
+  const app = new App();
 
   await app.init();
 

@@ -31,11 +31,11 @@ export const taskProcessors = (app: App) => {
       if (task.data.parse_mode) extra.parse_mode = task.data.parse_mode;
       if (task.data.entities) extra.entities = task.data.entities;
       if (task.data.reply_markup) extra.reply_markup = task.data.reply_markup;
-      if (task.data.disable_web_page_preview) extra.disable_web_page_preview = task.data.disable_web_page_preview;
+      // if (task.data.disable_web_page_preview) extra.disable_web_page_preview = task.data.disable_web_page_preview;
       if (task.data.disable_notification) extra.disable_notification = task.data.disable_notification;
       if (task.data.protect_content) extra.protect_content = task.data.protect_content;
-      if (task.data.reply_to_message_id) extra.reply_to_message_id = task.data.reply_to_message_id;
-      if (task.data.allow_sending_without_reply) extra.allow_sending_without_reply = task.data.allow_sending_without_reply;
+      // if (task.data.reply_to_message_id) extra.reply_to_message_id = task.data.reply_to_message_id;
+      // if (task.data.allow_sending_without_reply) extra.allow_sending_without_reply = task.data.allow_sending_without_reply;
 
       const result = await app.TelegramContainer.Telegram.sendMessage(
         chatId,
