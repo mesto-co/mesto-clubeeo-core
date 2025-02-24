@@ -12,9 +12,9 @@
       "experimentalDecorators": true,
       "sourceMap": true,
       "esModuleInterop": true,
+      "baseUrl": ".",
       "paths": {
-         "@/*": ["./src/*"],
-         "@src/*": ["./node_modules/clubeeo-core/src/*"]
+         "@/*": ["src/*"]
       }
    },
    "exclude": ["tests", "node_modules", "tmp"]

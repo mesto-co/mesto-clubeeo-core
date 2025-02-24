@@ -13,7 +13,7 @@ import {badgeMutations, clubBadgesResolvers} from './badgesGraphql'
 import {clubRolesResolvers, rolesMutations} from './rolesGraphql'
 import MemberBadge from '../models/MemberBadge'
 import ClubApp from '../engines/AppsEngine/models/ClubApp'
-import { ExtError } from '@/core/lib/ExtError'
+import { ExtError } from '../core/lib/ExtError'
 
 export const graphqlResolvers = (app: App) => ({
   Query: {

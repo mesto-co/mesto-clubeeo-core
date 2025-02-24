@@ -10,7 +10,7 @@ import Member from '../models/Member'
 import {FindOptionsWhere} from 'typeorm/find-options/FindOptionsWhere'
 import ClubApp from '../engines/AppsEngine/models/ClubApp'
 import ClubRole from '../models/ClubRole'
-import { ExtError } from '@/core/lib/ExtError'
+import { ExtError } from '../core/lib/ExtError'
 
 export default class UserInClubContext {
   readonly app: App;
