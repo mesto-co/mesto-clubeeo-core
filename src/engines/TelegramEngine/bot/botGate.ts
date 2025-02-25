@@ -2,6 +2,8 @@ import Member from "@/models/Member";
 import { fetchUserAndExtByExtId } from "@/contexts/UserExtContext";
 import { TelegramEngine } from "../TelegramEngine";
 import { message } from "telegraf/filters";
+import { ExtServicesEnum } from "@/core/lib/enums";
+import ClubExt from "@/models/ClubExt";
 
 export function botGate(telegramEngine: TelegramEngine) {
   const c = telegramEngine.c;
@@ -40,7 +42,7 @@ export function botGate(telegramEngine: TelegramEngine) {
         
         // Welcome message
         await ctx.telegram.sendMessage(chatId, 
-          `Welcome ${user.screenName}! 🎉\nYou've been automatically approved as a verified member.`
+          `Добро пожаловать, ${user.screenName}! 🎉\nВы автоматически подтверждены как участник клуба.`
         );
       } else {
         // Decline the join request
@@ -49,8 +51,8 @@ export function botGate(telegramEngine: TelegramEngine) {
         // Send DM to explain why they were rejected
         try {
           await ctx.telegram.sendMessage(userId,
-            `Sorry, only verified members can join this chat. ` +
-            `Please complete your membership process first.`
+            `Извините, но в этот чат могут входить только подтверждённые участники клуба. ` +
+            `Пожалуйста, сначала завершите процесс вступления в клуб.`
           );
         } catch (e) {
           // User might have blocked the bot or never started it
@@ -77,6 +79,22 @@ export function botGate(telegramEngine: TelegramEngine) {
 
     if (botWasAdded) {
       try {
+        const chatId = ctx.chat.id.toString();
+        const service = `tg:${ctx.chat.type}`;
+
+        // Create or update ClubExt record
+        await c.em.findOneOrCreateBy(ClubExt, {
+          club: { id: clubId },
+          service,
+          extId: chatId
+        }, {
+          debugData: {
+            chat: ctx.chat,
+            addedAt: new Date(),
+            addedBy: ctx.from
+          }
+        });
+
         // Set chat permissions to require admin approval
         await ctx.setChatPermissions({
           can_send_messages: true,
@@ -96,16 +114,16 @@ export function botGate(telegramEngine: TelegramEngine) {
         });
 
         await ctx.reply(
-          '👋 Hello! I\'m now configured to automatically verify members.\n' +
-          'Only verified members will be able to join this chat.'
+          '👋 Привет! Я настроен для автоматической проверки участников.\n' +
+          'Только подтверждённые участники клуба смогут присоединиться к этому чату.'
         );
       } catch (error) {
         c.logger.error('Error configuring chat after bot add', { error, chatId: ctx.chat.id });
         await ctx.reply(
-          '⚠️ Error: I need administrator privileges with the ability to:\n' +
-          '- Manage users\n' +
-          '- Manage join requests\n' +
-          'Please grant these permissions and try adding me again.'
+          '⚠️ Ошибка: Мне нужны права администратора со следующими возможностями:\n' +
+          '- Управление пользователями\n' +
+          '- Управление заявками на вступление\n' +
+          'Пожалуйста, предоставьте эти права и добавьте меня снова.'
         );
       }
     }
