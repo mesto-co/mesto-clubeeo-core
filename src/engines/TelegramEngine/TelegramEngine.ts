@@ -8,6 +8,7 @@ import { TelegramFileService } from './services/TelegramFileService';
 import { CachedTelegramFileService } from './services/CachedTelegramFileService';
 import { ITelegramFileService } from './services/ITelegramFileService';
 import { botStart } from "./bot/botStart";
+import { botGate } from "./bot/botGate";
 
 export class TelegramEngine extends EngineBase {
   readonly type = "engine";
@@ -37,6 +38,7 @@ export class TelegramEngine extends EngineBase {
     }
 
     botStart(this);
+    botGate(this);
   }
 
   async run() {
