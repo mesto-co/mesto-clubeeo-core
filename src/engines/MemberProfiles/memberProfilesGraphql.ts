@@ -187,6 +187,15 @@ const resolvers = (memberProfiles: MemberProfiles) => ({
       return roles;
     }
   },
+  UserProfile: {
+    userId: async (profile: MemberProfile, _: any, { app }: ICtx) => {
+      if (!profile.member) {
+        // Load member directly by memberId
+        profile.member = await app.m.findOneBy(Member, { id: profile.memberId });
+      }
+      return profile.member.userId;
+    },
+  },
   Mutation: {
     memberProfileUpdate: async (
       _: any,
