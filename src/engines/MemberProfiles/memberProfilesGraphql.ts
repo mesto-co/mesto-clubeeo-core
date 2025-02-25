@@ -76,6 +76,7 @@ const typeDefs = gql`
   type UserProfile {
     id: ID!
     memberId: String!
+    userId: String!
     name: String!
     headline: String!
     aboutMe: String!

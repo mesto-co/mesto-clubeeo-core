@@ -5,9 +5,10 @@ export class MemberProfilesService {
   constructor(protected c: App) {
   }
 
-  private sanitizeProfile(profile: MemberProfile): MemberProfile {
+  private sanitizeProfile(profile: MemberProfile): MemberProfile & { userId: string | null } {
     return {
       ...profile,
+      userId: profile.member?.user?.id || null,
       projects: profile.projects?.map(project => ({
         ...project,
         name: project.name || '',
@@ -40,6 +41,7 @@ export class MemberProfilesService {
         .leftJoinAndSelect("memberProfile.member", "member")
         .leftJoinAndSelect("member.memberRoles", "memberRoles")
         .leftJoinAndSelect("memberRoles.clubRole", "clubRole")
+        .leftJoinAndSelect("member.user", "user")
         .andWhere("clubRole.name = :roleName", { roleName: 'member' })
         .andWhere("memberRoles.enabled = true");
 
