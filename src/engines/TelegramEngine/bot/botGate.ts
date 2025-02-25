@@ -83,7 +83,7 @@ export function botGate(telegramEngine: TelegramEngine) {
         const service = `tg:${ctx.chat.type}`;
 
         // Create or update ClubExt record
-        await c.em.findOneOrCreateBy(ClubExt, {
+        const { value: clubExt } = await c.em.findOneOrCreateBy(ClubExt, {
           club: { id: clubId },
           service,
           extId: chatId
@@ -92,8 +92,21 @@ export function botGate(telegramEngine: TelegramEngine) {
             chat: ctx.chat,
             addedAt: new Date(),
             addedBy: ctx.from
-          }
+          },
+          cached: {}
         });
+
+        // Generate invite link if not exists
+        if (!clubExt.cached?.['chatInviteLink']) {
+          const inviteLink = await ctx.telegram.createChatInviteLink(ctx.chat.id, {
+            creates_join_request: true,
+            name: 'Основная ссылка для вступления'
+          });
+          
+          await c.m.update(ClubExt, { id: clubExt.id }, {
+            cached: { ...(clubExt.cached || {}), chatInviteLink: inviteLink.invite_link }
+          });
+        }
 
         // Set chat permissions to require admin approval
         await ctx.setChatPermissions({
