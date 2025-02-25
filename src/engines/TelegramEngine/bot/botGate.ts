@@ -4,6 +4,8 @@ import { TelegramEngine } from "../TelegramEngine";
 import { message } from "telegraf/filters";
 import { ExtServicesEnum } from "@/core/lib/enums";
 import ClubExt from "@/models/ClubExt";
+import UserExt from "@/models/UserExt";
+import UserExtHubExt from "@/models/UserExtHubExt";
 
 export function botGate(telegramEngine: TelegramEngine) {
   const c = telegramEngine.c;
@@ -36,7 +38,43 @@ export function botGate(telegramEngine: TelegramEngine) {
         'member'
       );
 
+      // Find ClubExt for this chat
+      const hubExt = await c.m.findOne(ClubExt, {
+        where: {
+          club: { id: clubId },
+          service: `tg:${ctx.chatJoinRequest.chat.type}`,
+          extId: chatId
+        }
+      });
+
+      if (!hubExt) {
+        await ctx.telegram.sendMessage(userId,
+          `Извините, но бот не сконфигурирован для работы с этим чатом или отключен. Пожалуйста, обратитесь к администратору.`
+        );
+        return;
+      }
+
       if (isMember) {
+        // Create or update UserExtHubExt record
+        await c.em.createOrUpdateBy(UserExtHubExt, {
+          user: { id: user.id },
+          userExt: { id: userExt.id },
+          hubExt: { id: hubExt.id },
+          service: hubExt.service,
+          extId: userExt.extId
+        }, {
+          enabled: isMember,
+          username: userExt.username,
+          data: userExt.data,
+          debugData: {
+            lastJoinRequest: {
+              chat: ctx.chatJoinRequest.chat,
+              date: new Date(),
+              approved: isMember
+            }
+          }
+        });
+
         // Accept the join request
         await ctx.approveChatJoinRequest(Number(userId));
         
@@ -82,6 +120,19 @@ export function botGate(telegramEngine: TelegramEngine) {
         const chatId = ctx.chat.id.toString();
         const service = `tg:${ctx.chat.type}`;
 
+        // Create or update bot's UserExt and UserExtHubExt records
+        const { value: botUserExt } = await c.em.findOneOrCreateBy(UserExt, {
+          extId: bot.botInfo.id.toString(),
+          service: 'tg'
+        }, {
+          enabled: true,
+          username: bot.botInfo.username,
+          data: {
+            first_name: bot.botInfo.first_name,
+            is_bot: true
+          }
+        });
+
         // Create or update ClubExt record
         const { value: clubExt } = await c.em.findOneOrCreateBy(ClubExt, {
           club: { id: clubId },
@@ -94,6 +145,26 @@ export function botGate(telegramEngine: TelegramEngine) {
             addedBy: ctx.from
           },
           cached: {}
+        });
+
+        // Link bot's UserExt to ClubExt
+        await c.em.findOneOrCreateBy(UserExtHubExt, {
+          user: botUserExt.user,
+          userExt: { id: botUserExt.id },
+          hubExt: { id: clubExt.id },
+          service: clubExt.service,
+          extId: botUserExt.extId
+        }, {
+          enabled: true,
+          username: botUserExt.username,
+          data: botUserExt.data,
+          debugData: {
+            addedToChat: {
+              chat: ctx.chat,
+              date: new Date(),
+              addedBy: ctx.from
+            }
+          }
         });
 
         // Generate invite link if not exists
