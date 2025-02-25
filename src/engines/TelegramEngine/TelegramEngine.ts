@@ -7,13 +7,14 @@ import telegramFileApi from "./telegramFileApi";
 import { TelegramFileService } from './services/TelegramFileService';
 import { CachedTelegramFileService } from './services/CachedTelegramFileService';
 import { ITelegramFileService } from './services/ITelegramFileService';
+import { botStart } from "./bot/botStart";
 
 export class TelegramEngine extends EngineBase {
   readonly type = "engine";
   bot: Telegraf;
   fileService: ITelegramFileService;
 
-  constructor(protected c: MestoApp) {
+  constructor(public c: MestoApp) {
     super();
 
     this.bot = new Telegraf(this.env.telegramToken);
@@ -34,6 +35,8 @@ export class TelegramEngine extends EngineBase {
       const webhook = await this.bot.createWebhook({ domain: webhookDomain, path: telegramWebhookPath });
       this.c.router.post(telegramWebhookPath, webhook as any);
     }
+
+    botStart(this);
   }
 
   async run() {
@@ -54,5 +57,6 @@ export class TelegramEngine extends EngineBase {
   apiConfig = {prefix: '/telegram'}
 
   get env() { return this.once('env', () => TelegramEnv.getInstance() ) }
+
 
 }
