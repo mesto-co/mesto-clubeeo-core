@@ -80,7 +80,8 @@ export function botGate(telegramEngine: TelegramEngine) {
         
         // Welcome message
         await ctx.telegram.sendMessage(chatId, 
-          `Добро пожаловать, ${user.screenName}! 🎉\nВы автоматически подтверждены как участник клуба.`
+          `Добро пожаловать, ${user.screenName}! 🎉\nВы автоматически подтверждены как участник клуба.\n` +
+          `${ctx.chatJoinRequest.from.username ? `@${ctx.chatJoinRequest.from.username}` : ''}`
         );
       } else {
         // Decline the join request
