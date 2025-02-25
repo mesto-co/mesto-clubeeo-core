@@ -79,8 +79,8 @@ export function botGate(telegramEngine: TelegramEngine) {
         await ctx.approveChatJoinRequest(Number(userId));
         
         // Welcome message
-        await ctx.telegram.sendMessage(chatId, 
-          `Добро пожаловать, ${user.screenName}! 🎉\nВы автоматически подтверждены как участник клуба.\n` +
+        await ctx.telegram.sendMessage(chatId,
+          `Добро пожаловать, ${user.screenName}! 🎉\n` +
           `${ctx.chatJoinRequest.from.username ? `@${ctx.chatJoinRequest.from.username}` : ''}`
         );
       } else {
