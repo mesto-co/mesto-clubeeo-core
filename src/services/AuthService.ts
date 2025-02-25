@@ -1,7 +1,5 @@
 import App from '../App';
 import User from '../models/User';
-import {ExtError} from '../core/lib/ExtError'
-import {StatusCodes} from 'http-status-codes'
 import CoreAuthService from '../core/services/AuthService'
 
 export interface IFastifySession {
@@ -13,10 +11,11 @@ export interface IFastifySession {
 }
 
 export default class AuthService extends CoreAuthService<User> {
+  // @ts-ignore
   protected app: App;
 
   constructor(app: App) {
-    super(app);
+    super(app as any);
     this.app = app;
   }
 

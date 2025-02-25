@@ -55,4 +55,8 @@ export default class User extends UserModel {
   @RelationId((self: User) => self.activeClub)
   activeClubId: string;
 
+  get avatarUrl(): string {
+    return `/api/engines/telegram/userAvatar/${this.id}`;
+  }
+
 }

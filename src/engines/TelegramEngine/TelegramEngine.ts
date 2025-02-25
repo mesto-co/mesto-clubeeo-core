@@ -4,15 +4,22 @@ import { TelegramEnv } from "./TelegramEnv";
 import { Telegraf } from "telegraf";
 import { telegramApi } from "./telegramApi";
 import telegramFileApi from "./telegramFileApi";
+import { TelegramFileService } from './services/TelegramFileService';
+import { CachedTelegramFileService } from './services/CachedTelegramFileService';
+import { ITelegramFileService } from './services/ITelegramFileService';
 
 export class TelegramEngine extends EngineBase {
   readonly type = "engine";
   bot: Telegraf;
+  fileService: ITelegramFileService;
 
   constructor(protected c: MestoApp) {
     super();
 
     this.bot = new Telegraf(this.env.telegramToken);
+    
+    const telegramFileService = new TelegramFileService(c, this);
+    this.fileService = new CachedTelegramFileService(telegramFileService);
 
     // this.bot.use(async (ctx, next) => {
     //   ctx['c'] = this.c;
