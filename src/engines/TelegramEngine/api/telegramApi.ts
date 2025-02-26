@@ -1,8 +1,8 @@
-import { MestoApp as App } from "../../App";
-import Club from "../../models/Club";
-import Member from "../../models/Member";
-import { fetchUserAndExtByExtId } from "../../contexts/UserExtContext";
-import TgAppInitData from "./TgAppInitData";
+import { MestoApp as App } from "@/App";
+import Club from "@/models/Club";
+import Member from "@/models/Member";
+import { fetchUserAndExtByExtId } from "@/contexts/UserExtContext";
+import TgAppInitData from "../TgAppInitData";
 import { StatusCodes } from "http-status-codes";
 
 export function telegramApi(app: App) {

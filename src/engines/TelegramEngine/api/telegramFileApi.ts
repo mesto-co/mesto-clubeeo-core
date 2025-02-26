@@ -1,5 +1,5 @@
 import { MestoApp as App } from "@/App"
-import { TelegramEngine } from "./TelegramEngine";
+import { TelegramEngine } from "../TelegramEngine";
 import UserExt from "@/models/UserExt";
 
 export default function telegramFileApi(app: App, engine: TelegramEngine) {
@@ -47,8 +47,13 @@ export default function telegramFileApi(app: App, engine: TelegramEngine) {
         const stream = await engine.fileService.getUserAvatar(userExt.extId);
         await streamResponse(stream, reply);
       } catch (error) {
-        app.logger.error(error);
-        reply.status(500).send('Error processing request');
+        if (error instanceof Error && error.message === 'Unreachable') {
+          reply.status(404).send('Not found');
+          return;
+        } else {
+          app.logger.error(error);
+          reply.status(500).send('Error processing request');
+        }
       }
     });
 
@@ -66,8 +71,13 @@ export default function telegramFileApi(app: App, engine: TelegramEngine) {
         const stream = await engine.fileService.getUserAvatar(userId);
         await streamResponse(stream, reply);
       } catch (error) {
-        app.logger.error(error);
-        reply.status(500).send('Error processing request');
+        if (error instanceof Error && error.message === 'Unreachable') {
+          reply.status(404).send('Not found');
+          return;
+        } else {
+          app.logger.error(error);
+          reply.status(500).send('Error processing request');
+        }
       }
     });
 
@@ -77,8 +87,13 @@ export default function telegramFileApi(app: App, engine: TelegramEngine) {
         const stream = await engine.fileService.getFile(fileId);
         await streamResponse(stream, reply);
       } catch (error) {
-        app.logger.error(error);
-        reply.status(500).send('Error processing request');
+        if (error instanceof Error && error.message === 'Unreachable') {
+          reply.status(404).send('Not found');
+          return;
+        } else {
+          app.logger.error(error);
+          reply.status(500).send('Error processing request');
+        }
       }
     });
 
@@ -96,8 +111,8 @@ export default function telegramFileApi(app: App, engine: TelegramEngine) {
         const stream = await engine.fileService.getChatAvatar(chatId);
         await streamResponse(stream, reply);
       } catch (error) {
-        if (error.message === 'Chat avatar not found') {
-          reply.status(404).send('Chat avatar not found');
+        if (error instanceof Error && error.message === 'Unreachable') {
+          reply.status(404).send('Not found');
           return;
         }
         if (error.message === 'Invalid chat ID or chat not accessible') {

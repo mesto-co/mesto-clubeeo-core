@@ -2,14 +2,15 @@ import { EngineBase } from "../../core/lib/EngineBase";
 import { MestoApp } from "../../App";
 import { TelegramEnv } from "./TelegramEnv";
 import { Telegraf } from "telegraf";
-import { telegramApi } from "./telegramApi";
-import telegramFileApi from "./telegramFileApi";
+import { telegramApi } from "./api/telegramApi";
+import telegramFileApi from "./api/telegramFileApi";
 import { TelegramFileService } from './services/TelegramFileService';
 import { CachedTelegramFileService } from './services/CachedTelegramFileService';
 import { ITelegramFileService } from './services/ITelegramFileService';
 import { botStart } from "./bot/botStart";
 import { botGate } from "./bot/botGate";
 import { getTelegramGraphQL } from './graphql';
+import { FailedTelegramFileService } from './services/FailedTelegramFileService';
 
 export class TelegramEngine extends EngineBase {
   readonly type = "engine";
@@ -22,7 +23,8 @@ export class TelegramEngine extends EngineBase {
     this.bot = new Telegraf(this.env.telegramToken);
     
     const telegramFileService = new TelegramFileService(c, this);
-    this.fileService = new CachedTelegramFileService(telegramFileService);
+    const failedFileService = new FailedTelegramFileService(telegramFileService);
+    this.fileService = new CachedTelegramFileService(failedFileService);
 
     // this.bot.use(async (ctx, next) => {
     //   ctx['c'] = this.c;
