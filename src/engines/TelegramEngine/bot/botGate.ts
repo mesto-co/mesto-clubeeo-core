@@ -98,17 +98,28 @@ export function botGate(telegramEngine: TelegramEngine) {
           );
         } catch (e) {
           // User might have blocked the bot or never started it
-          c.logger.warn('Could not send DM to user explaining join rejection', { userId, error: e });
+          c.logger.warn({ 
+            userId, 
+            error: e 
+          }, 'Could not send DM to user explaining join rejection');
         }
       }
     } catch (error) {
-      c.logger.error('Error handling chat join request', { error, userId, chatId });
+      c.logger.error({ 
+        error, 
+        userId, 
+        chatId 
+      }, 'Error handling chat join request');
       
       // Default to rejecting on error
       try {
         await ctx.declineChatJoinRequest(Number(userId));
       } catch (e) {
-        c.logger.error('Error declining chat join request', { error: e, userId, chatId });
+        c.logger.error({ 
+          error: e, 
+          userId, 
+          chatId 
+        }, 'Error declining chat join request');
       }
     }
   });
@@ -140,7 +151,10 @@ export function botGate(telegramEngine: TelegramEngine) {
           await handleBotAddedOrUpdated(ctx, true);
         }
       } catch (error) {
-        c.logger.error('Error checking bot admin status', { error, chatId: ctx.chat.id });
+        c.logger.error({ 
+          error, 
+          chatId: ctx.chat.id 
+        }, 'Error checking bot admin status');
       }
     }
   });
@@ -293,11 +307,11 @@ export function botGate(telegramEngine: TelegramEngine) {
         );
       }
     } catch (error) {
-      c.logger.error('Error handling bot addition or update', { 
+      c.logger.error({ 
         error, 
         chatId: ctx.chat.id,
         chatType: ctx.chat.type 
-      });
+      }, 'Error handling bot addition or update');
     }
   }
 
@@ -328,7 +342,10 @@ export function botGate(telegramEngine: TelegramEngine) {
         });
       }
     } catch (error) {
-      c.logger.error('Error handling bot removal', { error, chatId: ctx.chat.id });
+      c.logger.error({ 
+        error, 
+        chatId: ctx.chat.id 
+      }, 'Error handling bot removal');
     }
   }
 } 
