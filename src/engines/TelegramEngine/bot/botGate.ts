@@ -122,6 +122,27 @@ export function botGate(telegramEngine: TelegramEngine) {
 
     if (botWasAdded) {
       await handleBotAddedOrUpdated(ctx);
+    } else {
+      // Check if bot's admin status changed
+      try {
+        const chatId = ctx.chat.id.toString();
+        const botMember = await ctx.telegram.getChatMember(ctx.chat.id, bot.botInfo!.id);
+        
+        const clubExt = await c.m.findOne(ClubExt, {
+          where: {
+            club: { id: clubId },
+            service: `tg:${ctx.chat.type}`,
+            extId: chatId,
+            removed: false
+          }
+        });
+
+        if (clubExt && botMember.status === 'administrator' !== clubExt.isAdmin) {
+          await handleBotAddedOrUpdated(ctx, true);
+        }
+      } catch (error) {
+        c.logger.error('Error checking bot admin status', { error, chatId: ctx.chat.id });
+      }
     }
   });
 
@@ -132,28 +153,14 @@ export function botGate(telegramEngine: TelegramEngine) {
     }
   });
 
-  // Handle bot admin rights changes
-  bot.on(message('new_chat_members'), async (ctx) => {
-    // Check bot's current admin status
-    try {
-      const chatId = ctx.chat.id.toString();
-      const botMember = await ctx.telegram.getChatMember(ctx.chat.id, bot.botInfo!.id);
-      
-      // Find existing ClubExt
-      const clubExt = await c.m.findOne(ClubExt, {
-        where: {
-          club: { id: clubId },
-          service: `tg:${ctx.chat.type}`,
-          extId: chatId,
-          removed: false
-        }
-      });
-
-      if (clubExt && botMember.status === 'administrator' !== clubExt.isAdmin) {
-        await handleBotAddedOrUpdated(ctx, true);
-      }
-    } catch (error) {
-      c.logger.error('Error checking bot admin status', { error, chatId: ctx.chat.id });
+  // Handle bot's member status changes (promotion/demotion)
+  bot.on('my_chat_member', async (ctx) => {
+    const newStatus = ctx.myChatMember.new_chat_member.status;
+    const oldStatus = ctx.myChatMember.old_chat_member.status;
+    
+    // Only handle admin status changes
+    if ((newStatus === 'administrator') !== (oldStatus === 'administrator')) {
+      await handleBotAddedOrUpdated(ctx, true);
     }
   });
 
