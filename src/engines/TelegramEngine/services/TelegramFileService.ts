@@ -39,10 +39,22 @@ export class TelegramFileService implements ITelegramFileService {
   }
 
   async getChatAvatar(chatId: string): Promise<NodeJS.ReadableStream> {
-    const chat = await this.app.axios.get(`${this.TELEGRAM_API_URL}/getChat?chat_id=${chatId}`);
-    const fileId = chat.data?.result?.photo?.big_file_id;
-    if (!fileId) throw new Error('Chat avatar not found');
-    
-    return this.getFile(fileId);
+    try {
+      const chat = await this.app.axios.get(`${this.TELEGRAM_API_URL}/getChat?chat_id=${chatId}`);
+      
+      // Support both photo.big_file_id (for groups) and photo.small_file_id (fallback)
+      const fileId = chat.data?.result?.photo?.big_file_id || 
+                    chat.data?.result?.photo?.small_file_id;
+                    
+      if (!fileId) throw new Error('Chat avatar not found');
+      
+      return this.getFile(fileId);
+    } catch (error) {
+      // Add more specific error handling
+      if (error.response?.status === 400) {
+        throw new Error('Invalid chat ID or chat not accessible');
+      }
+      throw error;
+    }
   }
 } 

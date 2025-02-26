@@ -14,36 +14,29 @@ import routes from './routes';
 import path from 'path';
 import webhooksApi from './clubApps/WebhookEndpointApp/api/webhooksApi';
 
-export function baseRouter(app: MestoApp) {
-  const env = app.Env;
-
-  // Require the framework and instantiate it
-  const router = app.router as any;
-
-  router.register(require('@fastify/static'), {
-    root: path.join(app.Env.rootDir, 'static'),
-    prefix: '/static/',
-  });
-
-  router.register(function (router, opts, next) {
-    router.register(webhooksApi(app));
-    next();
-  }, {prefix: `/m`});
-
-  router.register(function (router, opts, next) {
-    router.register(routes(app));
-    next();
-  }, {prefix: `/${env.apiPrefix}`});
-
-  return router;
-}
-
-
 export const graphqlLoaders = (app: MestoApp) => ({
 });
 
 export async function mestoRouter(app: MestoApp) {
-  const r = baseRouter(app as any);
+  const env = app.Env;
+
+  // Require the framework and instantiate it
+  const r = app.router as any;
+
+  r.register(require('@fastify/static'), {
+    root: path.join(app.Env.rootDir, 'static'),
+    prefix: '/static/',
+  });
+
+  r.register(function (router, opts, next) {
+    router.register(webhooksApi(app));
+    next();
+  }, {prefix: `/m`});
+
+  r.register(function (router, opts, next) {
+    router.register(routes(app));
+    next();
+  }, {prefix: `/${env.apiPrefix}`});
 
   const typeDefs = mergeTypeDefs([
     'scalar JSON',
@@ -109,7 +102,25 @@ export async function mestoRouter(app: MestoApp) {
         const auth = app.contexts.auth(request as any);
 
         const club = await app.m.findOneBy(Club, {id: '1'});
-        const user = await auth.getUserOrFail();
+        const user = await auth.getUser();
+        if (!user) {
+          return {
+            app,
+            user: null,
+            club,
+            hub: club,
+            member: null,
+            can: () => false,
+            canOrFail: (resource: string, action: string, obj?: any) => {
+              throw new Error(`You are not allowed to ${action} ${resource}`);
+            },
+            auth: {
+              // todo: get rid of extra nesting
+              ctx: auth,
+            },
+          }
+        }
+
         const {value: member, isCreated} = await app.em.findOneOrCreateBy(Member, {
           user: {id: user.id},
           club: {id: club.id},
