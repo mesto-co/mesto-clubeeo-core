@@ -235,10 +235,11 @@ export function botGate(telegramEngine: TelegramEngine) {
       // Store chat info
       const chatInfo = await ctx.telegram.getChat(ctx.chat.id);
       const cached = { ...(clubExt.cached || {}) };
+      let name = null;
 
       // Store name if available
       if ('title' in chatInfo) {
-        cached.name = chatInfo.title;
+        name = chatInfo.title;
       }
 
       // Add forum-specific info only for supergroups
@@ -249,7 +250,10 @@ export function botGate(telegramEngine: TelegramEngine) {
         }
       }
       
-      await c.m.update(ClubExt, { id: clubExt.id }, { cached });
+      await c.m.update(ClubExt, { id: clubExt.id }, { 
+        cached,
+        name 
+      });
 
       // Only proceed with admin setup if bot is admin
       if (isAdmin) {

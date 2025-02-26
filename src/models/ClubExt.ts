@@ -66,6 +66,12 @@ export default class ClubExt {
   @Column({ type: Boolean, default: false })
   isAdmin: boolean;
 
+  @Column({ type: 'integer', nullable: true, default: null })
+  index: number | null;
+
+  @Column({ type: String, nullable: true, default: null })
+  name: string | null;
+
   // DB auto insert time
   @CreateDateColumn()
   public createdAt: Date;

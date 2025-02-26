@@ -28,6 +28,8 @@ export const getTelegramResolvers = (engine: TelegramEngine): IResolvers<any, IC
           skip,
           take: perPage,
           order: {
+            index: 'ASC',
+            name: 'ASC',
             createdAt: 'DESC'
           }
         });
@@ -37,7 +39,7 @@ export const getTelegramResolvers = (engine: TelegramEngine): IResolvers<any, IC
             id: item.id,
             extId: item.extId,
             service: item.service,
-            name: item.cached?.name,
+            name: item.name,
             isAdmin: item.isAdmin,
             removed: item.removed,
             isForum: item.cached?.isForum,
