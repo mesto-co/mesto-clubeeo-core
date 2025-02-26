@@ -2,7 +2,6 @@ import Member from "@/models/Member";
 import { fetchUserAndExtByExtId } from "@/contexts/UserExtContext";
 import { TelegramEngine } from "../TelegramEngine";
 import { message } from "telegraf/filters";
-import { ExtServicesEnum } from "@/core/lib/enums";
 import ClubExt from "@/models/ClubExt";
 import UserExt from "@/models/UserExt";
 import UserExtHubExt from "@/models/UserExtHubExt";
@@ -219,20 +218,24 @@ export function botGate(telegramEngine: TelegramEngine) {
         });
       }
 
-      // Store forum info if it's a supergroup
-      if (ctx.chat.type === 'supergroup') {
-        const chatInfo = await ctx.telegram.getChat(ctx.chat.id);
-        const isForum = 'is_forum' in chatInfo && chatInfo.is_forum;
-        
-        await c.m.update(ClubExt, { id: clubExt.id }, {
-          cached: { 
-            ...(clubExt.cached || {}),
-            isForum,
-            // Store general topic ID if available
-            generalTopicId: isForum && 'general_forum_topic_id' in chatInfo ? Number(chatInfo.general_forum_topic_id) : null
-          }
-        });
+      // Store chat info
+      const chatInfo = await ctx.telegram.getChat(ctx.chat.id);
+      const cached = { ...(clubExt.cached || {}) };
+
+      // Store name if available
+      if ('title' in chatInfo) {
+        cached.name = chatInfo.title;
       }
+
+      // Add forum-specific info only for supergroups
+      if (ctx.chat.type === 'supergroup') {
+        cached.isForum = 'is_forum' in chatInfo && chatInfo.is_forum;
+        if (cached.isForum && 'general_forum_topic_id' in chatInfo) {
+          cached.generalTopicId = Number(chatInfo.general_forum_topic_id);
+        }
+      }
+      
+      await c.m.update(ClubExt, { id: clubExt.id }, { cached });
 
       // Only proceed with admin setup if bot is admin
       if (isAdmin) {

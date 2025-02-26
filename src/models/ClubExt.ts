@@ -17,6 +17,7 @@ interface ClubExtCached {
   chatInviteLink?: string;
   isForum?: boolean;
   generalTopicId?: number | null;
+  name?: string;
 }
 
 @Entity()
