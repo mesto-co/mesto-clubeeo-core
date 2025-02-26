@@ -12,6 +12,13 @@ import {TExtServices} from './../lib/enums'
 import ClubApp from '../engines/AppsEngine/models/ClubApp'
 import {ClubeeoPrimaryColumn} from './../lib/modelCommon'
 
+// Add this interface above the ClubExt class
+interface ClubExtCached {
+  chatInviteLink?: string;
+  isForum?: boolean;
+  generalTopicId?: number | null;
+}
+
 @Entity()
 export default class ClubExt {
 
@@ -42,7 +49,7 @@ export default class ClubExt {
     default: () => "'{}'",
     nullable: false,
   })
-  cached: object;
+  cached: ClubExtCached;
 
   @Column({
     type: 'json',
@@ -51,6 +58,12 @@ export default class ClubExt {
     nullable: false,
   })
   debugData: object;
+
+  @Column({ type: Boolean, default: false })
+  removed: boolean;
+
+  @Column({ type: Boolean, default: false })
+  isAdmin: boolean;
 
   // DB auto insert time
   @CreateDateColumn()

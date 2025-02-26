@@ -20,7 +20,7 @@ export class TelegramFileService implements ITelegramFileService {
     const getUserProfilePhotosResponse = await this.app.axios.get(
       `${this.TELEGRAM_API_URL}/getUserProfilePhotos?user_id=${userId}`
     );
-    
+
     const fileId = getUserProfilePhotosResponse.data?.result?.photos?.[0]?.[0]?.file_id;
     if (!fileId) throw new Error('User avatar not found');
     

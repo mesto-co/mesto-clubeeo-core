@@ -6,6 +6,7 @@ import { ExtServicesEnum } from "@/core/lib/enums";
 import ClubExt from "@/models/ClubExt";
 import UserExt from "@/models/UserExt";
 import UserExtHubExt from "@/models/UserExtHubExt";
+import { Context } from 'telegraf';
 
 export function botGate(telegramEngine: TelegramEngine) {
   const c = telegramEngine.c;
@@ -78,10 +79,13 @@ export function botGate(telegramEngine: TelegramEngine) {
         // Accept the join request
         await ctx.approveChatJoinRequest(Number(userId));
         
-        // Welcome message
-        await ctx.telegram.sendMessage(chatId,
+        // Send welcome message to appropriate topic or main chat
+        const messageThread = ctx.chatJoinRequest.message_thread_id;
+        await ctx.telegram.sendMessage(
+          chatId,
           `Добро пожаловать, ${user.screenName}! 🎉\n` +
-          `${ctx.chatJoinRequest.from.username ? `@${ctx.chatJoinRequest.from.username}` : ''}`
+          `${ctx.chatJoinRequest.from.username ? `@${ctx.chatJoinRequest.from.username}` : ''}`,
+          messageThread ? { message_thread_id: messageThread } : undefined
         );
       } else {
         // Decline the join request
@@ -110,64 +114,121 @@ export function botGate(telegramEngine: TelegramEngine) {
     }
   });
 
-  // Handle when bot is added to a group
+  // Handle when bot is added to a group or its admin status changes
   bot.on(message('new_chat_members'), async (ctx) => {
     // Check if the bot itself was added
     const newMembers = ctx.message.new_chat_members;
     const botWasAdded = newMembers.some(member => member.id === bot.botInfo?.id);
 
     if (botWasAdded) {
-      try {
-        const chatId = ctx.chat.id.toString();
-        const service = `tg:${ctx.chat.type}`;
+      await handleBotAddedOrUpdated(ctx);
+    }
+  });
 
-        // Create or update bot's UserExt and UserExtHubExt records
-        const { value: botUserExt } = await c.em.findOneOrCreateBy(UserExt, {
-          extId: bot.botInfo.id.toString(),
-          service: 'tg'
-        }, {
-          enabled: true,
-          username: bot.botInfo.username,
-          data: {
-            first_name: bot.botInfo.first_name,
-            is_bot: true
-          }
-        });
+  // Handle bot being removed from chat
+  bot.on(message('left_chat_member'), async (ctx) => {
+    if (ctx.message.left_chat_member.id === bot.botInfo?.id) {
+      await handleBotRemoved(ctx);
+    }
+  });
 
-        // Create or update ClubExt record
-        const { value: clubExt } = await c.em.findOneOrCreateBy(ClubExt, {
+  // Handle bot admin rights changes
+  bot.on(message('new_chat_members'), async (ctx) => {
+    // Check bot's current admin status
+    try {
+      const chatId = ctx.chat.id.toString();
+      const botMember = await ctx.telegram.getChatMember(ctx.chat.id, bot.botInfo!.id);
+      
+      // Find existing ClubExt
+      const clubExt = await c.m.findOne(ClubExt, {
+        where: {
           club: { id: clubId },
-          service,
-          extId: chatId
-        }, {
-          debugData: {
-            chat: ctx.chat,
-            addedAt: new Date(),
-            addedBy: ctx.from
-          },
-          cached: {}
-        });
+          service: `tg:${ctx.chat.type}`,
+          extId: chatId,
+          removed: false
+        }
+      });
 
-        // Link bot's UserExt to ClubExt
-        await c.em.findOneOrCreateBy(UserExtHubExt, {
-          user: botUserExt.user,
-          userExt: { id: botUserExt.id },
-          hubExt: { id: clubExt.id },
-          service: clubExt.service,
-          extId: botUserExt.extId
-        }, {
-          enabled: true,
-          username: botUserExt.username,
-          data: botUserExt.data,
+      if (clubExt && botMember.status === 'administrator' !== clubExt.isAdmin) {
+        await handleBotAddedOrUpdated(ctx, true);
+      }
+    } catch (error) {
+      c.logger.error('Error checking bot admin status', { error, chatId: ctx.chat.id });
+    }
+  });
+
+  async function handleBotAddedOrUpdated(ctx: Context, isStatusUpdate = false) {
+    try {
+      const chatId = ctx.chat.id.toString();
+      const service = `tg:${ctx.chat.type}`;
+
+      // Check if bot is admin
+      const botMember = await ctx.telegram.getChatMember(ctx.chat.id, bot.botInfo!.id);
+      const isAdmin = botMember.status === 'administrator';
+
+      // Create or update bot's UserExt record
+      const { value: botUserExt } = await c.em.findOneOrCreateBy(UserExt, {
+        extId: bot.botInfo!.id.toString(),
+        service: 'tg'
+      }, {
+        enabled: true,
+        username: bot.botInfo!.username,
+        data: {
+          first_name: bot.botInfo!.first_name,
+          is_bot: true
+        }
+      });
+
+      // Find or create ClubExt record
+      const { value: clubExt } = await c.em.findOneOrCreateBy(ClubExt, {
+        club: { id: clubId },
+        service,
+        extId: chatId
+      }, {
+        removed: false,
+        isAdmin,
+        debugData: {
+          chat: ctx.chat,
+          addedAt: new Date(),
+          addedBy: ctx.from,
+          adminStatus: botMember.status
+        },
+        cached: {}
+      });
+
+      // Update existing record if found
+      if (clubExt) {
+        await c.m.update(ClubExt, { id: clubExt.id }, {
+          removed: false,
+          isAdmin,
           debugData: {
-            addedToChat: {
-              chat: ctx.chat,
+            ...clubExt.debugData,
+            lastUpdate: {
               date: new Date(),
-              addedBy: ctx.from
+              adminStatus: botMember.status,
+              updatedBy: ctx.from
             }
           }
         });
+      }
 
+      // Store forum info if it's a supergroup
+      if (ctx.chat.type === 'supergroup') {
+        const chatInfo = await ctx.telegram.getChat(ctx.chat.id);
+        const isForum = 'is_forum' in chatInfo && chatInfo.is_forum;
+        
+        await c.m.update(ClubExt, { id: clubExt.id }, {
+          cached: { 
+            ...(clubExt.cached || {}),
+            isForum,
+            // Store general topic ID if available
+            generalTopicId: isForum && 'general_forum_topic_id' in chatInfo ? chatInfo.general_forum_topic_id : null
+          }
+        });
+      }
+
+      // Only proceed with admin setup if bot is admin
+      if (isAdmin) {
         // Generate invite link if not exists
         if (!clubExt.cached?.['chatInviteLink']) {
           const inviteLink = await ctx.telegram.createChatInviteLink(ctx.chat.id, {
@@ -180,7 +241,7 @@ export function botGate(telegramEngine: TelegramEngine) {
           });
         }
 
-        // Set chat permissions to require admin approval
+        // Set chat permissions
         await ctx.setChatPermissions({
           can_send_messages: true,
           can_send_audios: true,
@@ -198,19 +259,66 @@ export function botGate(telegramEngine: TelegramEngine) {
           can_manage_topics: false,
         });
 
+        // Send welcome message considering topics
+        const messageOptions: any = {};
+        if (clubExt.cached?.isForum && clubExt.cached?.generalTopicId) {
+          messageOptions.message_thread_id = clubExt.cached.generalTopicId;
+        }
+
         await ctx.reply(
-          '👋 Привет! Я настроен для автоматической проверки участников.\n' +
-          'Только подтверждённые участники клуба смогут присоединиться к этому чату.'
+          isStatusUpdate 
+            ? '✅ Права администратора получены! Теперь я могу полноценно управлять участниками чата.'
+            : '👋 Привет! Я настроен для автоматической проверки участников.\n' +
+              'Только подтверждённые участники клуба смогут присоединиться к этому чату.',
+          messageOptions
         );
-      } catch (error) {
-        c.logger.error('Error configuring chat after bot add', { error, chatId: ctx.chat.id });
+      } else {
         await ctx.reply(
-          '⚠️ Ошибка: Мне нужны права администратора со следующими возможностями:\n' +
+          '⚠️ Для полноценной работы мне нужны права администратора со следующими возможностями:\n' +
           '- Управление пользователями\n' +
-          '- Управление заявками на вступление\n' +
-          'Пожалуйста, предоставьте эти права и добавьте меня снова.'
+          '- Управление заявками на вступление',
+          clubExt.cached?.isForum && clubExt.cached?.generalTopicId 
+            ? { message_thread_id: clubExt.cached.generalTopicId }
+            : undefined
         );
       }
+    } catch (error) {
+      c.logger.error('Error handling bot addition or update', { 
+        error, 
+        chatId: ctx.chat.id,
+        chatType: ctx.chat.type 
+      });
     }
-  });
+  }
+
+  async function handleBotRemoved(ctx: Context) {
+    try {
+      const chatId = ctx.chat.id.toString();
+      const service = `tg:${ctx.chat.type}`;
+
+      // Find and mark ClubExt as removed
+      const clubExt = await c.m.findOne(ClubExt, {
+        where: {
+          club: { id: clubId },
+          service,
+          extId: chatId,
+          removed: false
+        }
+      });
+
+      if (clubExt) {
+        await c.m.update(ClubExt, { id: clubExt.id }, {
+          removed: true,
+          isAdmin: false,
+          debugData: {
+            ...clubExt.debugData,
+            removedAt: new Date(),
+            removedBy: ctx.from
+          }
+        });
+      }
+    } catch (error) {
+      c.logger.error('Error handling bot removal', { error, chatId: ctx.chat.id });
+    }
+  }
 } 
