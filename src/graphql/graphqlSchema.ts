@@ -1,7 +1,10 @@
 import {badgeMutationsSchema, badgesMutationsTypes, clubBadgeType} from './badgesGraphql'
 import {clubRoleType, rolesMutationsSchema, rolesMutationsTypes} from './rolesGraphql'
+import { mergeTypeDefs } from '@graphql-tools/merge';
+import { DocumentNode } from 'graphql';
 
-export const graphqlSchema = `
+// Create base schema
+const baseSchema = `
 type Query {
   club(slug: String!): Club!
   clubApp(appSlug: String!): ClubApp!
@@ -243,3 +246,6 @@ ${badgesMutationsTypes}
 //     category: String!
 //     published: Boolean!
 // }
+
+// Export a plain string version for direct use
+export const graphqlSchema = baseSchema;

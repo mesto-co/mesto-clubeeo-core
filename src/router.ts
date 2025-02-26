@@ -42,6 +42,7 @@ export async function mestoRouter(app: MestoApp) {
     'scalar JSON',
     graphqlSchema,
     app.engines.memberProfiles.graphql.typeDefs,
+    app.engines.telegram.graphql.typeDefs,
   ]);
 
   const resolvers = mergeResolvers([
@@ -56,6 +57,7 @@ export async function mestoRouter(app: MestoApp) {
       }
     },
     app.engines.memberProfiles.graphql.resolvers,
+    app.engines.telegram.graphql.resolvers,
   ]);
 
   const schema = makeExecutableSchema({

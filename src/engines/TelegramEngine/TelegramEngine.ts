@@ -9,6 +9,7 @@ import { CachedTelegramFileService } from './services/CachedTelegramFileService'
 import { ITelegramFileService } from './services/ITelegramFileService';
 import { botStart } from "./bot/botStart";
 import { botGate } from "./bot/botGate";
+import { getTelegramGraphQL } from './graphql';
 
 export class TelegramEngine extends EngineBase {
   readonly type = "engine";
@@ -60,5 +61,7 @@ export class TelegramEngine extends EngineBase {
 
   get env() { return this.once('env', () => TelegramEnv.getInstance() ) }
 
-
+  get graphql() {
+    return getTelegramGraphQL(this);
+  }
 }
