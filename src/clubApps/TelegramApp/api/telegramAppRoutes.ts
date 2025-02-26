@@ -41,11 +41,14 @@ export default function (app: App) {
           if (!ext.cached?.['id']) {
             try {
               const chatInfo = await app.TelegramContainer.Telegram.getChat(ext.extId);
-              console.log('chatInfo', chatInfo);
-              ext.cached = chatInfo;
+              app.logger.info(chatInfo, 'chatInfo');
+              ext.cached = {
+                ...(ext.cached || {}),
+                ...chatInfo,
+              } as any;
               await app.m.save(ext);
             } catch (err) {
-              console.error(err);
+              app.logger.error({err}, 'Error getting chat info');
             }
           }
 

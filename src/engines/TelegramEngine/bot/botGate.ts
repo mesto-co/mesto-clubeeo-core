@@ -80,7 +80,7 @@ export function botGate(telegramEngine: TelegramEngine) {
         await ctx.approveChatJoinRequest(Number(userId));
         
         // Send welcome message to appropriate topic or main chat
-        const messageThread = ctx.chatJoinRequest.message_thread_id;
+        const messageThread = hubExt.cached?.isForum ? hubExt.cached.generalTopicId : undefined;
         await ctx.telegram.sendMessage(
           chatId,
           `Добро пожаловать, ${user.screenName}! 🎉\n` +
@@ -222,7 +222,7 @@ export function botGate(telegramEngine: TelegramEngine) {
             ...(clubExt.cached || {}),
             isForum,
             // Store general topic ID if available
-            generalTopicId: isForum && 'general_forum_topic_id' in chatInfo ? chatInfo.general_forum_topic_id : null
+            generalTopicId: isForum && 'general_forum_topic_id' in chatInfo ? Number(chatInfo.general_forum_topic_id) : null
           }
         });
       }
