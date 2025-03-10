@@ -51,23 +51,32 @@ export function botStart(telegramEngine: TelegramEngine) {
     }
 
     if (!isHandled) {
-      if (isUserCreated || isMemberCreated) {
-        ctx.reply(`🎉 Добро пожаловать, ${user.screenName}! 👋`, {
+      // if (isUserCreated || isMemberCreated) {
+        ctx.reply(await c.t('bot.start', user.lang, {name: user.screenName}, botStartMessageTemplate), {
           reply_markup: {
             inline_keyboard: [
-              [{text: '📝 Заполнить профиль', web_app: {url: `${c.Env.siteUrl}/mesto/profile/edit`}}],
+              [{text: 'Начать', web_app: {url: `${c.Env.siteUrl}/mesto/profile/apply`}}],
             ],
           },
         })
-      } else {
-        ctx.reply(`Привет, ${user.screenName}! 👋`, {
-          reply_markup: {
-            inline_keyboard: [
-              [{text: '📝 Заполнить профиль', web_app: {url: `${c.Env.siteUrl}/mesto/profile/edit`}}],
-            ],
-          },
-        });
-      }
+      // } else {
+      //   ctx.reply(`Привет, ${user.screenName}! 👋`, {
+      //     reply_markup: {
+      //       inline_keyboard: [
+      //         [{text: '📝 Заполнить профиль', web_app: {url: `${c.Env.siteUrl}/mesto/profile/edit`}}],
+      //       ],
+      //     },
+      //   });
+      // }
     }
   });
 }
+
+const botStartMessageTemplate = 
+`Привет, {{name}} 👋 
+
+Я — бот Небот, твой проводник в сообщество Mesto, где предприниматели, стартаперы, специалисты, эксперты и инвесторы объединяются для обмена знаниями и опытом, а также совместного развития. 
+
+Наше сообщество состоит из людей, которые прошли разные этапы создания и масштабирования бизнеса, и здесь каждый может найти поддержку на своём пути.
+
+Чтобы стать частью Mesto, пожалуйста, заполните профиль и нажмите кнопку “Подать заявку”`;

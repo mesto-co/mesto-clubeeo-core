@@ -38,7 +38,10 @@ export class ApplicantsRepo {
       const profile = await this.c.m.findOneBy(MemberProfile, { member: { id: member.id } });
       const user = await this.c.m.findOneBy(User, {id: member.userId});
       const userExts = await this.c.m.findBy(UserExt, {user: {id: member.userId}});
-      member['profile'] = profile;
+      member['profile'] = {
+        ...profile,
+        userId: user.id,
+      };
       member['rolesMap'] = await this.c.engines.access.service.getRolesMap({member, user, hub: {id: club.id}}, ['applicant', 'member', 'rejected', 'guest']);
       member['memberRoles'] = await this.c.m.find(MemberRole, {
         where: { member: { id: member.id }, club: { id: club.id }, enabled: true },
