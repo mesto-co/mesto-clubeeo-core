@@ -1,3 +1,9 @@
+/**
+ * A management application for accepting applications from users.
+ * 
+ * @module applicantsApp
+ */
+
 import { MestoApp } from "../App";
 import Club from "../models/Club";
 import Member from "../models/Member";
@@ -5,6 +11,7 @@ import MemberRole from "../models/MemberRole";
 import User from "../models/User";
 import UserExt from "../models/UserExt";
 import MemberProfile from "../engines/MemberProfiles/models/MemberProfile";
+import MemberApplication from "../models/MemberApplication";
 import { AppBuilder } from "../lib/createApp";
 
 export class ApplicantsRepo {
@@ -63,6 +70,20 @@ export class ApplicantsRepo {
     return profile;
   }
 
+  // Fetch application by member ID
+  async fetchMemberApplication(memberId: string, clubId: string) {
+    const application = await this.c.m.findOne(MemberApplication, {
+      where: { member: { id: memberId }, club: { id: clubId } },
+      relations: ['user']
+    });
+    
+    if (!application) {
+      return null;
+    }
+    
+    return application;
+  }
+
   // Change user role
   async changeUserRole(memberId: string, clubId: string, newRole: string) {
     const member = await this.c.m.findOneBy(Member, { id: memberId, club: {id: clubId} });
@@ -79,6 +100,33 @@ export class ApplicantsRepo {
 
     await this.c.engines.access.service.addRole({member, user, hub: {id: clubId}}, newRole);
     return { newRole };
+  }
+  
+  // Update application status
+  async updateApplicationStatus(applicationId: string, status: string, rejectionReason?: string) {
+    const application = await this.c.m.findOneBy(MemberApplication, { id: applicationId });
+    if (!application) {
+      throw new Error('Application not found');
+    }
+    
+    application.status = status as any;
+    if (rejectionReason) {
+      application.rejectionReason = rejectionReason;
+    }
+    
+    await this.c.m.save(application);
+    
+    // Also update the member role based on the application status
+    const member = await this.c.m.findOneBy(Member, { id: application.memberId });
+    const user = await this.c.m.findOneBy(User, { id: application.userId });
+    
+    if (status === 'approved') {
+      await this.changeUserRole(application.memberId, application.clubId, 'member');
+    } else if (status === 'rejected') {
+      await this.changeUserRole(application.memberId, application.clubId, 'rejected');
+    }
+    
+    return application;
   }
 }
 
@@ -121,6 +169,14 @@ applicantsApp.get('/member/:memberId/profile', {}, async ({ repo }, { params }, 
   return { data: profile };
 });
 
+// New route to fetch application by member ID
+applicantsApp.get('/member/:memberId/application', {}, async ({ repo }, { params, ctx: { club } }, reply) => {
+  const { memberId } = params;
+  const application = await repo.fetchMemberApplication(memberId, club.id);
+  
+  return { data: application };
+});
+
 applicantsApp.patch('/member/:memberId/role', {
   schema: {
     body: {
@@ -135,6 +191,26 @@ applicantsApp.patch('/member/:memberId/role', {
   const { memberId } = params;
   const { newRole } = body;
   const result = await repo.changeUserRole(memberId, club.id, newRole);
+
+  return { data: result };
+});
+
+// New route to update application status
+applicantsApp.patch('/application/:applicationId/status', {
+  schema: {
+    body: {
+      type: 'object',
+      properties: {
+        status: { type: 'string', enum: ['pending', 'approved', 'rejected'] },
+        rejectionReason: { type: 'string' },
+      },
+      required: ['status'],
+    },
+  },
+}, async ({ repo }, { params, body }, reply) => {
+  const { applicationId } = params;
+  const { status, rejectionReason } = body;
+  const result = await repo.updateApplicationStatus(applicationId, status, rejectionReason);
 
   return { data: result };
 });

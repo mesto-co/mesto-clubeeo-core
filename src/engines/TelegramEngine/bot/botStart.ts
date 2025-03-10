@@ -55,7 +55,7 @@ export function botStart(telegramEngine: TelegramEngine) {
         ctx.reply(await c.t('bot.start', user.lang, {name: user.screenName}, botStartMessageTemplate), {
           reply_markup: {
             inline_keyboard: [
-              [{text: 'Начать', web_app: {url: `${c.Env.siteUrl}/mesto/profile/apply`}}],
+              [{text: 'Начать', web_app: {url: `${c.Env.siteUrl}/mesto/application`}}],
             ],
           },
         })
