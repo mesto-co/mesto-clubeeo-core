@@ -260,7 +260,7 @@ export default function (c: AppsEngine) {
       //     .code(StatusCodes.FORBIDDEN)
       //     .send({error: 'access denied'})
       // }
-      if (!clubApp || !await app.engines.accessEngine.memberHasAccessToAppPage(member, clubApp as any, appPage)) {
+      if (!clubApp || !member || !await app.engines.accessEngine.memberHasAccessToAppPage(member, clubApp as any, appPage)) {
         return reply.code(StatusCodes.FORBIDDEN).send({ error: 'access denied' });
       }
 
