@@ -57,37 +57,11 @@ export class ApplicationsRepo {
   }
 
   // Get application status for a user
-  async getApplicationStatus(userId: string, clubId: string): Promise<{
-    canApply: boolean;
-    application?: MemberApplication;
-    roles?: Record<string, boolean>;
-  }> {
-    const application = await this.c.m.findOneBy(MemberApplication, {
+  async getApplicationStatus(userId: string, clubId: string): Promise<MemberApplication> {
+    return await this.c.m.findOneBy(MemberApplication, {
       user: { id: userId },
       club: { id: clubId }
     });
-
-    const member = await this.c.m.findOneBy(Member, {
-      user: { id: userId },
-      club: { id: clubId }
-    });
-
-    let roles = {};
-    if (member) {
-      roles = await this.c.engines.access.service.getRolesMap(
-        { member, user: { id: userId }, hub: { id: clubId } },
-        ['applicant', 'member', 'rejected', 'guest']
-      );
-    }
-
-    // User can apply if they don't have an existing application and are not already a member
-    const canApply = !application && (!roles['member'] && !roles['applicant'] && !roles['rejected']);
-
-    return {
-      canApply: true,
-      application,
-      roles
-    };
   }
 }
 
@@ -105,10 +79,29 @@ const applicationsApp = new AppBuilder<MestoApp, ApplicationsEntity>(
 );
 
 // Get application status
-applicationsApp.get('/status', {}, async ({ repo }, { ctx: { user, club } }, reply) => {
-  const status = await repo.getApplicationStatus(user.id, club.id);
-  
-  return { data: status };
+applicationsApp.get('/status', {}, async ({ repo, c }, { ctx: { user, club } }, reply) => {
+  const application = await repo.getApplicationStatus(user.id, club.id);
+
+  const member = await c.m.findOneBy(Member, {
+    user: { id: user.id },
+    club: { id: club.id }
+  });
+
+  let roles = {};
+  if (member) {
+    roles = await c.engines.access.service.getRolesMap(
+      { member, user: { id: user.id }, hub: { id: club.id } },
+      ['applicant', 'member', 'rejected', 'guest']
+    );
+  }
+
+  return {
+    data: {
+      application,
+      roles,
+      canApply: !roles['applicant']
+    }
+  };
 });
 
 // Submit application
