@@ -99,7 +99,7 @@ applicationsApp.get('/status', {}, async ({ repo, c }, { ctx: { user, club } }, 
     data: {
       application,
       roles,
-      canApply: !roles['applicant']
+      canApply: !application || (!roles['applicant'] && !roles['member'])
     }
   };
 });
