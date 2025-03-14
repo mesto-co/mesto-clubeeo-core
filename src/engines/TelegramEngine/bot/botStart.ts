@@ -10,7 +10,7 @@ export function botStart(telegramEngine: TelegramEngine) {
   const clubId = '1';
 
   bot.start(async (ctx) => {
-    const { userExt, user, isCreated: isUserCreated } = await fetchUserAndExtByExtId(c as any, {extId: ctx.from.id.toString(), service: 'tg', userData: ctx.from, sourceData: ctx});
+    const { userExt, user, isCreated: isUserCreated } = await fetchUserAndExtByExtId(c as any, {extId: ctx.from.id.toString(), service: 'tg', userData: ctx.from});
     const { value: member, isCreated: isMemberCreated } = await c.em.findOneOrCreateBy(Member, {user: {id: user.id}, club: {id: clubId}}, {});
     if (isMemberCreated) {
       await c.engines.access.service.addRole({member, user, hub: {id: clubId}}, 'guest');

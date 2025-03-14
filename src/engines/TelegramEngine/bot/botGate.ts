@@ -23,7 +23,6 @@ export function botGate(telegramEngine: TelegramEngine) {
         extId: userId,
         service: 'tg',
         userData: ctx.chatJoinRequest.from,
-        sourceData: ctx
       });
 
       // Find or create member
