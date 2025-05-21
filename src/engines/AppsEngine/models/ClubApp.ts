@@ -56,6 +56,14 @@ export default class ClubApp {
   })
   config: Partial<IClubAppConfig>;
 
+  @Column({
+    type: 'json',
+    array: false,
+    default: () => "'{}'",
+    nullable: false,
+  })
+  publicConfig: any;
+
   @OneToMany(() => ClubAppRole, clubAppRole => clubAppRole.clubApp)
   clubAppRoles: ClubAppRole[];
 

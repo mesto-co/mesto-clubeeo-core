@@ -284,6 +284,7 @@ export default function (c: AppsEngine) {
           appName: clubApp.appName,
           appSlug: clubApp.appSlug,
         },
+        publicConfig: clubApp.publicConfig,
         appPage: {
           appPage,
           data: pageData,
