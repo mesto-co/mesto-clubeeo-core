@@ -19,7 +19,7 @@ export class MestoRolesEngine extends EngineBase {
     guest: { remove: ['member', 'rejected'] },
     member: { remove: ['guest', 'rejected'] },
     rejected: { remove: ['guest', 'member'] },
-    researcher: { require: ['member'] },
+    explorer: { require: ['member'] },
     master: { require: ['member'] },
     legend: { require: ['member'] },
   };

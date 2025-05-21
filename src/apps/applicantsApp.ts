@@ -93,7 +93,7 @@ export class ApplicantsRepo {
 
     const user = await this.c.m.findOneBy(User, {id: member.userId});
 
-    const rolesToRemove = ['applicant', 'member', 'rejected', 'guest', 'researcher', 'master', 'legend'].filter(role => role !== newRole);
+    const rolesToRemove = ['applicant', 'member', 'rejected', 'guest', 'explorer', 'master', 'legend'].filter(role => role !== newRole);
     for (const role of rolesToRemove) {
       await this.c.engines.access.service.removeRole({member, user, hub: {id: clubId}}, role);
     }
@@ -234,7 +234,7 @@ applicantsApp.patch('/application/:applicationId/status', {
       type: 'object',
       properties: {
         status: { type: 'string', enum: ['pending', 'approved', 'rejected'] },
-        roles: { type: 'array', items: { type: 'string', enum: ['researcher', 'master', 'legend'] } },
+        roles: { type: 'array', items: { type: 'string', enum: ['explorer', 'master', 'legend'] } },
         rejectionReason: { type: 'string' },
       },
       required: ['status'],
@@ -269,7 +269,7 @@ const messages = {
 Мы на связи!`
 // [Заполнить анкету повторно]  [Подписаться на уведомления о Мероприятиях]
   },
-  member_researcher: {
+  member_explorer: {
     text: `Ваша заявка одобрена — добро пожаловать во Вселенную Mesto!
 
 Вы стали частью сообщества предпринимателей, стартаперов и экспертов, создающих инновационные проекты и технологии. Теперь вам доступны ресурсы и мероприятия Mesto.
