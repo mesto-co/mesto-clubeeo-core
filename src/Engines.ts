@@ -9,6 +9,7 @@ import { Clubs } from "./engines/Clubs/Clubs";
 import { AccessEngine } from "./engines/AccessEngine/AccessEngine";
 import { BadgeEngine } from "./engines/BadgeEngine/BadgeEngine";
 import { RoleEngine } from "./engines/RoleEngine/RoleEngine";
+import { MestoRolesEngine } from "./engines/MestoRolesEngine/MestoRolesEngine";
 import { fileStorageEngine } from "./engines/FileStorageEngine/FileStorageEngine";
 import { MestoApp } from "./App";
 
@@ -81,6 +82,12 @@ export class Engines {
   @Once()
   get fileStorage() {
     return fileStorageEngine(this.app);
+  }
+
+  @PushTo('enabledEngines')
+  @Once()
+  get mestoRoles() {
+    return new MestoRolesEngine(this.app as any);
   }
 
   // backwards compatibility

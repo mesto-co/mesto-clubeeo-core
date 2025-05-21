@@ -12,7 +12,7 @@ Tech Stack:
 - Database: PostgreSQL, typeorm
 
 Code modules is ordanized by:
-- `/src/engines` (domains), each engine has its own router, graphql schema, etc.:
+- `/src/engines` each engine has its own router, graphql schema, etc.:
   - `/src/engines/${engineName}/${engineName}.ts` - engine class
   - `/src/engines/${engineName}/${engineName}Api.ts` - engine api (REST API)
   - `/src/engines/${engineName}/${engineName}/models/*.ts` - engine models (typeorm)

@@ -1,0 +1,37 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# MestoRolesEngine
+
+A specialized engine for managing role updates with incompatible role handling.
+
+## Purpose
+- Handles bulk role updates for members
+- Manages incompatible role pairs (e.g., guest-member)
+- Provides validation for role compatibility
+
+## Key Features
+- `updateRoles`: Main method for updating multiple roles at once
+- Handles both role additions and removals
+- Validates role compatibility before making changes
+- Throws errors for incompatible role combinations
+
+## Usage Example
+```typescript
+await app.engines.mestoRoles.updateRoles({
+  member: someMember,
+  rolesToAdd: ['member'],
+  rolesToRemove: ['guest']
+});
+```
+
+## Incompatible Roles
+Currently configured incompatible role pairs:
+- guest ↔ member
+
+## Dependencies
+- Uses RoleEngine for actual role operations
+- Extends EngineBase
+- Requires Member and ClubRole models

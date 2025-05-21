@@ -1,0 +1,38 @@
+---
+description: How-to create a new engine and mount it; understand structure of engines
+globs: 
+alwaysApply: false
+---
+Engine is created in `src/engines/<EngineName>Engine/` dir.
+Main file is always `src/engines/<EngineName>Engine/<EngineName>Engine.ts`, containing exported `<EngineName>Engine` class.
+
+## Typical engine template
+import { MestoApp as App } from '@/App'
+
+```
+export class <EngineName>Engine {
+  readonly type = '<engineName>';
+
+  constructor(readonly app: App) {}
+
+  // add public engine-specific methods - which are supposed to be frequently-used by other engines; if they exist
+
+
+}
+```
+
+## Mounting engine
+
+It should be mounted to [Engines.ts](mdc:mesto-clubeeo-back/src/Engines.ts)
+
+```
+// ...
+  @PushTo('enabledEngines')
+  @Once()
+  get <engineName>() {
+    return new <EngineName>Engine(this.app);
+  }
+// ...
+```
+
+Create an mdc file with information about `src/engines/<EngineName>Engine/.cursor/rules/<EngineName>Engine.mdc`.

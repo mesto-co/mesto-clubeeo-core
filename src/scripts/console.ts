@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import MestoEnv from "../Env";
+
 import { MestoApp as App } from '../App';
 import * as dotenv from 'dotenv';
 import repl from 'repl';

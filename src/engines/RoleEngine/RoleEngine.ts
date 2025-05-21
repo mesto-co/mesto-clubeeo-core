@@ -11,13 +11,11 @@ import {RoleEngineEvents, roleEngineEventsFactory} from './RoleEngineEvents'
 import { EngineBase } from '../../core/lib/EngineBase'
 
 export class RoleEngine extends EngineBase {
-  readonly app: App;
   readonly events: Emitter<RoleEngineEvents>;
 
-  constructor(app: App) {
+  constructor(readonly app: App) {
     super();
 
-    this.app = app;
     this.events = roleEngineEventsFactory(app);
   }
 
