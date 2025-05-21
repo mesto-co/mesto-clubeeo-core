@@ -104,7 +104,7 @@ export class MemberProfilesService {
     return this.sanitizeProfile(profile);
   }
 
-  async updateMemberProfile(profile: MemberProfile): Promise<MemberProfile> {
+  async saveMemberProfile(profile: MemberProfile): Promise<MemberProfile> {
     await this.c.db.getRepository(MemberProfile).save(profile);
     await this.updateSearchVector(profile.id);
     return this.sanitizeProfile(profile);

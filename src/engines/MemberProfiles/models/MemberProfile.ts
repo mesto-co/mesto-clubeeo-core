@@ -66,6 +66,9 @@ export default class MemberProfile {
   aboutMe: string;
 
   @Column({type: String, default: '', nullable: false})
+  goals: string;
+
+  @Column({type: String, default: '', nullable: false})
   location: string;
 
   @Column({

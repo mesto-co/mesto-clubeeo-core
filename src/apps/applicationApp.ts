@@ -10,6 +10,7 @@ import { arr, obj, str, bool } from "json-schema-blocks";
 import MemberApplication, { ApplicationStatus, CommunityType } from "../models/MemberApplication";
 import Member from "../models/Member";
 import UserExt from "@/models/UserExt";
+import MemberProfile from "@/engines/MemberProfiles/models/MemberProfile";
 
 export class ApplicationsRepo {
   constructor(protected c: MestoApp) {}
@@ -52,6 +53,14 @@ export class ApplicationsRepo {
       { member, user: { id: userId }, hub: { id: clubId } },
       'applicant'
     );
+
+    const profile = await this.c.engines.memberProfiles.service.fetchMemberProfileByMemberId(member.id);
+    if (!profile.name) profile.name = data.name;
+    if (!profile.location) profile.location = data.city;
+    if (!profile.aboutMe) profile.aboutMe = data.about;
+    if (!profile.goals) profile.goals = data.goals;
+    if (!profile.socialLinks) profile.socialLinks = data.socialLinks;
+    await this.c.engines.memberProfiles.service.saveMemberProfile(profile);
 
     return application;
   }

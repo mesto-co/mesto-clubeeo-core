@@ -228,7 +228,7 @@ const resolvers = (memberProfiles: MemberProfiles) => ({
 
       Object.assign(profile, input);
 
-      return await memberProfiles.service.updateMemberProfile(profile);
+      return await memberProfiles.service.saveMemberProfile(profile);
     },
 
     memberProfileApply: async (
