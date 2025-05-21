@@ -1,0 +1,33 @@
+---
+description: working with onboarding flow
+globs: 
+alwaysApply: false
+---
+Onboarding is done via Telegram bot & webview app.
+
+1. When user first time lands to bot it is handled by `bot.start` in
+`src/engines/TelegramEngine/bot/botStart.ts`
+
+It creates `user`, `member` and issign `guest` role in main `club` (id=1).
+Next time `/start` command ensures user exist, and if it exists - doesn't trigger role assignemnt again.
+
+2. It may switch here to another flow, based on Telegram deeplink value (e.g. website signin flow)or other conditions.
+
+3. It sends greeting & invitation to start onboarding in webview
+
+4. Webview opens frontend route: `/#/mesto/application` (file in frontend repo: `src/apps/ApplicationApp/ApplicationApp.vue`), which calls backend route: GET `/api/club/1/apps/application/mesto-application/status` (request is handled in `src/apps/applicationApp.ts` by `applicationsApp.get('/status', ...`) to check status of the application:
+- if user can apply => go to the next step
+- if can't => show page with application status
+
+5. User goes through form-filling steps on the frontend, and send application via POST `/api/club/1/apps/application/mesto-application/submit` (request is handled in `src/apps/applicationApp.ts` by `applicationsApp.post('/submit', ...`)
+
+6. After the submission, `member` (`user`<>`club` link table) gets role `applicant` in the main club, and recieves a message from bot with submission confirmation. Application is saved as `MemberApplication` (via `createApplication` method call) in `ApplicationStatus.PENDING` state.
+
+7. Member's application goes through application review flow. 
+
+8. Dependiong on outcome (application got approved or rejected):
+- Gets `member` role
+- Gets `rejected` role
+Other roles (`applicant`, `member`, `rejected`, `guest`) got removed except assigned one.
+
+9. Confirmation message is being sent to member via bot (not implemented yets)

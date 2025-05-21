@@ -120,7 +120,7 @@ applicationsApp.post('/submit', {
 }, async ({ repo, c }, { body, ctx: { user, club } }, reply) => {
   // Check if user already has an application
   const hasApplication = await repo.hasExistingApplication(user.id, club.id);
-  
+
   if (hasApplication) {
     throw new Error('Вы уже подали заявку на вступление');
   }
@@ -139,7 +139,7 @@ applicationsApp.post('/submit', {
       user: { id: user.id }, 
       service: 'tg' 
     });
-    
+
     if (userExt) {
       await c.engines.telegram.bot.telegram.sendMessage(
         userExt.extId, 
