@@ -134,16 +134,10 @@ export const graphqlResolvers = (app: App) => ({
   },
   ClubRole: {
     membersCount: async (parent: ClubRole, obj, ctx: ICtx, info) => {
-      const staticCount = await app.m.countBy(MemberRole, {
+      return await app.m.countBy(MemberRole, {
         enabled: true,
         clubRole: {id: parent.id},
       });
-
-      const dynamicCount = await app.m.countBy(MemberRole, {
-        enabled: true,
-      });
-
-      return staticCount + dynamicCount;
     },
   },
   ClubBadge: {
