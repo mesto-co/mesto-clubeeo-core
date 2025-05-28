@@ -153,7 +153,7 @@ applicationsApp.post('/submit', {
       await c.engines.telegram.bot.telegram.sendMessage(
         userExt.extId, 
         successfulApplicationMessage,
-        { parse_mode: 'Markdown' }
+        { parse_mode: 'MarkdownV2' }
       );
     }
   } catch (error) {
@@ -179,9 +179,9 @@ const successfulApplicationMessage = `Поздравляю, заявка усп�
 Совсем скоро тебе придет уведомление о том, прошла ли твоя заявка вступление.
 
 Пока анкета на проверке подпишись на наши каналы, чтобы быть в курсе наших событий.
-t.me/mesto_community
+t.me/mesto\\_community
 instagram.com/mesto.co
-youtube.com/mesto_community
+youtube.com/mesto\\_community
 https://www.linkedin.com/company/mestoco
 
 Мы обрабатываем заявки силами волонтеров сообщества, поэтому это занимает некоторое время. Обычно срок рассмотрения не превышает 14 дней. Удачи!`;

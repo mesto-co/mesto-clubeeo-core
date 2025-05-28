@@ -150,11 +150,11 @@ export class ApplicantsRepo {
     }
     
     await this.c.m.save(application);
-    
+
     // Also update the member role based on the application status
     const member = await this.c.m.findOneBy(Member, { id: application.memberId });
     const user = await this.c.m.findOneBy(User, { id: application.userId });
-    
+
     if (status === 'approved') {
       await this.changeUserRole(application.memberId, application.clubId, 'member', roles);
     } else if (status === 'rejected') {
