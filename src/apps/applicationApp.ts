@@ -179,12 +179,12 @@ const successfulApplicationMessage = `Поздравляю, заявка усп�
 Совсем скоро тебе придет уведомление о том, прошла ли твоя заявка вступление.
 
 Пока анкета на проверке подпишись на наши каналы, чтобы быть в курсе наших событий.
-t.me/mesto\\_community
-instagram.com/mesto.co
-youtube.com/mesto\\_community
-https://www.linkedin.com/company/mestoco
+t\\.me/mesto\\_community
+instagram\\.com/mesto\\.co
+youtube\\.com/mesto\\_community
+https://www\\.linkedin\\.com/company/mestoco
 
-Мы обрабатываем заявки силами волонтеров сообщества, поэтому это занимает некоторое время. Обычно срок рассмотрения не превышает 14 дней. Удачи!`;
+Мы обрабатываем заявки силами волонтеров сообщества, поэтому это занимает некоторое время\\. Обычно срок рассмотрения не превышает 14 дней\\. Удачи!`;
 
 export default applicationsApp;
 
