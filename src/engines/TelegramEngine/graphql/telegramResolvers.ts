@@ -4,6 +4,8 @@ import ClubExt from "@/models/ClubExt";
 import { IResolvers } from '@graphql-tools/utils';
 import { In, Like } from "typeorm";
 import ObjectRole from "@/models/ObjectRole";
+import Member from "@/models/Member";
+import MemberRole from "@/models/MemberRole";
 
 export const getTelegramResolvers = (engine: TelegramEngine): IResolvers<any, ICtx> => {
   const c = engine.c;
@@ -14,6 +16,20 @@ export const getTelegramResolvers = (engine: TelegramEngine): IResolvers<any, IC
         const user = await ctx.auth.ctx.getUserOrFail();
         // const userInClub = await ctx.auth.ctx.userInClubContextById(args.clubId);
         // await userInClub.requireRoleForMercurius('admin');
+        // const member = await c.m.findOne(Member, {
+        //   where: {
+        //     user: { id: user.id },
+        //     club: { id: args.clubId },
+        //     enabled: true,
+        //   }
+        // });
+
+        // const userRoles = await c.m.find(MemberRole, {
+        //   where: {
+        //     member: { id: member.id },
+        //     enabled: true,
+        //   }
+        // });
 
         const page = args.page || 1;
         const perPage = args.perPage || 20;
@@ -40,6 +56,7 @@ export const getTelegramResolvers = (engine: TelegramEngine): IResolvers<any, IC
             club: { id: args.clubId },
             objectType: 'ClubExt',
             objectId: In(items.map(item => item.id)),
+            enabled: true,
           },
           relations: {
             clubRole: true,
