@@ -2,7 +2,8 @@ import { ICtx } from "@/graphql/graphqlCommon";
 import { TelegramEngine } from "../TelegramEngine";
 import ClubExt from "@/models/ClubExt";
 import { IResolvers } from '@graphql-tools/utils';
-import { Like } from "typeorm";
+import { In, Like } from "typeorm";
+import ObjectRole from "@/models/ObjectRole";
 
 export const getTelegramResolvers = (engine: TelegramEngine): IResolvers<any, ICtx> => {
   const c = engine.c;
@@ -34,6 +35,24 @@ export const getTelegramResolvers = (engine: TelegramEngine): IResolvers<any, IC
           }
         });
 
+        const roles = await c.m.find(ObjectRole, {
+          where: {
+            club: { id: args.clubId },
+            objectType: 'ClubExt',
+            objectId: In(items.map(item => item.id)),
+          },
+          relations: {
+            clubRole: true,
+          }
+        });
+
+        const rolesMap = new Map<string, string[]>();
+        for (const role of roles) {
+          const roles = rolesMap.get(role.objectId) || [];
+          roles.push(role.clubRole.name);
+          rolesMap.set(role.objectId, roles);
+        }
+
         return {
           items: items.map(item => ({
             id: item.id,
@@ -44,7 +63,8 @@ export const getTelegramResolvers = (engine: TelegramEngine): IResolvers<any, IC
             removed: item.removed,
             isForum: item.cached?.isForum,
             generalTopicId: item.cached?.generalTopicId,
-            chatInviteLink: item.cached?.chatInviteLink
+            chatInviteLink: item.cached?.chatInviteLink,
+            roles: (rolesMap.get(item.id) || []).sort(),
           })),
           total,
           page,

@@ -25,5 +25,6 @@ export const telegramSchema = `
     isForum: Boolean
     generalTopicId: Int
     chatInviteLink: String
+    roles: [String!]!
   }
 `; 

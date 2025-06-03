@@ -82,8 +82,8 @@ export function botGate(telegramEngine: TelegramEngine) {
                 id: clubId
               }
             },
-            objectType: 'UserExt',
-            objectId: userExt.id,
+            objectType: 'ClubExt',
+            objectId: hubExt.id,
             enabled: true,
           },
           relations: {
