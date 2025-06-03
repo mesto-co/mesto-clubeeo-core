@@ -98,8 +98,23 @@ export function botGate(telegramEngine: TelegramEngine) {
           roleNames
         );
 
+        c.logger.info({
+          roleNames,
+          userExtId: userExt.id,
+          userId: user.id,
+          clubId,
+          chatId,
+          hasRequiredRoles,
+        }, 'ObjectRoles');
+
         if (!hasRequiredRoles) {
           await ctx.declineChatJoinRequest(Number(userId));
+
+          await ctx.telegram.sendMessage(
+            chatId,
+            `Извините, но в этот чат могут входить только участники клуба с ролями: ${roleNames.join(', ')}.`
+          );
+
           return;
         }
 
