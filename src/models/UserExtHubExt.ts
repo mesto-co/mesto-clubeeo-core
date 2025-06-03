@@ -13,6 +13,10 @@ import HubExt from './ClubExt'
 import {ClubeeoPrimaryColumn} from '../lib/modelCommon';
 import {TExtServices} from '../lib/enums'
 
+/**
+ * UserExtHubExt is a junction table between UserExt and ClubExt
+ * e.g. user's Telegram account linked to a hub's Telegram channel
+ */
 @Entity()
 export default class UserExtHubExt {
 

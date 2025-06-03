@@ -67,7 +67,38 @@ export class AccessService<T extends TExeContainer> implements ExePureCore.IAcce
       acc[roleSlug] = !!memberRoles.find(mr => mr.clubRole?.name === roleSlug);
       return acc;
     }, {} as Record<T, boolean>);
-  } 
+  }
+
+  async hasAnyRole({member, user, hub}: ExePureCore.TMemberCtx, roleSlugs: string[]): Promise<boolean> {
+    const memberRolesCount = await this.c.m.count(MemberRole, {
+      where: {
+        member: {id: member.id},
+        club: {id: hub.id},
+        clubRole: {
+          club: {id: hub.id},
+          name: In(roleSlugs),
+        },
+        enabled: true,
+      },
+    });
+
+    return memberRolesCount > 0;
+  }
+
+  async hasAllRoles({member, user, hub}: ExePureCore.TMemberCtx, roleSlugs: string[]): Promise<boolean> {
+    const memberRolesCount = await this.c.m.count(MemberRole, {
+      where: {
+        member: {id: member.id},
+        club: {id: hub.id},
+        clubRole: {
+          club: {id: hub.id},
+          name: In(roleSlugs),
+        },
+        enabled: true,
+      },
+    });
+    return memberRolesCount === roleSlugs.length;
+  }
 
   async addRole({member, user, hub}: ExePureCore.TMemberCtx, roleSlug: string): Promise<boolean> {
     const clubRole = await this.c.m.findOneBy(ClubRole, {

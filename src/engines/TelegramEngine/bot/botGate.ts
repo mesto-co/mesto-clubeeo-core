@@ -6,6 +6,7 @@ import ClubExt from "@/models/ClubExt";
 import UserExt from "@/models/UserExt";
 import UserExtHubExt from "@/models/UserExtHubExt";
 import { Context } from 'telegraf';
+import ObjectRole from "@/models/ObjectRole";
 
 export function botGate(telegramEngine: TelegramEngine) {
   const c = telegramEngine.c;
@@ -74,6 +75,34 @@ export function botGate(telegramEngine: TelegramEngine) {
           }
         });
 
+        const objectRoles = await c.m.find(ObjectRole, {
+          where: {
+            clubRole: {
+              club: {
+                id: clubId
+              }
+            },
+            objectType: 'UserExt',
+            objectId: userExt.id,
+            enabled: true,
+          },
+          relations: {
+            clubRole: true,
+          }
+        });
+
+        const roleNames = objectRoles.map(or => or.clubRole.name);
+
+        const hasRequiredRoles = await c.engines.access.service.hasAnyRole(
+          { member, user, hub: { id: clubId } },
+          roleNames
+        );
+
+        if (!hasRequiredRoles) {
+          await ctx.declineChatJoinRequest(Number(userId));
+          return;
+        }
+
         // Accept the join request
         await ctx.approveChatJoinRequest(Number(userId));
         
@@ -109,7 +138,7 @@ export function botGate(telegramEngine: TelegramEngine) {
         userId, 
         chatId 
       }, 'Error handling chat join request');
-      
+
       // Default to rejecting on error
       try {
         await ctx.declineChatJoinRequest(Number(userId));
