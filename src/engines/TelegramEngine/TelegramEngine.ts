@@ -11,6 +11,8 @@ import { botStart } from "./bot/botStart";
 import { botGate } from "./bot/botGate";
 import { getTelegramGraphQL } from './graphql';
 import { FailedTelegramFileService } from './services/FailedTelegramFileService';
+import { FmtString } from "telegraf/typings/core/helpers/formatting";
+import * as tt from 'telegraf/typings/telegram-types'
 
 export class TelegramEngine extends EngineBase {
   readonly type = "engine";
@@ -65,5 +67,13 @@ export class TelegramEngine extends EngineBase {
 
   get graphql() {
     return getTelegramGraphQL(this);
+  }
+
+  sendMessage(
+    chatId: number | string,
+    text: string | FmtString,
+    extra?: tt.ExtraReplyMessage
+  ) {
+    return this.bot.telegram.sendMessage(chatId, text, extra);
   }
 }

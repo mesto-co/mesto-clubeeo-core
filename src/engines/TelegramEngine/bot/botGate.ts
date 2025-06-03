@@ -15,13 +15,13 @@ export function botGate(telegramEngine: TelegramEngine) {
 
   // Handle chat join requests
   bot.on('chat_join_request', async (ctx) => {
-    const userId = ctx.chatJoinRequest.from.id.toString();
-    const chatId = ctx.chatJoinRequest.chat.id.toString();
+    const userExtId = ctx.chatJoinRequest.from.id.toString();
+    const chatExtId = ctx.chatJoinRequest.chat.id.toString();
 
     try {
       // Fetch or create user and their external service connection
       const { userExt, user } = await fetchUserAndExtByExtId(c as any, {
-        extId: userId,
+        extId: userExtId,
         service: 'tg',
         userData: ctx.chatJoinRequest.from,
       });
@@ -43,12 +43,12 @@ export function botGate(telegramEngine: TelegramEngine) {
         where: {
           club: { id: clubId },
           service: `tg:${ctx.chatJoinRequest.chat.type}`,
-          extId: chatId
+          extId: chatExtId
         }
       });
 
       if (!hubExt) {
-        await ctx.telegram.sendMessage(userId,
+        await ctx.telegram.sendMessage(userExtId,
           `Извините, но бот не сконфигурирован для работы с этим чатом или отключен. Пожалуйста, обратитесь к администратору.`
         );
         return;
@@ -103,46 +103,70 @@ export function botGate(telegramEngine: TelegramEngine) {
           userExtId: userExt.id,
           userId: user.id,
           clubId,
-          chatId,
+          chatId: chatExtId,
           hasRequiredRoles,
         }, 'ObjectRoles');
 
         if (!hasRequiredRoles) {
-          await ctx.declineChatJoinRequest(Number(userId));
+          await ctx.declineChatJoinRequest(Number(userExtId));
 
-          await ctx.telegram.sendMessage(
-            chatId,
-            `Извините, но в этот чат могут входить только участники клуба с ролями: ${roleNames.join(', ')}.`
+          await c.engines.telegram.sendMessage(
+            userExt.extId, 
+            `Извините, но в этот чат могут входить только участники клуба с ролями: ${roleNames.join(', ')}.`,
           );
 
           return;
         }
 
         // Accept the join request
-        await ctx.approveChatJoinRequest(Number(userId));
+        await ctx.approveChatJoinRequest(Number(userExtId));
         
         // Send welcome message to appropriate topic or main chat
         const messageThread = hubExt.cached?.isForum ? hubExt.cached.generalTopicId : undefined;
         await ctx.telegram.sendMessage(
-          chatId,
+          chatExtId,
           `Добро пожаловать, ${user.screenName}! 🎉\n` +
           `${ctx.chatJoinRequest.from.username ? `@${ctx.chatJoinRequest.from.username}` : ''}`,
           messageThread ? { message_thread_id: messageThread } : undefined
         );
+
+        const chatInviteLink = hubExt.cached?.chatInviteLink;
+
+        await c.engines.telegram.sendMessage(
+          userExt.extId, 
+          `Добро пожаловать в ${hubExt.name}! 🎉`,
+          chatInviteLink ? {
+            reply_markup: {
+              inline_keyboard: [
+                [{ text: 'Перейти в чат', url: chatInviteLink }]
+              ]
+            }
+          } : undefined
+        );
+
       } else {
         // Decline the join request
-        await ctx.declineChatJoinRequest(Number(userId));
+        await ctx.declineChatJoinRequest(Number(userExtId));
 
         // Send DM to explain why they were rejected
         try {
-          await ctx.telegram.sendMessage(userId,
-            `Извините, но в этот чат могут входить только подтверждённые участники клуба. ` +
-            `Пожалуйста, сначала завершите процесс вступления в клуб.`
+
+          await c.engines.telegram.sendMessage(
+            userExt.extId, 
+            `Извините, но в этот чат могут входить только подтверждённые участники сообщества. ` +
+            `Пожалуйста, сначала завершите процесс вступления в Место.`,
+            {
+              reply_markup: {
+                inline_keyboard: [
+                  [{text: 'Подать заявку', web_app: {url: `${c.Env.siteUrl}/mesto/application`}}],
+                ],
+              },
+            }
           );
         } catch (e) {
           // User might have blocked the bot or never started it
           c.logger.warn({ 
-            userId, 
+            userId: userExtId, 
             error: e 
           }, 'Could not send DM to user explaining join rejection');
         }
@@ -150,18 +174,18 @@ export function botGate(telegramEngine: TelegramEngine) {
     } catch (error) {
       c.logger.error({ 
         error, 
-        userId, 
-        chatId 
+        userId: userExtId, 
+        chatId: chatExtId 
       }, 'Error handling chat join request');
 
       // Default to rejecting on error
       try {
-        await ctx.declineChatJoinRequest(Number(userId));
+        await ctx.declineChatJoinRequest(Number(userExtId));
       } catch (e) {
         c.logger.error({ 
           error: e, 
-          userId, 
-          chatId 
+          userId: userExtId, 
+          chatId: chatExtId 
         }, 'Error declining chat join request');
       }
     }
