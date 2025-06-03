@@ -5,7 +5,7 @@ import ClubRole from './ClubRole';
 import Club from './Club';
 
 @Entity()
-@Index(['objectType', 'objectId', 'clubRoleId'], {unique: true})
+@Index(['objectType', 'objectId', 'clubRole'], {unique: true})
 export default class ObjectRole {
 
   @ClubeeoPrimaryColumn()
