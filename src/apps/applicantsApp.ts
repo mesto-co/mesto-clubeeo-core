@@ -49,6 +49,7 @@ export class ApplicantsRepo {
         ...profile,
         userId: user.id,
       };
+      member['user'] = user;
       member['rolesMap'] = await this.c.engines.access.service.getRolesMap({member, user, hub: {id: club.id}}, ['applicant', 'member', 'rejected', 'guest']);
       member['memberRoles'] = await this.c.m.find(MemberRole, {
         where: { member: { id: member.id }, club: { id: club.id }, enabled: true },
