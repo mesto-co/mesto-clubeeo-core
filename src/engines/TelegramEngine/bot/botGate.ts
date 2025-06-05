@@ -7,6 +7,7 @@ import UserExt from "@/models/UserExt";
 import UserExtHubExt from "@/models/UserExtHubExt";
 import { Context } from 'telegraf';
 import ObjectRole from "@/models/ObjectRole";
+import ClubRole from "@/models/ClubRole";
 
 export function botGate(telegramEngine: TelegramEngine) {
   const c = telegramEngine.c;
@@ -367,6 +368,18 @@ export function botGate(telegramEngine: TelegramEngine) {
               'Только подтверждённые участники клуба смогут присоединиться к этому чату.',
           messageOptions
         );
+
+        await c.em.createOrUpdateBy(ObjectRole, {
+          club: { id: clubId },
+          clubRole: await c.m.findOneBy(ClubRole, {
+            club: { id: clubId },
+            name: 'member'
+          }),
+          objectType: 'ClubExt',
+          objectId: clubExt.id,
+        }, {
+          enabled: true,
+        });
       } else {
         await ctx.reply(
           '⚠️ Для полноценной работы мне нужны права администратора со следующими возможностями:\n' +
