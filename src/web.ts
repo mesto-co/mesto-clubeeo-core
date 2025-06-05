@@ -6,6 +6,7 @@ import profileApp from "./apps/profileApp";
 import listsApp from './apps/listsApp';
 import { mestoRouter } from "./router";
 import { bootTelegramBot } from "./boot/telegramBotBoot";
+import MemberProfile from "./engines/MemberProfiles/models/MemberProfile";
 
 async function main() {
   const app = new MestoApp();
@@ -15,6 +16,23 @@ async function main() {
 
   if (process.env.RUN_MIGRATIONS) {
     await app.db.runMigrations();
+
+    const memberProfiles = await app.m.find(MemberProfile, {
+      where: {
+        name: ''
+      },
+      relations: {
+        member: {
+          user: true
+        }
+      }
+    });
+
+    for (const memberProfile of memberProfiles) {
+      memberProfile.name = memberProfile?.member?.user?.screenName;
+      await app.m.save(memberProfile);
+      console.log(memberProfile);
+    }
   }
 
   mestoRouter(app);
