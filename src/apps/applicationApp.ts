@@ -17,12 +17,35 @@ export class ApplicationsRepo {
 
   // Check if user already has an application for this club
   async hasExistingApplication(userId: string, clubId: string): Promise<boolean> {
-    const application = await this.c.m.findOneBy(MemberApplication, {
-      user: { id: userId },
-      club: { id: clubId }
+    const application = await this.c.m.findOne(MemberApplication, {
+      where: {
+        user: { id: userId },
+        club: { id: clubId }
+      },
+      order: {
+        createdAt: 'DESC'
+      },
     });
     
     return !!application;
+  }
+
+  async canApply(userId: string, clubId: string): Promise<boolean> {
+    const application = await this.c.m.findOne(MemberApplication, {
+      where: {
+        user: { id: userId },
+        club: { id: clubId }
+      },
+      order: {
+        createdAt: 'DESC'
+      },
+    });
+
+    return this.canApplyByApplication(application);
+  }
+
+  canApplyByApplication(application?: MemberApplication): boolean {
+    return !application || application.status !== ApplicationStatus.PENDING;
   }
 
   // Create a new application
@@ -52,6 +75,12 @@ export class ApplicationsRepo {
     await this.c.engines.access.service.addRole(
       { member, user: { id: userId }, hub: { id: clubId } },
       'applicant'
+    );
+
+    // remove applicant role from rejected if it exists
+    await this.c.engines.access.service.removeRole(
+      { member, user: { id: userId }, hub: { id: clubId } },
+      'rejected'
     );
 
     const profile = await this.c.engines.memberProfiles.service.fetchMemberProfileByMemberId(member.id);
@@ -108,7 +137,7 @@ applicationsApp.get('/status', {}, async ({ repo, c }, { ctx: { user, club } }, 
     data: {
       application,
       roles,
-      canApply: !application || (!roles['applicant'] && !roles['member'])
+      canApply: repo.canApplyByApplication(application)
     }
   };
 });
@@ -128,10 +157,10 @@ applicationsApp.post('/submit', {
   }
 }, async ({ repo, c }, { body, ctx: { user, club } }, reply) => {
   // Check if user already has an application
-  const hasApplication = await repo.hasExistingApplication(user.id, club.id);
+  const canApply = await repo.canApply(user.id, club.id);
 
-  if (hasApplication) {
-    throw new Error('Вы уже подали заявку на вступление');
+  if (!canApply) {
+    throw new Error('Ваша заявка находится на рассмотрении, пожалуйста, подождите');
   }
 
   // Validate community type
