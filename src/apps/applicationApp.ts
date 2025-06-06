@@ -6,7 +6,7 @@
 
 import { MestoApp } from "../App";
 import { AppBuilder } from "../lib/createApp";
-import { arr, obj, str, bool } from "json-schema-blocks";
+import { arr, obj, str } from "json-schema-blocks";
 import MemberApplication, { ApplicationStatus, CommunityType } from "../models/MemberApplication";
 import Member from "../models/Member";
 import UserExt from "@/models/UserExt";

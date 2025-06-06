@@ -27,7 +27,7 @@ export enum CommunityType {
 }
 
 @Entity()
-@Index(['user', 'club'], { unique: true })
+@Index(['user', 'club'])
 export default class MemberApplication {
   @ClubeeoPrimaryColumn()
   id: string;

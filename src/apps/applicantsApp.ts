@@ -75,6 +75,9 @@ export class ApplicantsRepo {
   async fetchMemberApplication(memberId: string, clubId: string) {
     const application = await this.c.m.findOne(MemberApplication, {
       where: { member: { id: memberId }, club: { id: clubId } },
+      order: {
+        createdAt: 'DESC'
+      },
       relations: ['user']
     });
     
@@ -83,6 +86,18 @@ export class ApplicantsRepo {
     }
     
     return application;
+  }
+
+  // Fetch applications by member ID
+  async fetchMemberApplications(memberId: string, clubId: string) {
+    const applications = await this.c.m.find(MemberApplication, {
+      where: { member: { id: memberId }, club: { id: clubId } },
+      order: {
+        createdAt: 'DESC'
+      },
+      relations: ['user']
+    });
+    return applications;
   }
 
   // Change user role
@@ -205,12 +220,19 @@ applicantsApp.get('/member/:memberId/profile', {}, async ({ repo }, { params }, 
   return { data: profile };
 });
 
-// New route to fetch application by member ID
+// Fetch application by member ID
 applicantsApp.get('/member/:memberId/application', {}, async ({ repo }, { params, ctx: { club } }, reply) => {
   const { memberId } = params;
   const application = await repo.fetchMemberApplication(memberId, club.id);
   
   return { data: application };
+});
+
+applicantsApp.get('/member/:memberId/applications', {}, async ({ repo }, { params, ctx: { club } }, reply) => {
+  const { memberId } = params;
+  const applications = await repo.fetchMemberApplications(memberId, club.id);
+  
+  return { data: applications };
 });
 
 applicantsApp.patch('/member/:memberId/role', {
