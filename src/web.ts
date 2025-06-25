@@ -7,6 +7,7 @@ import listsApp from './apps/listsApp';
 import { mestoRouter } from "./router";
 import { bootTelegramBot } from "./boot/telegramBotBoot";
 import MemberProfile from "./engines/MemberProfiles/models/MemberProfile";
+import { cronBoot } from "./boot/cronBoot";
 
 async function main() {
   const app = new MestoApp();
@@ -38,6 +39,7 @@ async function main() {
   mestoRouter(app);
 
   bootTelegramBot(app);
+  cronBoot(app);
 
   await profileApp.attachTo(app);
   await applicantsApp.attachTo(app);
