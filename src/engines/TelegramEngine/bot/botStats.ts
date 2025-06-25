@@ -31,26 +31,47 @@ export function botStats(telegramEngine: TelegramEngine) {
       periodText = 'час';
     }
 
-    const memberRole = await c.m.findOne(ClubRole, {where: {club: {id: clubId}, name: 'member'}});
-    const newMembers = await c.m.count(MemberRole, {
-      where: {
-        enabled: true,
-        club: {id: clubId},
-        clubRole: {id: memberRole.id},
-        createdAt: MoreThan(new Date(Date.now() - period))
-      }
-    });
+    const newByRole = async (roleName: string, data: {period?: number, enabledOnly: boolean}) => {
+      const role = await c.m.findOne(ClubRole, {where: {club: {id: clubId}, name: roleName}});
+      return await c.m.count(MemberRole, {
+        where: {
+          enabled: data.enabledOnly ? true : undefined,
+          club: {id: clubId},
+          clubRole: {id: role.id},
+          createdAt: data.period ? MoreThan(new Date(Date.now() - data.period)) : undefined
+        }
+      });
+    };
 
-    const guestRole = await c.m.findOne(ClubRole, {where: {club: {id: clubId}, name: 'guest'}});
-    const guestMembers = await c.m.count(MemberRole, {
-      where: {
-        enabled: true,
-        club: {id: clubId},
-        clubRole: {id: guestRole.id},
-      }
-    });
+    const newMembers = await newByRole('member', {period, enabledOnly: true});
+    const newMembersTotal = await newByRole('member', {enabledOnly: false});
 
-    const message = await c.t('bot.stats', user.lang, {periodText, newMembers, guestMembers}, botStatsMessageTemplate);
+    const applicantMembers = await newByRole('applicant', {period, enabledOnly: false});
+    const applicantMembersActive = await newByRole('applicant', {period, enabledOnly: true});
+    const applicantMembersTotal = await newByRole('applicant', {enabledOnly: false});
+    const applicantMembersTotalActive = await newByRole('applicant', {enabledOnly: true});
+
+    const guestMembers = await newByRole('guest', {period, enabledOnly: false});
+    const guestMembersActive = await newByRole('guest', {period, enabledOnly: true});
+    const guestMembersTotal = await newByRole('guest', {enabledOnly: false});
+    const guestMembersTotalActive = await newByRole('guest', {enabledOnly: true});
+
+    const rejectedCount = await newByRole('rejected', {period, enabledOnly: true});
+
+    const message = await c.t('bot.stats', user.lang, {
+      periodText,
+      newMembers,
+      newMembersTotal,
+      applicantMembers,
+      applicantMembersActive,
+      applicantMembersTotal,
+      applicantMembersTotalActive,
+      rejectedCount,
+      guestMembers,
+      guestMembersActive,
+      guestMembersTotal,
+      guestMembersTotalActive,
+    }, botStatsMessageTemplate);
     await ctx.reply(message);
   });
 }
@@ -58,4 +79,12 @@ export function botStats(telegramEngine: TelegramEngine) {
 const botStatsMessageTemplate = 
 `За {{periodText}}:
 - Новых участников: {{newMembers}}
-- Гостей: {{guestMembers}}`;
+- Новых заявок: {{applicantMembers}}, в том числе на рассмотрении: {{applicantMembersActive}}
+- Отклоненных заявок: {{rejectedCount}}
+- Гостей: {{guestMembers}}, в том числе не подавших заявку: {{guestMembersActive}}
+
+За всё время:
+- Новых участников: {{newMembersTotal}}
+- Новых заявок: {{applicantMembersTotal}}, в том числе на рассмотрении: {{applicantMembersTotalActive}}
+- Гостей: {{guestMembersTotal}}, в том числе не подавших заявку: {{guestMembersTotalActive}}
+`;
