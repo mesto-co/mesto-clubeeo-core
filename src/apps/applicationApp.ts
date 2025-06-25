@@ -9,8 +9,7 @@ import { AppBuilder } from "../lib/createApp";
 import { arr, obj, str } from "json-schema-blocks";
 import MemberApplication, { ApplicationStatus, CommunityType } from "../models/MemberApplication";
 import Member from "../models/Member";
-import UserExt from "@/models/UserExt";
-import MemberProfile from "@/engines/MemberProfiles/models/MemberProfile";
+import UserExt from "../models/UserExt";
 
 export class ApplicationsRepo {
   constructor(protected c: MestoApp) {}
@@ -26,7 +25,7 @@ export class ApplicationsRepo {
         createdAt: 'DESC'
       },
     });
-    
+
     return !!application;
   }
 
@@ -216,4 +215,3 @@ https://www\\.linkedin\\.com/company/mestoco
 Мы обрабатываем заявки силами волонтеров сообщества, поэтому это занимает некоторое время\\. Обычно срок рассмотрения не превышает 14 дней\\. Удачи\\!`;
 
 export default applicationsApp;
-
