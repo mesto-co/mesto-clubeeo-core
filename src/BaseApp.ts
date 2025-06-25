@@ -13,7 +13,6 @@ import {TelegramContainer} from './clubApps/TelegramApp/TelegramContainer'
 import {Contexts} from './Contexts'
 import {UserSenderService} from './services/UserSenderService'
 import {SimpleFileUploadService} from './services/uploads/SimpleFileUploadService'
-import {ClubWidgetFactory} from './factories/ClubWidgetFactory'
 import {AppFactory} from './engines/AppsEngine/AppsFactory'
 import ClubeeoCoreApp from './core/ClubeeoCoreApp';
 // import { taskProcessingDaemon } from './daemons/TaskProcessingDaemon/taskProcessingDaemon';

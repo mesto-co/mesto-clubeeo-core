@@ -10,9 +10,7 @@ import clubAppsRoutes from './api/clubAppsRoutes'
 import clubFormsRoutes from './api/club/clubFormsRoutes'
 import membersManagerAppRoutes from './clubApps/MembersManagerApp/api/membersManagerAppRoutes'
 import uploadsRoutes from './api/uploadsRoutes'
-import clubPageRoutes from './api/club/clubPageRoutes'
 import clubConfigRoutes from './api/club/clubConfigRoutes'
-import clubWidgetRoutes from './api/club/clubWidgetRoutes'
 import clubAnalyticsRoutes from './api/dashboard/clubAnalyticsRoutes'
 import clubDashboardMembersRoutes from './api/dashboard/clubMembersRoutes'
 import platformClubsAppRoutes from './clubApps/PlatformClubsApp/api/platformClubsAppRoutes'
@@ -79,10 +77,6 @@ export default function (app: App) {
     router.register(clubMembersRoutes(app), {prefix: '/club/:clubLocator/member'});
 
     router.register(clubFormsRoutes(app), {prefix: '/club/:clubId/applications'});
-
-    router.register(clubPageRoutes(app), {prefix: '/club/:clubSlug/page/:pageSlug'});
-
-    router.register(clubWidgetRoutes(app), {prefix: '/club/:clubSlug/widget/:widgetLocator'});
 
     router.register(globalRoutes(app), {prefix: '/global'});
 
