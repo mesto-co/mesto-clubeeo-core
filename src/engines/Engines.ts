@@ -11,6 +11,7 @@ import { MemberProfiles } from "./MemberProfiles/MemberProfiles";
 import { fileStorageEngine } from "./FileStorageEngine/FileStorageEngine";
 import { AccessEngine } from "./AccessEngine/AccessEngine";
 import MotionEngine from "./MotionEngine/MotionEngine";
+import { CronEngine } from "./CronEngine/CronEngine";
 
 export class Engines {
   public enabledEngines: string[];
@@ -81,6 +82,12 @@ export class Engines {
   @Once()
   get fileStorage() {
     return fileStorageEngine(this.app);
+  }
+
+  @PushTo('enabledEngines')
+  @Once()
+  get cron() {
+    return new CronEngine(this.app);
   }
 
   // backwards compatibility

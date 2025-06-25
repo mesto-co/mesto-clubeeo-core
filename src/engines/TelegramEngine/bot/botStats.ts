@@ -4,6 +4,7 @@ import { MoreThan } from "typeorm";
 import { TelegramEngine } from "../TelegramEngine";
 import MemberRole from "@/models/MemberRole";
 import { fetchUserAndExtByExtId } from "@/contexts/UserExtContext";
+import { getStats, statsMessage } from "../messages/statsMessage";
 
 export function botStats(telegramEngine: TelegramEngine) {
   const c = telegramEngine.c;
@@ -31,60 +32,13 @@ export function botStats(telegramEngine: TelegramEngine) {
       periodText = 'час';
     }
 
-    const newByRole = async (roleName: string, data: {period?: number, enabledOnly: boolean}) => {
-      const role = await c.m.findOne(ClubRole, {where: {club: {id: clubId}, name: roleName}});
-      return await c.m.count(MemberRole, {
-        where: {
-          enabled: data.enabledOnly ? true : undefined,
-          club: {id: clubId},
-          clubRole: {id: role.id},
-          createdAt: data.period ? MoreThan(new Date(Date.now() - data.period)) : undefined
-        }
-      });
-    };
+    const stats = await getStats(c, clubId, period);
 
-    const newMembers = await newByRole('member', {period, enabledOnly: true});
-    const newMembersTotal = await newByRole('member', {enabledOnly: false});
-
-    const applicantMembers = await newByRole('applicant', {period, enabledOnly: false});
-    const applicantMembersActive = await newByRole('applicant', {period, enabledOnly: true});
-    const applicantMembersTotal = await newByRole('applicant', {enabledOnly: false});
-    const applicantMembersTotalActive = await newByRole('applicant', {enabledOnly: true});
-
-    const guestMembers = await newByRole('guest', {period, enabledOnly: false});
-    const guestMembersActive = await newByRole('guest', {period, enabledOnly: true});
-    const guestMembersTotal = await newByRole('guest', {enabledOnly: false});
-    const guestMembersTotalActive = await newByRole('guest', {enabledOnly: true});
-
-    const rejectedCount = await newByRole('rejected', {period, enabledOnly: true});
-
-    const message = await c.t('bot.stats', user.lang, {
+    const message = await statsMessage(c, {
       periodText,
-      newMembers,
-      newMembersTotal,
-      applicantMembers,
-      applicantMembersActive,
-      applicantMembersTotal,
-      applicantMembersTotalActive,
-      rejectedCount,
-      guestMembers,
-      guestMembersActive,
-      guestMembersTotal,
-      guestMembersTotalActive,
-    }, botStatsMessageTemplate);
+      ...stats,
+    }, {lang: user.lang});
+
     await ctx.reply(message);
   });
 }
-
-const botStatsMessageTemplate = 
-`За {{periodText}}:
-- Новых участников: {{newMembers}}
-- Новых заявок: {{applicantMembers}}, в том числе на рассмотрении: {{applicantMembersActive}}
-- Отклоненных заявок: {{rejectedCount}}
-- Гостей: {{guestMembers}}, в том числе не подавших заявку: {{guestMembersActive}}
-
-За всё время:
-- Новых участников: {{newMembersTotal}}
-- Новых заявок: {{applicantMembersTotal}}, в том числе на рассмотрении: {{applicantMembersTotalActive}}
-- Гостей: {{guestMembersTotal}}, в том числе не подавших заявку: {{guestMembersTotalActive}}
-`;
