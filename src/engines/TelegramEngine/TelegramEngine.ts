@@ -13,6 +13,7 @@ import { getTelegramGraphQL } from './graphql';
 import { FailedTelegramFileService } from './services/FailedTelegramFileService';
 import { FmtString } from "telegraf/typings/core/helpers/formatting";
 import * as tt from 'telegraf/typings/telegram-types'
+import { botStats } from "./bot/botStats";
 
 export class TelegramEngine extends EngineBase {
   readonly type = "engine";
@@ -44,6 +45,7 @@ export class TelegramEngine extends EngineBase {
 
     botStart(this);
     botGate(this);
+    botStats(this);
   }
 
   async run() {

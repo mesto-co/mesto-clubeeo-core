@@ -112,7 +112,7 @@ export class MestoApp extends App {
   }
 
   // i18n
-  async t(code: string, lang: string, values: Record<string, string>, def?: string) {
+  async t(code: string, lang: string, values: Record<string, string | number>, def?: string) {
     return await this.engines.translations.t(code, lang, values, def)
   }
 

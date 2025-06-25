@@ -15,7 +15,6 @@ import {UserSenderService} from './services/UserSenderService'
 import {SimpleFileUploadService} from './services/uploads/SimpleFileUploadService'
 import {AppFactory} from './engines/AppsEngine/AppsFactory'
 import ClubeeoCoreApp from './core/ClubeeoCoreApp';
-// import { taskProcessingDaemon } from './daemons/TaskProcessingDaemon/taskProcessingDaemon';
 import AuthService from './services/AuthService';
 import AppSettings from './AppSettings';
 import User from './models/User';
@@ -42,21 +41,6 @@ export class App extends ClubeeoCoreApp<User, UserExt, Member, Club> {
       Club: Club,
     });
   }
-
-  // async run() {
-  //   await super.run();
-
-  //   if (this.Env.workers.legacyTasks) {
-  //     // cron(app);
-  //     taskProcessingDaemon(this);
-  //   }
-
-  //   if (this.Env.workers.motion) {
-  //     this.engines.motion.runDaemon();
-  //   }
-  // }
-
-  // get Env() { return this.once('Env', () => AppEnv.getInstance()) }
 
   get Settings() { return this.once('Settings', () => new AppSettings(this)) }
 

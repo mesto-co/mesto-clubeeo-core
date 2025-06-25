@@ -22,7 +22,7 @@ export default class TranslationEngine extends EngineBase implements ITranslatio
     Translation,
   }
 
-  async t(code: string, lang: string, values: Record<string, string>, def?: string) {
+  async t(code: string, lang: string, values: Record<string, string | number>, def?: string) {
     const translation = await this.app.m.findOne(this.models.Translation, { 
       where: {code, lang}
     });
@@ -37,7 +37,7 @@ export default class TranslationEngine extends EngineBase implements ITranslatio
     }
   }
 
-  protected render(template: string, values: Record<string, string>, defaults: Record<string, string>) {
+  protected render(template: string, values: Record<string, string | number>, defaults: Record<string, string>) {
     return render(template, Object.assign({}, defaults, values));
   }
 }
