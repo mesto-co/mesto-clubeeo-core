@@ -2,7 +2,7 @@ import { MestoApp } from "../App";
 import { getStats, statsMessage } from "@/engines/TelegramEngine/messages/statsMessage";
 
 export function cronBoot(c: MestoApp) {
-  c.engines.cron.schedule('10 * * * *', async () => {
+  c.engines.cron.schedule('15 * * * *', async () => {
     // const club = await c.m.findOne(Club, {where: {id: '1'}});
     // const clubExt = await c.m.findOne(ClubExt, {where: {club: {id: club.id}}});
     const MS_PER_HOUR = 60 * 60 * 1000;
