@@ -30,6 +30,7 @@ export async function getStats(c: MestoApp, clubId: string, period?: number) {
   const guestMembersTotalActive = await newByRole('guest', {enabledOnly: true});
 
   const rejectedCount = await newByRole('rejected', {period, enabledOnly: true});
+  const rejectedCountTotal = await newByRole('rejected', {enabledOnly: false});
 
   return {
     newMembers,
@@ -39,6 +40,7 @@ export async function getStats(c: MestoApp, clubId: string, period?: number) {
     applicantMembersTotal,
     applicantMembersTotalActive,
     rejectedCount,
+    rejectedCountTotal,
     guestMembers,
     guestMembersActive,
     guestMembersTotal,
@@ -55,6 +57,7 @@ export async function statsMessage(c: MestoApp, data: {
   applicantMembersTotal: number,
   applicantMembersTotalActive: number,
   rejectedCount: number,
+  rejectedCountTotal: number,
   guestMembers: number,
   guestMembersActive: number,
   guestMembersTotal: number,
@@ -71,7 +74,8 @@ export const botStatsMessageTemplate =
 - Гостей: {{guestMembers}}, в том числе не подавших заявку: {{guestMembersActive}}
 
 За всё время:
-- Новых участников: {{newMembersTotal}}
-- Новых заявок: {{applicantMembersTotal}}, в том числе на рассмотрении: {{applicantMembersTotalActive}}
+- Участников: {{newMembersTotal}}
+- Заявок: {{applicantMembersTotal}}, в том числе на рассмотрении: {{applicantMembersTotalActive}}
+- Отклоненных заявок: {{rejectedCountTotal}}
 - Гостей: {{guestMembersTotal}}, в том числе не подавших заявку: {{guestMembersTotalActive}}
 `;
